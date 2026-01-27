@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Configuración Global */
+@layer base {
+  html {
+    font-family: "Lexend", sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    /* Aplicamos los colores de fondo y texto base definidos en tailwind.config.js */
+    @apply bg-background-light text-slate-900 antialiased;
+  }
+
+  /* Estilos específicos cuando el modo oscuro está activo */
+  .dark body {
+    @apply bg-background-dark text-white;
+  }
+}
+
+/* Configuración para Material Symbols (Google Icons) */
+/* Esto asegura que los iconos se rendericen con el grosor y tamaño correcto */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  /* Tamaño base por defecto */
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+
+  /* Ajustes de variaciones de la fuente */
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+/* Personalización de la Barra de Desplazamiento (Scrollbar) */
+/* Para que coincida con el tema oscuro/rojo del sitio */
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-800 rounded-full transition-colors duration-300;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary;
+    /* Se pone roja al pasar el mouse */
+  }
+}
+
+/* Personalización de la selección de texto */
+/* Cuando el usuario selecciona texto, se ve rojo en lugar del azul por defecto */
+::selection {
+  @apply bg-primary/90 text-white;
+}
