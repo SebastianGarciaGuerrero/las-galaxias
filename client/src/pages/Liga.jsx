@@ -10,7 +10,6 @@ const Liga = () => {
     const [showAllScorers, setShowAllScorers] = useState(false); // Estado para el botón "Ver más"
 
     // Función para obtener datos del backend
-    // Función para obtener datos del backend
     const fetchLeagueData = async (leagueId) => {
         setLoading(true);
         try {
