@@ -1,0 +1,24 @@
+# Dependencias (Pesadísimas, nunca se suben)
+node_modules/
+
+# Seguridad (CRÍTICO: Aquí están tus claves)
+.env
+
+# Logs de errores
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs
+*.log
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Archivos del sistema operativo (Basura)
+.DS_Store
+Thumbs.db
+
+# Configuración de IDEs (Opcional)
+.vscode/
+.idea/
