@@ -10,10 +10,19 @@ const Liga = () => {
     const [showAllScorers, setShowAllScorers] = useState(false); // Estado para el botón "Ver más"
 
     // Función para obtener datos del backend
+    // Función para obtener datos del backend
     const fetchLeagueData = async (leagueId) => {
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:3001/api/leagues/${leagueId}/summary`);
+            // 👇 MAGIA AQUÍ:
+            // Si existe la variable de Vercel, usa esa. Si no, usa localhost (para cuando trabajas en tu PC).
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+            console.log("Conectando a:", API_URL); // Esto te ayudará a ver en consola a dónde está yendo
+
+            // Usamos la variable API_URL en lugar de escribir la dirección fija
+            const response = await fetch(`${API_URL}/api/leagues/${leagueId}/summary`);
+
             if (!response.ok) throw new Error('Error en la respuesta del servidor');
             const data = await response.json();
             setLeagueData(data);
