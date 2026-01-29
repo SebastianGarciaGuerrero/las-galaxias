@@ -19,7 +19,7 @@ const allowedOrigins = [
     process.env.FRONTEND_URL // Opcional: URL de Vercel en .env
 ];
 
-// Configuración CORS (Usamos solo esta, borramos la duplicada de abajo)
+// Configuración CORS
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
