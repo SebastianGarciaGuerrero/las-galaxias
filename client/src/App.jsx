@@ -1,64 +1,83 @@
-import { Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom'; // 1. Agregué Navigate, useLocation, Outlet
+import { useState, useEffect } from 'react'; // 2. Agregué useState, useEffect
+import { supabase } from './config/supabaseClient';
+
 import Home from './pages/Home';
 import Liga from './pages/Liga';
 import Partidos from './pages/Partidos';
 import SobreNosotros from './pages/SobreNosotros';
-import Noticias from './pages/Noticias'
+import Noticias from './pages/Noticias';
 
-// Footer Component (Internal for simplicity, or move to separate file)
-const Footer = () => (
-  <footer className="bg-slate-900 dark:bg-black text-white py-12 px-4 md:px-20 lg:px-40 mt-auto border-t border-slate-800">
-    <div className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-      <div className="col-span-1 md:col-span-1">
-        <div className="flex items-center gap-2 mb-6 text-primary">
-          <div className="size-8">
-            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-              <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
-            </svg>
-          </div>
-          <span className="font-black uppercase tracking-tight text-xl text-white">Galaxias</span>
-        </div>
-        <p className="text-slate-400 text-sm leading-relaxed">
-          Formando deportistas y personas desde 1985. El club del barrio, el club de tu vida.
-        </p>
-      </div>
-      {/* Links Sections... (Simplificado para brevedad, sigue el mismo patrón) */}
-      <div>
-        <h4 className="font-black uppercase mb-6 tracking-widest text-primary text-xs">Club</h4>
-        <ul className="flex flex-col gap-3 text-sm text-slate-300">
-          <li><a href="#" className="hover:text-white transition-colors">Historia</a></li>
-          <li><a href="#" className="hover:text-white transition-colors">Contacto</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 className="font-black uppercase mb-6 tracking-widest text-primary text-xs">Redes</h4>
-        <div className="flex gap-4">
-          <a className="size-10 rounded bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors" href="#"><span className="material-symbols-outlined">thumb_up</span></a>
-          <a className="size-10 rounded bg-slate-800 flex items-center justify-center hover:bg-primary transition-colors" href="#"><span className="material-symbols-outlined">share</span></a>
-        </div>
-      </div>
-    </div>
-    <div className="max-w-[1280px] mx-auto mt-12 pt-8 border-t border-slate-800 text-center text-slate-500 text-[10px] font-bold uppercase tracking-widest">
-      <p>© 2023 Club Deportivo Las Galaxias.</p>
-    </div>
-  </footer>
-);
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+
+import Login from './pages/admin/Login';
+import Dashboard from './pages/admin/Dashboard';
+
+// --- COMPONENTE DE PROTECCIÓN ---
+const ProtectedRoute = ({ children }) => {
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (loading) return <div className="p-10 text-center">Cargando...</div>;
+  if (!session) return <Navigate to="/admin" replace />;
+
+  return children;
+};
+
+// --- LAYOUT PÚBLICO (Para que Navbar y Footer solo salgan en la web pública) ---
+const PublicLayout = () => {
+  return (
+    <>
+      <Navbar />
+      <main className="flex flex-col items-center flex-1 w-full">
+        <Outlet /> {/* Aquí se renderizarán las páginas hijas (Home, Liga, etc) */}
+      </main>
+      <Footer />
+    </>
+  );
+};
 
 function App() {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300 font-display">
-      <Navbar />
-      <main className="flex flex-col items-center flex-1 w-full">
-        <Routes>
+
+      <Routes>
+        {/* GRUPO 1: Rutas Públicas (Tienen Navbar y Footer) */}
+        <Route element={<PublicLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/liga" element={<Liga />} />
           <Route path="/partidos" element={<Partidos />} />
           <Route path="/noticias" element={<Noticias />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
-        </Routes>
-      </main>
-      <Footer />
+        </Route>
+
+        {/* GRUPO 2: Rutas Admin (NO tienen Navbar ni Footer públicos) */}
+        <Route path="/admin" element={<Login />} />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+
     </div>
   );
 }

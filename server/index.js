@@ -1,91 +1,50 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { supabase } from './config/supabase.js';
+
+// Importar rutas
+import leaguesRoutes from './routes/leagues.routes.js';
+import newsRoutes from './routes/news.routes.js';
+import matchesRoutes from './routes/matches.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors()); // Permite que tu React (puerto 5173) hable con este Server (3001)
-app.use(express.json()); // Para entender JSON en los POST
+// --- Middlewares ---
+const allowedOrigins = [
+    'http://localhost:5173',
+    process.env.FRONTEND_URL // Opcional: URL de Vercel en .env
+];
 
-// --- RUTAS RÁPIDAS (Idealmente mover a carpeta /routes) ---
-
-// 1. Obtener datos de una Liga (Tabla y Goleadores)
-app.get('/api/leagues/:id/summary', async (req, res) => {
-    const { id } = req.params;
-    console.log(`📡 Solicitando datos para la liga: ${id}`);
-
-    // 1. Tabla de Posiciones
-    const { data: standings, error: errorStandings } = await supabase
-        .from('teams')
-        .select('*')
-        .eq('league_id', id)
-        .order('points', { ascending: false });
-
-    // 2. Goleadores (Top 10)
-    // OJO: Aquí hacemos algo clave. Pedimos los datos del jugador Y el nombre de su equipo
-    const { data: scorers, error: errorScorers } = await supabase
-        .from('players')
-        .select(`
-            *,
-            teams (name) 
-        `)
-        .eq('teams.league_id', id) // Esto filtra jugadores por la liga del equipo
-        .order('goals', { ascending: false })
-        .limit(10);
-
-    if (errorStandings || errorScorers) {
-        console.error("Error Supabase:", errorStandings || errorScorers);
-        return res.status(500).json({ error: 'Error fetching data' });
+// Configuración CORS (Usamos solo esta, borramos la duplicada de abajo)
+app.use(cors({
+    origin: function (origin, callback) {
+        // Permitir peticiones sin origen (como Postman) o si está en la lista
+        // El "|| true" es un comodín temporal para desarrollo
+        if (!origin || allowedOrigins.includes(origin) || true) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
     }
+}));
 
-    // Formateamos un poco para que el frontend reciba "team: 'Peumos FC'" en vez de un objeto anidado
-    const formattedScorers = scorers.map(p => ({
-        ...p,
-        team: p.teams?.name,
-        img: p.photo_url || "https://i.pravatar.cc/150?u=" + p.id // Imagen por defecto si no hay foto
-    }));
+app.use(express.json()); // Para entender JSON
 
-    res.json({ standings, scorers: formattedScorers });
+// --- USAR RUTAS ---
+app.use('/api/leagues', leaguesRoutes);
+app.use('/api/news', newsRoutes);
+app.use('/api/matches', matchesRoutes);
+app.use('/api/upload', uploadRoutes); // Aquí ya se encarga el archivo upload.routes.js de Multer
+
+// --- ROOT (Para verificar que el server vive) ---
+app.get('/', (req, res) => {
+    res.send('🚀 API Club Deportivo Las Galaxias funcionando');
 });
 
-// 2. Obtener Noticias
-app.get('/api/news', async (req, res) => {
-    const { data, error } = await supabase
-        .from('news')
-        .select('*')
-        .order('publish_date', { ascending: false });
-
-    if (error) return res.status(500).json({ error });
-    res.json(data);
-});
-
-// 3. Obtener Partidos (Fixture)
-app.get('/api/matches', async (req, res) => {
-    const { league_id } = req.query; // ?league_id=...
-
-    let query = supabase
-        .from('matches')
-        .select(`
-            *,
-            home_team:teams!home_team_id(name, short_name, shield_url),
-            away_team:teams!away_team_id(name, short_name, shield_url)
-        `)
-        .order('match_date', { ascending: true });
-
-    if (league_id) {
-        query = query.eq('league_id', league_id);
-    }
-
-    const { data, error } = await query;
-    if (error) return res.status(500).json({ error });
-    res.json(data);
-});
-
+// --- LISTEN (Configuración para Vercel) ---
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
