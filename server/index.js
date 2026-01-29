@@ -15,20 +15,21 @@ const app = express();
 // --- Middlewares ---
 const allowedOrigins = [
     'http://localhost:5173',
+    'https://las-galaxias.vercel.app',
     process.env.FRONTEND_URL // Opcional: URL de Vercel en .env
 ];
 
 // Configuración CORS (Usamos solo esta, borramos la duplicada de abajo)
 app.use(cors({
     origin: function (origin, callback) {
-        // Permitir peticiones sin origen (como Postman) o si está en la lista
-        // El "|| true" es un comodín temporal para desarrollo
-        if (!origin || allowedOrigins.includes(origin) || true) {
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
+            console.log("🚫 Origen bloqueado por CORS:", origin); // Esto ayuda a depurar en los logs
             callback(new Error('Not allowed by CORS'));
         }
-    }
+    },
+    credentials: true // Importante para cookies/auth si usas
 }));
 
 app.use(express.json()); // Para entender JSON
