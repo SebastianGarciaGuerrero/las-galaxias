@@ -3,6 +3,7 @@ import { supabase } from '../../config/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 
 import NewsManager from './NewsManager';
+import MatchesManager from './MatchesManager';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -31,7 +32,10 @@ const Dashboard = () => {
                     <button className="w-full text-left px-4 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors font-medium">
                         🏆 Liga & Goleadores
                     </button>
-                    <button className="w-full text-left px-4 py-3 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded-lg transition-colors font-medium">
+                    <button
+                        onClick={() => setActiveTab('matches')} // <--- CLAVE: Cambia el estado a 'matches'
+                        className={`w-full text-left px-4 py-3 rounded-lg font-bold transition-colors ${activeTab === 'matches' ? 'bg-primary text-white' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
                         ⚽ Partidos
                     </button>
                 </nav>
@@ -53,6 +57,7 @@ const Dashboard = () => {
                 )}
 
                 {activeTab === 'news' && <NewsManager />}
+                {activeTab === 'matches' && <MatchesManager />}
 
             </main>
         </div>

@@ -22,8 +22,8 @@ const SobreNosotros = () => {
                 },
                 body: JSON.stringify({
                     ...data,
-                    _subject: `Nuevo Mensaje Web: ${data.subject || 'Consulta General'}`, // Asunto del correo
-                    _captcha: "false" // Desactivar captcha para hacerlo más rápido
+                    _subject: `Nuevo Mensaje Web: ${data.subject || 'Consulta General'}`,
+                    _captcha: "false"
                 })
             });
 

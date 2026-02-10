@@ -1,80 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Noticias = () => {
-    // CATEGORÍAS PARA FILTRAR
+    const [news, setNews] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('Todas');
+
+    // Categorías del filtro
     const categories = ['Todas', 'Primer Equipo', 'Liga Martes', 'Liga Viernes', 'Social'];
 
-    // BASE DE DATOS MOCK DE NOTICIAS
-    const newsData = [
-        {
-            id: 1,
-            title: "Gran Final: Galaxias vs Cosmos este Sábado",
-            category: "Primer Equipo",
-            date: "26 Oct, 2023",
-            excerpt: "Se define el campeonato en una jornada que promete ser histórica. El estadio abrirá sus puertas desde las 17:00 hrs.",
-            image: "https://images.unsplash.com/photo-1574629810360-7efbbe4384d4?q=80&w=2660&auto=format&fit=crop",
-            author: "Prensa Galáctica",
-            featured: true // Esta es la noticia principal
-        },
-        {
-            id: 2,
-            title: "Conoce a los Peumos: Guardianes del Bosque",
-            category: "Liga Martes",
-            date: "24 Oct, 2023",
-            excerpt: "En nuestra sección educativa, profundizamos en la importancia del Peumo en la quebrada de la zona central.",
-            image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2560&auto=format&fit=crop",
-            author: "Comité Ambiental",
-            featured: false
-        },
-        {
-            id: 3,
-            title: "Resultados Fecha 5: SuperLiga de Viernes",
-            category: "Liga Viernes",
-            date: "22 Oct, 2023",
-            excerpt: "Nebula Utd da la sorpresa y baja al puntero. Revisa todos los marcadores y la tabla actualizada.",
-            image: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=2560&auto=format&fit=crop",
-            author: "Estadísticas CDLG",
-            featured: false
-        },
-        {
-            id: 4,
-            title: "Campaña de Invierno: Éxito Total",
-            category: "Social",
-            date: "20 Oct, 2023",
-            excerpt: "Gracias a los socios, logramos reunir más de 500 prendas para los vecinos del barrio.",
-            image: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=2070&auto=format&fit=crop",
-            author: "Directiva",
-            featured: false
-        },
-        {
-            id: 5,
-            title: "Entrenamiento a Puertas Abiertas",
-            category: "Primer Equipo",
-            date: "18 Oct, 2023",
-            excerpt: "Ven a apoyar al plantel antes del clásico. Habrá firma de autógrafos y sorteos.",
-            image: "https://images.unsplash.com/photo-1518605348400-437731db680b?q=80&w=2070&auto=format&fit=crop",
-            author: "Prensa Galáctica",
-            featured: false
-        },
-    ];
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-    // Lógica de Filtrado
+    // 1. Cargar noticias desde el Backend
+    useEffect(() => {
+        const fetchNews = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/news`);
+                const data = await res.json();
+
+                // Ordenamos por fecha (la más nueva primero)
+                // Aseguramos que data sea un array antes de ordenar
+                if (Array.isArray(data)) {
+                    const sortedNews = data.sort((a, b) => new Date(b.publish_date) - new Date(a.publish_date));
+                    setNews(sortedNews);
+                }
+            } catch (error) {
+                console.error("Error cargando noticias:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchNews();
+    }, []);
+
+    // 2. Lógica de Filtrado (Solo backend)
     const filteredNews = filter === 'Todas'
-        ? newsData
-        : newsData.filter(n => n.category === filter);
+        ? news
+        : news.filter(item => item.category === filter);
 
-    // Separar la destacada del resto (solo si estamos en 'Todas', si no, mostramos lista normal)
-    const featuredArticle = newsData.find(n => n.featured);
+    // 3. Separar: La más nueva es "Featured", el resto son lista
+    // Si hay filtro activo, no mostramos featured gigante, mostramos todo en grilla
+    const featuredArticle = filter === 'Todas' && filteredNews.length > 0 ? filteredNews[0] : null;
+
     const listArticles = filter === 'Todas'
-        ? filteredNews.filter(n => !n.featured)
-        : filteredNews;
+        ? filteredNews.slice(1) // Si es 'Todas', saltamos la primera (porque ya sale gigante)
+        : filteredNews; // Si hay filtro, mostramos todas las que coincidan en la grilla
 
     return (
         <div className="w-full animate-fade-in pb-20">
 
-            {/* HEADER DE SECCIÓN */}
+            {/* HEADER */}
             <div className="bg-slate-900 dark:bg-black py-12 px-4 text-center border-b border-slate-800">
                 <span className="text-primary font-black uppercase tracking-widest text-xs mb-2 block">Actualidad</span>
                 <h1 className="text-4xl md:text-6xl font-black uppercase text-white mb-4">Noticias del Club</h1>
@@ -92,8 +67,8 @@ const Noticias = () => {
                             key={cat}
                             onClick={() => setFilter(cat)}
                             className={`px-4 py-2 rounded-full text-sm font-bold uppercase transition-all ${filter === cat
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                                ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
                                 }`}
                         >
                             {cat}
@@ -101,74 +76,139 @@ const Noticias = () => {
                     ))}
                 </div>
 
-                {/* NOTICIA DESTACADA (HERO) - Solo se ve si el filtro es "Todas" */}
-                {filter === 'Todas' && featuredArticle && (
-                    <div className="mb-12 group relative h-[400px] md:h-[500px] w-full overflow-hidden rounded-2xl shadow-2xl cursor-pointer">
-                        <img
-                            src={featuredArticle.image}
-                            alt={featuredArticle.title}
-                            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
-                        <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full md:w-2/3">
-                            <span className="bg-primary text-white text-xs font-black uppercase px-2 py-1 rounded mb-3 inline-block">
-                                {featuredArticle.category}
-                            </span>
-                            <h2 className="text-3xl md:text-5xl font-black text-white uppercase leading-tight mb-4 drop-shadow-lg">
-                                {featuredArticle.title}
-                            </h2>
-                            <p className="text-slate-200 text-lg line-clamp-2 mb-6 hidden md:block">
-                                {featuredArticle.excerpt}
-                            </p>
-                            <div className="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                <span>{featuredArticle.date}</span>
-                                <span>•</span>
-                                <span>Por {featuredArticle.author}</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* GRILLA DE NOTICIAS */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {listArticles.map((news) => (
-                        <article key={news.id} className="group flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/50 transition-all duration-300">
-                            {/* Imagen Card */}
-                            <div className="relative h-48 overflow-hidden">
+                {loading ? (
+                    <div className="text-center py-20 text-slate-500 font-bold">Cargando noticias...</div>
+                ) : (
+                    <>
+                        {/* NOTICIA DESTACADA (Solo la más reciente) */}
+                        {featuredArticle && (
+                            <div className="mb-12 group relative h-[400px] md:h-[500px] w-full overflow-hidden rounded-2xl shadow-2xl cursor-pointer">
                                 <img
-                                    src={news.image}
-                                    alt={news.title}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                    src={featuredArticle.image_url}
+                                    alt={featuredArticle.title}
+                                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
-                                <div className="absolute top-4 left-4">
-                                    <span className="bg-slate-900 text-white text-[10px] font-black uppercase px-2 py-1 rounded">
-                                        {news.category}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                                <div className="absolute bottom-0 left-0 p-6 md:p-12 w-full md:w-2/3">
+                                    <span className="bg-primary text-white text-xs font-black uppercase px-2 py-1 rounded mb-3 inline-block">
+                                        {featuredArticle.category || 'General'}
                                     </span>
+                                    <h2 className="text-3xl md:text-5xl font-black text-white uppercase leading-tight mb-4 drop-shadow-lg">
+                                        {featuredArticle.title}
+                                    </h2>
+                                    <p className="text-slate-200 text-lg line-clamp-2 mb-6 hidden md:block">
+                                        {featuredArticle.summary}
+                                    </p>
+                                    <div className="flex items-center gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                        <span>{new Date(featuredArticle.publish_date).toLocaleDateString()}</span>
+                                    </div>
                                 </div>
                             </div>
+                        )}
 
-                            {/* Contenido Card */}
-                            <div className="p-6 flex flex-col flex-1">
-                                <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase mb-3">
-                                    <span className="material-symbols-outlined text-sm">calendar_month</span> {news.date}
-                                </div>
-                                <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white mb-3 leading-tight group-hover:text-primary transition-colors">
-                                    {news.title}
-                                </h3>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-4 flex-1">
-                                    {news.excerpt}
-                                </p>
-                                <Link
-                                    to="#"
-                                    className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-widest text-primary hover:translate-x-1 transition-transform"
-                                >
-                                    Leer Noticia <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        {/* GRILLA DE NOTICIAS + TARJETA FIJA DE LIGA */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                            {/* Mapeo de noticias reales */}
+                            {listArticles.map((news) => (
+                                <article key={news.id} className="group flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/50 transition-all duration-300">
+                                    <div className="relative h-48 overflow-hidden">
+                                        <img
+                                            src={news.image_url}
+                                            alt={news.title}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                        <div className="absolute top-4 left-4">
+                                            <span className="bg-slate-900 text-white text-[10px] font-black uppercase px-2 py-1 rounded">
+                                                {news.category || 'General'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 flex flex-col flex-1">
+                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase mb-3">
+                                            <span className="material-symbols-outlined text-sm">calendar_month</span>
+                                            {new Date(news.publish_date).toLocaleDateString()}
+                                        </div>
+                                        <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white mb-3 leading-tight group-hover:text-primary transition-colors">
+                                            {news.title}
+                                        </h3>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-4 flex-1">
+                                            {news.summary}
+                                        </p>
+                                        <button className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-widest text-primary hover:translate-x-1 transition-transform self-start">
+                                            Leer Noticia <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                        </button>
+                                    </div>
+                                </article>
+                            ))}
+
+                            {/* --- TARJETA FIJA / ESTATICA DE LA LIGA (Siempre visible) --- */}
+                            {/* Solo se muestra si no se está filtrando algo que la excluya, o siempre si quieres */}
+                            {(filter === 'Todas' || filter === 'Liga Martes') && (
+                                <Link to="/liga" className="group flex flex-col bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden hover:border-primary hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 relative">
+                                    <div className="relative h-48 overflow-hidden flex items-center justify-center bg-slate-200 dark:bg-slate-900 group-hover:bg-slate-100 transition-colors">
+                                        <span className="material-symbols-outlined text-6xl text-slate-400 group-hover:text-primary transition-colors">emoji_events</span>
+                                        <div className="absolute top-4 left-4">
+                                            <span className="bg-primary text-white text-[10px] font-black uppercase px-2 py-1 rounded">
+                                                Martes
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 flex flex-col flex-1">
+                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase mb-3">
+                                            <span className="material-symbols-outlined text-sm">update</span> Siempre Actualizado
+                                        </div>
+                                        <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white mb-3 leading-tight group-hover:text-primary transition-colors">
+                                            Tablas de Posiciones
+                                        </h3>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-4 flex-1">
+                                            Revisa los puntajes, goleadores y programación de la Liga de los Martes.
+                                        </p>
+                                        <span className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-widest text-primary hover:translate-x-1 transition-transform">
+                                            Ver Tablas <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                        </span>
+                                    </div>
                                 </Link>
-                            </div>
-                        </article>
-                    ))}
-                </div>
+                            )}
 
+                            {(filter === 'Todas' || filter === 'Liga Viernes') && (
+                                <Link to="/liga" className="group flex flex-col bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden hover:border-primary hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 relative">
+                                    <div className="relative h-48 overflow-hidden flex items-center justify-center bg-slate-200 dark:bg-slate-900 group-hover:bg-slate-100 transition-colors">
+                                        <span className="material-symbols-outlined text-6xl text-slate-400 group-hover:text-primary transition-colors">emoji_events</span>
+                                        <div className="absolute top-4 left-4">
+                                            <span className="bg-primary text-white text-[10px] font-black uppercase px-2 py-1 rounded">
+                                                Viernes
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 flex flex-col flex-1">
+                                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase mb-3">
+                                            <span className="material-symbols-outlined text-sm">update</span> Siempre Actualizado
+                                        </div>
+                                        <h3 className="text-xl font-black uppercase text-slate-900 dark:text-white mb-3 leading-tight group-hover:text-primary transition-colors">
+                                            Tablas de Posiciones
+                                        </h3>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-3 mb-4 flex-1">
+                                            Revisa los puntajes, goleadores y programación de la Super Liga de los Viernes.
+                                        </p>
+                                        <span className="inline-flex items-center gap-1 text-xs font-black uppercase tracking-widest text-primary hover:translate-x-1 transition-transform">
+                                            Ver Tablas <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                        </span>
+                                    </div>
+                                </Link>
+                            )}
+
+                            {/* MENSAJE SI NO HAY NOTICIAS REALES */}
+                            {news.length === 0 && (
+                                <div className="col-span-full py-10 text-center bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200">
+                                    <p className="text-slate-500 font-bold">No hay noticias publicadas aún.</p>
+                                    <p className="text-xs text-slate-400 mt-1">Sube la primera desde el Panel de Admin.</p>
+                                </div>
+                            )}
+
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
