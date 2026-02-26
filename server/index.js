@@ -7,6 +7,7 @@ import leaguesRoutes from './routes/leagues.routes.js';
 import newsRoutes from './routes/news.routes.js';
 import matchesRoutes from './routes/matches.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import leagueAdminRoutes from './routes/league_admin.routes.js';
 
 dotenv.config();
 
@@ -38,7 +39,8 @@ app.use(express.json()); // Para entender JSON
 app.use('/api/leagues', leaguesRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/matches', matchesRoutes);
-app.use('/api/upload', uploadRoutes); // Aquí ya se encarga el archivo upload.routes.js de Multer
+app.use('/api/upload', uploadRoutes);
+app.use('/api/league-admin', leagueAdminRoutes); 
 
 // --- ROOT (Para verificar que el server vive) ---
 app.get('/', (req, res) => {
