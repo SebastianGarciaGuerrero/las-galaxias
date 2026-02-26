@@ -51,7 +51,8 @@ const Partidos = () => {
                 const data = await res.json();
 
                 const formattedData = data.map(m => {
-                    const dateObj = new Date(m.date);
+                    // CAMBIO: Ahora usamos match_date
+                    const dateObj = new Date(m.match_date);
                     return {
                         ...m,
                         home: m.is_local ? (m.category === 'seniors' ? 'Galaxias Sr' : 'Galaxias TC') : m.rival,
@@ -59,8 +60,10 @@ const Partidos = () => {
                         dayDisplay: dateObj.getDate(),
                         monthDisplay: dateObj.toLocaleString('es-ES', { month: 'short' }).replace('.', ''),
                         timeDisplay: dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-                        fullDate: m.date,
-                        competition: m.competition || (m.category === 'seniors' ? 'Liga Seniors' : 'Campeonato')
+                        fullDate: m.match_date, // CAMBIO: match_date
+                        competition: m.competition || (m.category === 'seniors' ? 'Liga Seniors' : 'Campeonato'),
+                        // CAMBIO: Adaptamos el status en inglés de la base de datos al español para tu UI
+                        statusUI: m.status === 'finished' ? 'Finalizado' : 'Próximo'
                     };
                 });
                 setMatches(formattedData);
