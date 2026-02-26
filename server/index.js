@@ -17,6 +17,7 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:5173',
     'https://las-galaxias.vercel.app',
+    'https://www.lasgalaxias.cl',
     process.env.FRONTEND_URL // Opcional: URL de Vercel en .env
 ];
 
