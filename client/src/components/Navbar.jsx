@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import logoColor from '../assets/logoLGColor.svg';
+import logoClaro from '../assets/logo.svg';
 
 const Navbar = () => {
     // Estado para el tema oscuro/claro
@@ -33,13 +35,22 @@ const Navbar = () => {
             <div className="flex items-center justify-between max-w-[1280px] mx-auto whitespace-nowrap relative">
 
                 {/* Logo */}
-                <Link to="/" className="flex items-center gap-4 text-primary group z-50" onClick={closeMenu}>
-                    <div className="size-8 group-hover:scale-110 transition-transform">
-                        <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                            <path clipRule="evenodd" d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z" fill="currentColor" fillRule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <h2 className="text-slate-900 dark:text-white text-xl font-black leading-tight tracking-[-0.015em] uppercase hidden md:block">CD Las Galaxias</h2>
+                <Link to="/" className="block py-1 hover:-translate-y-1 transition-transform">
+
+                    {/* 1. LOGO MODO CLARO (Se muestra por defecto, se oculta en modo oscuro) */}
+                    <img
+                        src={logoColor}
+                        alt="Logo CD Las Galaxias"
+                        className="h-12 md:h-16 w-auto object-contain block dark:hidden"
+                    />
+
+                    {/* 2. LOGO MODO OSCURO (Está oculto por defecto, se muestra en modo oscuro) */}
+                    <img
+                        src={logoClaro}
+                        alt="Logo CD Las Galaxias"
+                        className="h-12 md:h-16 w-auto object-contain hidden dark:block"
+                    />
+
                 </Link>
 
                 {/* Navigation (Desktop) - Se oculta en móvil */}

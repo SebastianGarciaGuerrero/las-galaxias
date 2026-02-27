@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import FutbolLoader from '../components/FutbolLoader';
 
 // --- 1. COMPONENTE DE CUENTA REGRESIVA (Reloj) ---
 const Countdown = ({ targetDate }) => {
@@ -153,7 +154,7 @@ const Partidos = () => {
                 <p className="text-slate-500 dark:text-slate-400 mt-2">Temporada 2026</p>
             </div>
 
-            {loading ? <div className="text-center py-20 text-slate-500">Cargando...</div> : (
+            {loading ? <FutbolLoader texto="Preparando el fixture..." /> : (
                 <>
                     {/* SECCIÓN SENIORS */}
                     {seniorsMatches.length > 0 && (

@@ -7,6 +7,7 @@ import Liga from './pages/Liga';
 import Partidos from './pages/Partidos';
 import SobreNosotros from './pages/SobreNosotros';
 import Noticias from './pages/Noticias';
+import NoticiaDetalle from './pages/NoticiaDetalle';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -62,6 +63,7 @@ function App() {
           <Route path="/liga" element={<Liga />} />
           <Route path="/partidos" element={<Partidos />} />
           <Route path="/noticias" element={<Noticias />} />
+          <Route path="/noticias/:id" element={<NoticiaDetalle />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
         </Route>
 

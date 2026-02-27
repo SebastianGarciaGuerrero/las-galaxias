@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import FutbolLoader from '../components/FutbolLoader';
 
 const Noticias = () => {
     const [news, setNews] = useState([]);
@@ -77,12 +78,12 @@ const Noticias = () => {
                 </div>
 
                 {loading ? (
-                    <div className="text-center py-20 text-slate-500 font-bold">Cargando noticias...</div>
+                    <FutbolLoader texto="Preparando las noticias..." />
                 ) : (
                     <>
                         {/* NOTICIA DESTACADA (Solo la más reciente) */}
                         {featuredArticle && (
-                            <div className="mb-12 group relative h-[400px] md:h-[500px] w-full overflow-hidden rounded-2xl shadow-2xl cursor-pointer">
+                            <Link to={`/noticias/${featuredArticle.id}`} className="mb-12 group relative h-[400px] md:h-[500px] w-full overflow-hidden rounded-2xl shadow-2xl cursor-pointer block">
                                 <img
                                     src={featuredArticle.image_url}
                                     alt={featuredArticle.title}
@@ -103,7 +104,7 @@ const Noticias = () => {
                                         <span>{new Date(featuredArticle.publish_date).toLocaleDateString()}</span>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         )}
 
                         {/* GRILLA DE NOTICIAS + TARJETA FIJA DE LIGA */}
@@ -111,7 +112,11 @@ const Noticias = () => {
 
                             {/* Mapeo de noticias reales */}
                             {listArticles.map((news) => (
-                                <article key={news.id} className="group flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-xl hover:border-primary/50 transition-all duration-300">
+                                <Link
+                                    to={`/noticias/${news.id}`}
+                                    key={news.id}
+                                    className="group flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 transition-all duration-300"
+                                >
                                     <div className="relative h-48 overflow-hidden">
                                         <img
                                             src={news.image_url}
@@ -139,7 +144,7 @@ const Noticias = () => {
                                             Leer Noticia <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                         </button>
                                     </div>
-                                </article>
+                                </Link>
                             ))}
 
                             {/* --- TARJETA FIJA / ESTATICA DE LA LIGA (Siempre visible) --- */}
@@ -202,7 +207,7 @@ const Noticias = () => {
                             {news.length === 0 && (
                                 <div className="col-span-full py-10 text-center bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200">
                                     <p className="text-slate-500 font-bold">No hay noticias publicadas aún.</p>
-                                    <p className="text-xs text-slate-400 mt-1">Sube la primera desde el Panel de Admin.</p>
+                                    <p className="text-xs text-slate-400 mt-1">Pronto estaremos actualizando nuevo contenido.</p>
                                 </div>
                             )}
 

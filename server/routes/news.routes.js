@@ -60,4 +60,16 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'Eliminado' });
 });
 
+// OBTENER UNA SOLA NOTICIA POR SU ID
+router.get('/:id', async (req, res) => {
+    const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('id', req.params.id)
+        .single(); // .single() le dice que solo traiga un objeto, no un array
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
 export default router;

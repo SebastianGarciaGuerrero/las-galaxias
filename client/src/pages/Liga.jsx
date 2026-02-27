@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import FutbolLoader from '../components/FutbolLoader';
 
 const Liga = () => {
-    const [leaguesList, setLeaguesList] = useState([]); // Lista de torneos
+    const [leaguesList, setLeaguesList] = useState([]);
     const [loadingLeagues, setLoadingLeagues] = useState(true);
 
     const [selectedLeague, setSelectedLeague] = useState(null);
@@ -119,15 +120,10 @@ const Liga = () => {
     }
 
     // ==========================================
-    // VISTA DE CARGA INICIAL
+    // VISTA DE CARGA INICIAL (Usando el nuevo componente)
     // ==========================================
     if (loadingLeagues) {
-        return (
-            <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-4">
-                <div className="size-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Cargando Competiciones...</p>
-            </div>
-        );
+        return <FutbolLoader texto="Cargando Competiciones..." />;
     }
 
     // ==========================================
@@ -177,14 +173,10 @@ const Liga = () => {
     }
 
     // ==========================================
-    // 2. VISTA DE CARGA DE DETALLE
+    // 2. VISTA DE CARGA DE DETALLE (Usando el nuevo componente)
     // ==========================================
     if (loadingDetails) {
-        return (
-            <div className="flex h-[50vh] w-full items-center justify-center">
-                <div className="size-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            </div>
-        );
+        return <FutbolLoader texto="Entrando a la liga..." />;
     }
 
     // ==========================================

@@ -84,7 +84,7 @@ const Footer = () => {
                 </p>
 
                 <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Desarrollado con <span className="text-red-500 mx-1">❤</span> por <a href="https://sebastiangarcia.cl" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-primary transition-colors border-b border-transparent hover:border-primary pb-0.5">sebastiangarcia.cl</a>
+                    Desarrollado  <span className="text-red-500 mx-1">X</span> <a href="https://sebastiangarcia.cl" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-primary transition-colors border-b border-transparent hover:border-primary pb-0.5">sebastiangarcia.cl</a>
                 </div>
             </div>
         </footer>
