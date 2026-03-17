@@ -52,9 +52,9 @@ const Home = () => {
 
             {/* 1. HERO SECTION (Portada Mejorada) */}
             {/* 1. HERO SECTION */}
-            <div className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden w-screen -mx-6 lg:-mx-12">
+            <div className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
                 {/* Degradado más suave para que el texto resalte mejor y se funda con la página */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-slate-50 dark:to-slate-900 z-10"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-background-light dark:to-background-dark z-10"></div>
 
                 <img
                     src="https://res.cloudinary.com/du4oddnjl/image/upload/v1773720639/DJI_20260203214638_0295_D.JPG_u9ccia.jpg"
@@ -112,16 +112,29 @@ const Home = () => {
                                 const clubName = match.category === 'seniors' ? 'Galaxias Sr' : 'Galaxias TC';
 
                                 return (
-                                    <div key={match.id} className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary hover:shadow-md transition-all flex items-center justify-between group cursor-pointer">
-                                        <div className="flex flex-col items-center text-center w-24">
-                                            <span className="text-4xl font-black text-slate-300 dark:text-slate-600 leading-none group-hover:text-primary transition-colors">{dateObj.getDate()}</span>
-                                            <span className="text-xs font-bold uppercase text-primary bg-primary/10 px-2 py-1 rounded mt-2">{dateObj.toLocaleString('es-ES', { month: 'short' }).replace('.', '')}</span>
+                                    <div key={match.id} className="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary hover:shadow-md transition-all flex items-center justify-between group cursor-pointer gap-2">
+
+                                        {/* Fecha */}
+                                        <div className="flex flex-col items-center text-center w-14 md:w-24 shrink-0">
+                                            <span className="text-2xl md:text-4xl font-black text-slate-300 dark:text-slate-600 leading-none group-hover:text-primary transition-colors">
+                                                {dateObj.getDate()}
+                                            </span>
+                                            <span className="text-[10px] md:text-xs font-bold uppercase text-primary bg-primary/10 px-2 py-1 rounded mt-2">
+                                                {dateObj.toLocaleString('es-ES', { month: 'short' }).replace('.', '')}
+                                            </span>
                                         </div>
 
-                                        <div className="flex-1 px-4 flex justify-between items-center">
-                                            <span className={`font-black uppercase truncate text-right flex-1 text-lg ${isLocal ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{isLocal ? clubName : match.rival}</span>
-                                            <span className="text-slate-400 font-black px-4 text-xl group-hover:scale-125 transition-transform">VS</span>
-                                            <span className={`font-black uppercase truncate text-left flex-1 text-lg ${!isLocal ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>{!isLocal ? clubName : match.rival}</span>
+                                        {/* Equipos */}
+                                        <div className="flex-1 flex justify-between items-center min-w-0">
+                                            <span className={`font-black uppercase text-right flex-1 text-sm md:text-lg truncate ${isLocal ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
+                                                {isLocal ? clubName : match.rival}
+                                            </span>
+                                            <span className="text-slate-400 font-black px-2 md:px-4 text-sm md:text-xl shrink-0">
+                                                VS
+                                            </span>
+                                            <span className={`font-black uppercase text-left flex-1 text-sm md:text-lg truncate ${!isLocal ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
+                                                {!isLocal ? clubName : match.rival}
+                                            </span>
                                         </div>
                                     </div>
                                 );

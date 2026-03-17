@@ -11,6 +11,7 @@ import NoticiaDetalle from './pages/NoticiaDetalle';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 
 import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
@@ -44,7 +45,7 @@ const PublicLayout = () => {
   return (
     <>
       <Navbar />
-      <main className="flex flex-col items-center flex-1 w-full">
+      <main className="flex flex-col flex-1 w-full">
         <Outlet /> {/* Aquí se renderizarán las páginas hijas (Home, Liga, etc) */}
       </main>
       <Footer />
@@ -55,7 +56,7 @@ const PublicLayout = () => {
 function App() {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-300 font-display">
-
+      <ScrollToTop />
       <Routes>
         {/* GRUPO 1: Rutas Públicas (Tienen Navbar y Footer) */}
         <Route element={<PublicLayout />}>
