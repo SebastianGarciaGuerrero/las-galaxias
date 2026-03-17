@@ -56,7 +56,7 @@ const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-slate-50 dark:to-slate-900 z-10"></div>
 
                 <img
-                    src="https://images.unsplash.com/photo-1518605348400-437731db680b?q=80&w=2070&auto=format&fit=crop"
+                    src="https://res.cloudinary.com/du4oddnjl/image/upload/v1773720639/DJI_20260203214638_0295_D.JPG_u9ccia.jpg"
                     alt="Club Deportivo Las Galaxias"
                     className="absolute inset-0 w-full h-full object-cover"
                 />
@@ -75,7 +75,7 @@ const Home = () => {
                         <Link to="/partidos" className="bg-primary text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg hover:-translate-y-1">
                             Ver Fixture
                         </Link>
-                        <Link to="/ligas" className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full font-black uppercase tracking-widest hover:bg-white/20 transition-colors hover:-translate-y-1">
+                        <Link to="/liga" className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full font-black uppercase tracking-widest hover:bg-white/20 transition-colors hover:-translate-y-1">
                             Nuestras Ligas
                         </Link>
                     </div>

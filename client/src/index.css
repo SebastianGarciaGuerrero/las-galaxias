@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,7 +7,8 @@
 /* Configuración Global */
 @layer base {
   html {
-    font-family: "Lexend", sans-serif;
+    /* ¡AQUÍ ESTÁ EL CAMBIO! Adiós Lexend, hola Outfit */
+    font-family: 'Outfit', sans-serif;
     scroll-behavior: smooth;
   }
 
