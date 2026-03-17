@@ -13,11 +13,7 @@ export default {
                 "background-dark": "#1a0a0a", // Un negro con un tinte muy leve de rojo para elegancia
             },
             fontFamily: {
-                // Juntamos todo en un solo bloque. 
-                // Outfit será la reina de la página ahora.
                 sans: ['Outfit', 'sans-serif'],
-                display: ['Outfit', 'sans-serif'],
-                body: ['Outfit', 'sans-serif'],
             },
         },
     },

@@ -48,10 +48,11 @@ const Home = () => {
     }
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-900 min-h-screen pb-20">
+        <div className="bg-background-light dark:bg-background-dark min-h-screen pb-20">
 
             {/* 1. HERO SECTION (Portada Mejorada) */}
-            <div className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+            {/* 1. HERO SECTION */}
+            <div className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden w-screen -mx-6 lg:-mx-12">
                 {/* Degradado más suave para que el texto resalte mejor y se funda con la página */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-slate-50 dark:to-slate-900 z-10"></div>
 
@@ -83,7 +84,7 @@ const Home = () => {
             </div>
 
             {/* Contenedor Principal (Ya no se sobrepone al Hero) */}
-            <div className="max-w-[1280px] mx-auto px-4 py-12 relative z-30">
+            <div className="max-w-[1536px] mx-auto px-6 lg:px-12 py-12 relative z-30">
 
                 {/* 2. PRÓXIMOS PARTIDOS DEL CLUB (TC y Seniors) */}
                 <section className="mb-24">
