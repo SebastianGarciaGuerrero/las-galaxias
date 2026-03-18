@@ -185,7 +185,7 @@ const Home = () => {
 
                         <div className="flex flex-col gap-6">
                             {leagues.map(league => (
-                                <Link to={`/ligas?id=${league.id}`} key={league.id} className="group relative rounded-2xl overflow-hidden h-56 border border-slate-700 shadow-md block">
+                                <Link to={`/liga?category=${league.category}`} key={league.id} className="group relative rounded-2xl overflow-hidden h-56 border border-slate-700 shadow-md block">
                                     <img src={league.image_url || 'https://via.placeholder.com/400x300'} alt={league.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent"></div>
 

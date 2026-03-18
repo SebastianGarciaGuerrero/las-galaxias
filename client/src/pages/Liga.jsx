@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import FutbolLoader from '../components/FutbolLoader';
 
 const Liga = () => {
@@ -11,6 +12,7 @@ const Liga = () => {
     const [showAllScorers, setShowAllScorers] = useState(false);
     const [leagueMatches, setLeagueMatches] = useState([]);
     const [expandedRound, setExpandedRound] = useState(null);
+    const [searchParams] = useSearchParams();
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -70,6 +72,27 @@ const Liga = () => {
         setLeagueData(null);
         setShowAllScorers(false);
     };
+
+    useEffect(() => {
+        if (leaguesList.length === 0) return;
+
+        const idFromUrl = searchParams.get('id');
+        const categoryFromUrl = searchParams.get('category');
+
+        if (idFromUrl) {
+            const league = leaguesList.find(l => String(l.id) === String(idFromUrl));
+            if (league) setSelectedLeague(league);
+        } else if (categoryFromUrl) {
+            // Busca la liga activa de esa categoría
+            const activeLeague = leaguesList.find(l =>
+                l.status === 'active' && l.category === categoryFromUrl
+            );
+            if (activeLeague) {
+                setSelectedLeague(activeLeague);
+            }
+            // Si no hay activa, no selecciona nada y muestra la página normal
+        }
+    }, [leaguesList]);
 
     // --- FILTRADO ---
     const activeLeagues = leaguesList.filter(l => l.status === 'active' || l.status === 'upcoming');
