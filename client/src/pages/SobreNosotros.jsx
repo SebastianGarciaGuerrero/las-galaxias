@@ -78,7 +78,7 @@ const SobreNosotros = () => {
                     <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden bg-slate-200 shadow-2xl rotate-2 hover:rotate-0 transition-all duration-500 group">
                         <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 to-black/50 z-10 group-hover:opacity-60 transition-opacity"></div>
                         <img
-                            src="https://res.cloudinary.com/du4oddnjl/image/upload/v1773720648/nochedefutbol_l4lytv.jpg"
+                            src="https://res.cloudinary.com/du4oddnjl/image/upload/v1773720637/canchita_mzu8aa.jpg"
                             alt="Valparaíso Fútbol"
                             className="w-full h-full object-cover"
                         />
