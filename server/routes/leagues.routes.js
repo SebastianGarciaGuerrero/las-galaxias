@@ -53,4 +53,17 @@ router.get('/:id/summary', async (req, res) => {
     res.json({ standings: standings || [], scorers: formattedScorers });
 });
 
+// 3. GET partidos de una liga agrupados por jornada
+router.get('/:id/matches', async (req, res) => {
+    const { data, error } = await supabase
+        .from('matches')
+        .select(`*, home:home_team_id(id, name, logo_url), away:away_team_id(id, name, logo_url)`)
+        .eq('tournament_id', req.params.id)
+        .order('round', { ascending: true })
+        .order('match_date', { ascending: true });
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data);
+});
+
 export default router;

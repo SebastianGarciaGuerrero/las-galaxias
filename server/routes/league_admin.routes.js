@@ -58,10 +58,30 @@ router.get('/tournament/:tournamentId', async (req, res) => {
 // 5. PROGRAMAR UN PARTIDO DE LIGA
 router.post('/match', async (req, res) => {
     const { tournament_id, home_team_id, away_team_id, match_date, location } = req.body;
+
+    // Calcula automáticamente la siguiente jornada del torneo
+    // Reemplaza solo esta parte del cálculo:
+
+    // Cuenta cuántos partidos tiene la jornada actual
+    const { data: existing } = await supabase
+        .from('matches')
+        .select('round')
+        .eq('tournament_id', tournament_id)
+        .order('round', { ascending: false });
+
+    let nextRound = 1;
+    if (existing && existing.length > 0) {
+        const lastRound = existing[0].round || 1;
+        const matchesInLastRound = existing.filter(m => m.round === lastRound).length;
+        // Si la jornada actual ya tiene 4 partidos, crea una nueva
+        nextRound = matchesInLastRound >= 4 ? lastRound + 1 : lastRound;
+    }
+
     const { data, error } = await supabase
         .from('matches')
-        .insert([{ tournament_id, home_team_id, away_team_id, match_date, location, status: 'scheduled' }])
+        .insert([{ tournament_id, home_team_id, away_team_id, match_date, location, status: 'scheduled', round: nextRound }])
         .select();
+
     if (error) return res.status(500).json({ error: error.message });
     res.status(201).json(data[0]);
 });
@@ -83,6 +103,46 @@ router.post('/match/:id/result', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// 7. OBTENER JUGADORES DE UN TORNEO (por los equipos participantes)
+router.get('/tournament/:tournamentId/players', async (req, res) => {
+    const { tournamentId } = req.params;
+
+    // Primero obtenemos los equipos que participan en este torneo
+    const { data: matches, error: matchError } = await supabase
+        .from('matches')
+        .select('home_team_id, away_team_id')
+        .eq('tournament_id', tournamentId);
+
+    if (matchError) return res.status(500).json({ error: matchError.message });
+
+    // Extraemos los IDs únicos de equipos
+    const teamIds = [...new Set(matches.flatMap(m => [m.home_team_id, m.away_team_id]))];
+
+    if (teamIds.length === 0) return res.json([]);
+
+    // Traemos los jugadores de esos equipos
+    const { data: players, error: playersError } = await supabase
+        .from('players')
+        .select('*, teams(id, name)')
+        .in('team_id', teamIds)
+        .order('name');
+
+    if (playersError) return res.status(500).json({ error: playersError.message });
+    res.json(players);
+});
+
+// EDITAR JORNADA DE UN PARTIDO
+router.patch('/match/:id/round', async (req, res) => {
+    const { round } = req.body;
+    const { data, error } = await supabase
+        .from('matches')
+        .update({ round })
+        .eq('id', req.params.id)
+        .select();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data[0]);
 });
 
 export default router;

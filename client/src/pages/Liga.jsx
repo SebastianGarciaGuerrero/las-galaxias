@@ -9,6 +9,8 @@ const Liga = () => {
     const [leagueData, setLeagueData] = useState(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
     const [showAllScorers, setShowAllScorers] = useState(false);
+    const [leagueMatches, setLeagueMatches] = useState([]);
+    const [expandedRound, setExpandedRound] = useState(null);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -34,18 +36,24 @@ const Liga = () => {
     const fetchLeagueData = async (league) => {
         if (league.status === 'upcoming') {
             setLeagueData(null);
+            setLeagueMatches([]);
             return;
         }
-
         setLoadingDetails(true);
         try {
-            const response = await fetch(`${API_URL}/api/leagues/${league.id}/summary`);
-            if (!response.ok) throw new Error('Error en la respuesta del servidor');
-            const data = await response.json();
+            const [resSummary, resMatches] = await Promise.all([
+                fetch(`${API_URL}/api/leagues/${league.id}/summary`),
+                fetch(`${API_URL}/api/leagues/${league.id}/matches`)
+            ]);
+            if (!resSummary.ok || !resMatches.ok) throw new Error('Error del servidor');
+            const data = await resSummary.json();
+            const matchesData = await resMatches.json();
             setLeagueData(data);
+            setLeagueMatches(Array.isArray(matchesData) ? matchesData : []);
         } catch (error) {
-            console.error("Error cargando el torneo:", error);
+            console.error("Error:", error);
             setLeagueData(null);
+            setLeagueMatches([]);
         } finally {
             setLoadingDetails(false);
         }
@@ -352,6 +360,96 @@ const Liga = () => {
                             </div>
                         </div>
                     )}
+
+                    {/* SECCIÓN RESULTADOS POR JORNADA */}
+                    {leagueMatches.length > 0 && (() => {
+                        const rounds = leagueMatches.reduce((acc, match) => {
+                            const round = match.round || 1;
+                            if (!acc[round]) acc[round] = [];
+                            acc[round].push(match);
+                            return acc;
+                        }, {});
+
+                        return (
+                            <div className="mb-16">
+                                <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">format_list_numbered</span> Resultados
+                                </h3>
+
+                                <div className="flex flex-col gap-3">
+                                    {Object.entries(rounds).map(([round, roundMatches]) => {
+                                        const allFinished = roundMatches.every(m => m.status === 'finished');
+                                        const isExpanded = expandedRound === round;
+
+                                        return (
+                                            <div key={round} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+
+                                                {/* HEADER JORNADA */}
+                                                <button
+                                                    onClick={() => setExpandedRound(isExpanded ? null : round)}
+                                                    className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="text-sm font-black uppercase tracking-widest text-white bg-primary px-4 py-1.5 rounded-lg">
+                                                            Jornada {round}
+                                                        </span>
+                                                        {allFinished ? (
+                                                            <span className="text-xs font-bold text-green-500 flex items-center gap-1">
+                                                                <span className="material-symbols-outlined text-sm">check_circle</span> Completada
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
+                                                                <span className="material-symbols-outlined text-sm">pending</span> En curso
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span
+                                                        className="material-symbols-outlined text-slate-400 transition-transform duration-200"
+                                                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                                                    >
+                                                        expand_more
+                                                    </span>
+                                                </button>
+
+                                                {/* PARTIDOS */}
+                                                {isExpanded && (
+                                                    <div className="divide-y divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800">
+                                                        {roundMatches.map(match => (
+                                                            <div key={match.id} className="p-4 flex items-center justify-between gap-4">
+                                                                <div className="text-xs text-slate-400 font-bold uppercase shrink-0 hidden sm:block">
+                                                                    {new Date(match.match_date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                                                                </div>
+
+                                                                <div className="flex-1 flex items-center justify-center gap-3 font-black">
+                                                                    <span className="flex-1 text-right text-slate-900 dark:text-white truncate text-sm md:text-base">
+                                                                        {match.home?.name}
+                                                                    </span>
+
+                                                                    {match.status === 'finished' ? (
+                                                                        <span className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-1.5 rounded-lg text-sm shrink-0 min-w-[70px] text-center">
+                                                                            {match.home_score} - {match.away_score}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="text-slate-300 dark:text-slate-600 px-3 shrink-0 text-sm">
+                                                                            {new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                        </span>
+                                                                    )}
+
+                                                                    <span className="flex-1 text-left text-slate-900 dark:text-white truncate text-sm md:text-base">
+                                                                        {match.away?.name}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* SECCIÓN EDUCATIVA */}
                     {leagueData.standings?.some(t => t.bio_title) && (
