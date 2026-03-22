@@ -12,6 +12,7 @@ const Liga = () => {
     const [showAllScorers, setShowAllScorers] = useState(false);
     const [leagueMatches, setLeagueMatches] = useState([]);
     const [expandedRound, setExpandedRound] = useState(null);
+    const [byeWeeks, setByeWeeks] = useState([]);
     const [searchParams] = useSearchParams();
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -59,6 +60,17 @@ const Liga = () => {
         } finally {
             setLoadingDetails(false);
         }
+        const [resSummary, resMatches, resByes] = await Promise.all([
+            fetch(`${API_URL}/api/leagues/${league.id}/summary`),
+            fetch(`${API_URL}/api/leagues/${league.id}/matches`),
+            fetch(`${API_URL}/api/leagues/${league.id}/byes`)
+        ]);
+        const data = await resSummary.json();
+        const matchesData = await resMatches.json();
+        const byesData = await resByes.json();
+        setLeagueData(data);
+        setLeagueMatches(Array.isArray(matchesData) ? matchesData : []);
+        setByeWeeks(Array.isArray(byesData) ? byesData : []);
     };
 
     useEffect(() => {
@@ -70,6 +82,8 @@ const Liga = () => {
     const handleBack = () => {
         setSelectedLeague(null);
         setLeagueData(null);
+        setLeagueMatches([]);
+        setByeWeeks([]);  // ← agrega esto
         setShowAllScorers(false);
     };
 
@@ -313,8 +327,8 @@ const Liga = () => {
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 <div className="lg:col-span-2 bg-slate-100 dark:bg-slate-900/50 rounded-xl p-6 border border-slate-200 dark:border-slate-800 flex items-end justify-center gap-2 md:gap-4 h-[400px]">
                                     <div className="flex flex-col items-center w-1/3">
-                                        <div className="mb-2 size-16 md:size-20 rounded-full overflow-hidden border-4 border-slate-300 shadow-lg bg-white flex items-center justify-center">
-                                            {secondPlace.img ? <img src={secondPlace.img} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-slate-400">person</span>}
+                                        <div className="mb-2 size-16 md:size-20 rounded-full border-4 border-slate-300 shadow-lg bg-slate-200 flex items-center justify-center">
+                                            <span className="text-3xl">🥈</span>
                                         </div>
                                         <div className="w-full bg-slate-300 dark:bg-slate-700 h-32 rounded-t-lg flex flex-col items-center justify-start pt-4 relative">
                                             <span className="font-black text-4xl text-slate-400/50 absolute bottom-2">2</span>
@@ -325,8 +339,8 @@ const Liga = () => {
                                     </div>
 
                                     <div className="flex flex-col items-center w-1/3 z-10">
-                                        <div className="mb-2 size-20 md:size-24 rounded-full overflow-hidden border-4 border-yellow-400 shadow-xl shadow-yellow-400/20 bg-white flex items-center justify-center">
-                                            {firstPlace.img ? <img src={firstPlace.img} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-yellow-500">emoji_events</span>}
+                                        <div className="mb-2 size-20 md:size-24 rounded-full border-4 border-yellow-400 shadow-xl shadow-yellow-400/20 bg-yellow-400 flex items-center justify-center">
+                                            <span className="text-4xl">🥇</span>
                                         </div>
                                         <div className="w-full bg-yellow-400 h-44 rounded-t-lg flex flex-col items-center justify-start pt-6 relative shadow-[0_0_20px_rgba(250,204,21,0.3)]">
                                             <span className="font-black text-5xl text-yellow-600/30 absolute bottom-2">1</span>
@@ -337,8 +351,8 @@ const Liga = () => {
                                     </div>
 
                                     <div className="flex flex-col items-center w-1/3">
-                                        <div className="mb-2 size-16 md:size-20 rounded-full overflow-hidden border-4 border-orange-300 shadow-lg bg-white flex items-center justify-center">
-                                            {thirdPlace.img ? <img src={thirdPlace.img} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-orange-300">person</span>}
+                                        <div className="mb-2 size-16 md:size-20 rounded-full border-4 border-orange-300 shadow-lg bg-orange-100 flex items-center justify-center">
+                                            <span className="text-3xl">🥉</span>
                                         </div>
                                         <div className="w-full bg-orange-300 dark:bg-orange-700/80 h-24 rounded-t-lg flex flex-col items-center justify-start pt-4 relative">
                                             <span className="font-black text-4xl text-orange-900/20 absolute bottom-2">3</span>
@@ -420,6 +434,10 @@ const Liga = () => {
                                                             <span className="text-xs font-bold text-green-500 flex items-center gap-1">
                                                                 <span className="material-symbols-outlined text-sm">check_circle</span> Completada
                                                             </span>
+                                                        ) : roundMatches.every(m => m.status === 'scheduled') ? (
+                                                            <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                                                                <span className="material-symbols-outlined text-sm">schedule</span> Próximamente
+                                                            </span>
                                                         ) : (
                                                             <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
                                                                 <span className="material-symbols-outlined text-sm">pending</span> En curso
@@ -437,10 +455,16 @@ const Liga = () => {
                                                 {/* PARTIDOS */}
                                                 {isExpanded && (
                                                     <div className="divide-y divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800">
+                                                        {console.log('byeWeeks:', byeWeeks, 'round actual:', round)}
                                                         {roundMatches.map(match => (
                                                             <div key={match.id} className="p-4 flex items-center justify-between gap-4">
                                                                 <div className="text-xs text-slate-400 font-bold uppercase shrink-0 hidden sm:block">
-                                                                    {new Date(match.match_date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' })}
+                                                                    {new Date(match.match_date).toLocaleTimeString('es-CL', {
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit',
+                                                                        timeZone: 'America/Santiago',
+                                                                        hour12: false
+                                                                    })}
                                                                 </div>
 
                                                                 <div className="flex-1 flex items-center justify-center gap-3 font-black">
@@ -462,6 +486,16 @@ const Liga = () => {
                                                                         {match.away?.name}
                                                                     </span>
                                                                 </div>
+                                                            </div>
+                                                        ))}
+
+                                                        {/* ✅ FECHA LIBRE — fuera del map de partidos */}
+                                                        {byeWeeks.filter(b => String(b.round) === String(round)).map(bye => (
+                                                            <div key={`bye-${bye.id}`} className="p-4 flex items-center gap-3 bg-amber-50/50 dark:bg-amber-900/10">
+                                                                <span className="material-symbols-outlined text-amber-500 text-sm">event_busy</span>
+                                                                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                                                                    Fecha libre — <span className="font-black text-slate-700 dark:text-slate-200">{bye.team?.name}</span>
+                                                                </span>
                                                             </div>
                                                         ))}
                                                     </div>

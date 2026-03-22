@@ -59,22 +59,38 @@ router.get('/tournament/:tournamentId', async (req, res) => {
 router.post('/match', async (req, res) => {
     const { tournament_id, home_team_id, away_team_id, match_date, location } = req.body;
 
-    // Calcula automáticamente la siguiente jornada del torneo
-    // Reemplaza solo esta parte del cálculo:
-
-    // Cuenta cuántos partidos tiene la jornada actual
     const { data: existing } = await supabase
         .from('matches')
         .select('round')
         .eq('tournament_id', tournament_id)
         .order('round', { ascending: false });
 
+    // Cuenta también los bye_weeks de la jornada actual
     let nextRound = 1;
     if (existing && existing.length > 0) {
         const lastRound = existing[0].round || 1;
         const matchesInLastRound = existing.filter(m => m.round === lastRound).length;
-        // Si la jornada actual ya tiene 4 partidos, crea una nueva
-        nextRound = matchesInLastRound >= 4 ? lastRound + 1 : lastRound;
+
+        const { data: byes } = await supabase
+            .from('bye_weeks')
+            .select('round')
+            .eq('tournament_id', tournament_id)
+            .eq('round', lastRound);
+
+        const byesInLastRound = byes?.length || 0;
+        const totalInLastRound = matchesInLastRound + byesInLastRound;
+
+        // Obtiene cuántos equipos hay en este torneo
+        const { data: tournamentTeams } = await supabase
+            .from('tournament_teams')
+            .select('team_id')
+            .eq('tournament_id', tournament_id);
+
+        const totalTeams = tournamentTeams?.length || 8;
+        // Partidos por jornada = mitad de equipos (redondeado hacia abajo)
+        const matchesPerRound = Math.floor(totalTeams / 2);
+
+        nextRound = totalInLastRound >= matchesPerRound ? lastRound + 1 : lastRound;
     }
 
     const { data, error } = await supabase
@@ -109,27 +125,22 @@ router.post('/match/:id/result', async (req, res) => {
 router.get('/tournament/:tournamentId/players', async (req, res) => {
     const { tournamentId } = req.params;
 
-    // Primero obtenemos los equipos que participan en este torneo
-    const { data: matches, error: matchError } = await supabase
-        .from('matches')
-        .select('home_team_id, away_team_id')
+    const { data: tournamentTeams } = await supabase
+        .from('tournament_teams')
+        .select('team_id')
         .eq('tournament_id', tournamentId);
 
-    if (matchError) return res.status(500).json({ error: matchError.message });
+    if (!tournamentTeams || tournamentTeams.length === 0) return res.json([]);
 
-    // Extraemos los IDs únicos de equipos
-    const teamIds = [...new Set(matches.flatMap(m => [m.home_team_id, m.away_team_id]))];
+    const teamIds = tournamentTeams.map(t => t.team_id);
 
-    if (teamIds.length === 0) return res.json([]);
-
-    // Traemos los jugadores de esos equipos
-    const { data: players, error: playersError } = await supabase
+    const { data: players, error } = await supabase
         .from('players')
         .select('*, teams(id, name)')
         .in('team_id', teamIds)
         .order('name');
 
-    if (playersError) return res.status(500).json({ error: playersError.message });
+    if (error) return res.status(500).json({ error: error.message });
     res.json(players);
 });
 
@@ -143,6 +154,38 @@ router.patch('/match/:id/round', async (req, res) => {
         .select();
     if (error) return res.status(500).json({ error: error.message });
     res.json(data[0]);
+});
+
+// POST registrar descanso
+router.post('/bye', async (req, res) => {
+    const { tournament_id, team_id, round } = req.body;
+    const { data, error } = await supabase
+        .from('bye_weeks')
+        .insert([{ tournament_id, team_id, round }])
+        .select();
+    if (error) return res.status(500).json({ error: error.message });
+    res.status(201).json(data[0]);
+});
+
+router.get('/tournament/:tournamentId/byes', async (req, res) => {
+    const { data, error } = await supabase
+        .from('bye_weeks')
+        .select('id, tournament_id, team_id, round')
+        .eq('tournament_id', req.params.tournamentId)
+        .order('round', { ascending: true });
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    const byesWithTeam = await Promise.all(data.map(async (bye) => {
+        const { data: team } = await supabase
+            .from('teams')
+            .select('id, name')
+            .eq('id', bye.team_id)
+            .single();
+        return { ...bye, team };
+    }));
+
+    res.json(byesWithTeam);
 });
 
 export default router;

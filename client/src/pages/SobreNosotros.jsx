@@ -105,7 +105,6 @@ const SobreNosotros = () => {
                         {/* LIGA MARTES - CONCIENCIA */}
                         <div className="bg-white dark:bg-black p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl hover:border-primary/50 transition-colors group relative overflow-hidden">
                             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                                <span className="material-symbols-outlined text-[150px]">forest</span>
                             </div>
                             <div className="relative z-10">
                                 <span className="text-primary font-black uppercase text-xs tracking-widest mb-2 block">Temática y Educativa</span>
@@ -115,7 +114,7 @@ const SobreNosotros = () => {
                                 </p>
                                 <div className="bg-green-100 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 mb-4">
                                     <span className="block text-xs font-bold text-green-700 dark:text-green-400 uppercase mb-1">Temática Actual</span>
-                                    <span className="font-black text-slate-900 dark:text-white uppercase">Bosque Esclerófilo</span>
+                                    <span className="font-black text-slate-900 dark:text-white uppercase">Bailes Latinos</span>
                                 </div>
                                 <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
                                     <li className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-base">check</span> Equipos con identidad educativa</li>

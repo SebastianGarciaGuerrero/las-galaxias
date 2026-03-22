@@ -66,4 +66,26 @@ router.get('/:id/matches', async (req, res) => {
     res.json(data);
 });
 
+router.get('/:id/byes', async (req, res) => {
+    const { data, error } = await supabase
+        .from('bye_weeks')
+        .select('id, tournament_id, team_id, round')
+        .eq('tournament_id', req.params.id)
+        .order('round', { ascending: true });
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    // Trae los nombres de los equipos manualmente
+    const byesWithTeam = await Promise.all(data.map(async (bye) => {
+        const { data: team } = await supabase
+            .from('teams')
+            .select('id, name')
+            .eq('id', bye.team_id)
+            .single();
+        return { ...bye, team };
+    }));
+
+    res.json(byesWithTeam);
+});
+
 export default router;

@@ -11,10 +11,13 @@ const LeagueManager = () => {
     const [expandedRound, setExpandedRound] = useState(null);
     const [editingRound, setEditingRound] = useState(null);
     const [newRoundValue, setNewRoundValue] = useState('');
+    const [byeTeamId, setByeTeamId] = useState('');
+    const [tournamentByes, setTournamentByes] = useState([]);
 
     const [showCreateMatch, setShowCreateMatch] = useState(false);
     const [showCreatePlayer, setShowCreatePlayer] = useState(false);
     const [showCreateTeam, setShowCreateTeam] = useState(false);
+    const [showByeModal, setShowByeModal] = useState(false);
     const [matchToResult, setMatchToResult] = useState(null);
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -37,13 +40,16 @@ const LeagueManager = () => {
     const fetchMatches = async () => {
         if (!selectedTournament) return;
         try {
-            const [resMatches, resPlayers] = await Promise.all([
+            const [resMatches, resPlayers, resByes] = await Promise.all([
                 fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`),
-                fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/players`)
+                fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/players`),
+                fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/byes`)
             ]);
             setMatches(await resMatches.json());
             setTournamentPlayers(await resPlayers.json());
-        } catch (error) { console.error("Error partidos:", error); }
+            const byesData = await resByes.json();
+            setTournamentByes(Array.isArray(byesData) ? byesData : []);
+        } catch (error) { console.error("Error:", error); }
     };
 
     useEffect(() => { fetchMatches(); }, [selectedTournament]);
@@ -104,6 +110,53 @@ const LeagueManager = () => {
             </div>
         );
     };
+
+    // ==========================================
+    // MODAL: FECHA LIBRE
+    // ==========================================
+
+    const ByeModal = () => {
+        const [teamId, setTeamId] = useState('');
+
+        const handleSubmit = async (e) => {
+            e.preventDefault();
+            const currentRound = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 1;
+            try {
+                const res = await fetch(`${API_URL}/api/league-admin/bye`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tournament_id: selectedTournament, team_id: teamId, round: currentRound })
+                });
+                if (res.ok) { setShowByeModal(false); fetchMatches(); }
+                else alert("Error al registrar descanso");
+            } catch (error) { console.error(error); }
+        };
+
+        const availableTeams = [...new Set(tournamentPlayers.map(p => p.team_id))]
+            .map(id => teams.find(t => t.id === id)).filter(Boolean);
+
+        return (
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
+                    <h3 className="text-xl font-black uppercase mb-4 text-slate-900 dark:text-white text-center">Registrar Fecha Libre</h3>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <label className="text-xs font-bold text-slate-500 uppercase">Equipo con Descanso</label>
+                            <select required className="w-full p-3 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1 focus:border-primary focus:outline-none" onChange={e => setTeamId(e.target.value)}>
+                                <option value="">Seleccionar equipo...</option>
+                                {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                            </select>
+                        </div>
+                        <div className="flex gap-2 pt-4">
+                            <button type="button" onClick={() => setShowByeModal(false)} className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold">Cancelar</button>
+                            <button type="submit" className="flex-1 py-3 bg-primary text-white rounded font-bold">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    };
+
 
     // ==========================================
     // MODAL: NUEVO JUGADOR
@@ -168,61 +221,126 @@ const LeagueManager = () => {
     // MODAL: PROGRAMAR FECHA
     // ==========================================
     const CreateMatchModal = () => {
-        const [form, setForm] = useState({ home_team_id: '', away_team_id: '', match_date: '', location: 'Cancha Principal' });
+        const [slots, setSlots] = useState([
+            { hour: '19:00', home_team_id: '', away_team_id: '' },
+            { hour: '20:00', home_team_id: '', away_team_id: '' },
+            { hour: '22:00', home_team_id: '', away_team_id: '' },
+        ]);
+        const [matchDate, setMatchDate] = useState('');
+
         const availableTeams = [...new Set(tournamentPlayers.map(p => p.team_id))]
             .map(id => teams.find(t => t.id === id)).filter(Boolean);
 
+        const updateSlot = (index, field, value) => {
+            const updated = [...slots];
+            updated[index][field] = value;
+            setSlots(updated);
+        };
+
         const handleSubmit = async (e) => {
             e.preventDefault();
-            if (form.home_team_id === form.away_team_id) return alert("¡Un equipo no puede jugar contra sí mismo!");
-
-            // Calcula la hora según cuántos partidos hay en la jornada actual
-            const matchesInCurrentRound = matches.filter(m => m.round === Math.max(...matches.map(x => x.round || 0)));
-            const hours = ['19:00', '20:00', '21:00', '22:00'];
-            const assignedHour = hours[matchesInCurrentRound.length] || '19:00';
-
-            // Combina la fecha elegida con la hora automática
-            const fullDate = `${form.match_date}T${assignedHour}:00`;
+            const filledSlots = slots.filter(s => s.home_team_id && s.away_team_id);
+            if (filledSlots.length === 0) return alert("Agrega al menos un partido");
 
             try {
-                const res = await fetch(`${API_URL}/api/league-admin/match`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...form, match_date: fullDate, tournament_id: selectedTournament })
-                });
-                if (res.ok) { setShowCreateMatch(false); fetchMatches(); }
-                else alert("Error al programar partido");
+                for (const slot of filledSlots) {
+                    if (slot.home_team_id === slot.away_team_id) return alert("Un equipo no puede jugar contra sí mismo");
+                    await fetch(`${API_URL}/api/league-admin/match`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            tournament_id: selectedTournament,
+                            home_team_id: slot.home_team_id,
+                            away_team_id: slot.away_team_id,
+                            match_date: `${matchDate}T${slot.hour}:00-03:00`,
+                            location: 'Cancha Principal'
+                        })
+                    });
+                }
+
+                if (byeTeamId) {
+                    const lastMatch = await fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`);
+                    const lastMatchData = await lastMatch.json();
+                    const currentRound = Math.max(...lastMatchData.map(m => m.round || 1));
+
+                    await fetch(`${API_URL}/api/league-admin/bye`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            tournament_id: selectedTournament,
+                            team_id: byeTeamId,
+                            round: currentRound
+                        })
+                    });
+                }
+
+                setShowCreateMatch(false);
+                fetchMatches();
             } catch (error) { console.error(error); }
         };
 
         return (
-            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-                <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700 shadow-2xl">
-                    <h3 className="text-xl font-black uppercase mb-4 text-slate-900 dark:text-white">Programar Partido</h3>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-xs font-bold text-slate-500 uppercase">Local</label>
-                                <select required className="w-full p-2 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1" onChange={e => setForm({ ...form, home_team_id: e.target.value })}>
-                                    <option value="">Elegir...</option>
-                                    {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-xs font-bold text-slate-500 uppercase">Visita</label>
-                                <select required className="w-full p-2 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1" onChange={e => setForm({ ...form, away_team_id: e.target.value })}>
-                                    <option value="">Elegir...</option>
-                                    {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                </select>
-                            </div>
-                        </div>
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+                <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-lg p-6 border border-slate-200 dark:border-slate-700 shadow-2xl my-auto">
+                    <h3 className="text-xl font-black uppercase mb-6 text-slate-900 dark:text-white text-center">Programar Fecha</h3>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Fecha */}
                         <div>
-                            <label className="text-xs font-bold text-slate-500 uppercase">Fecha y Hora</label>
-                            <input type="datetime-local" required className="w-full p-2 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1" onChange={e => setForm({ ...form, match_date: e.target.value })} />
+                            <label className="text-xs font-bold text-slate-500 uppercase">Día</label>
+                            <input
+                                type="date"
+                                required
+                                className="w-full p-3 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1 focus:border-primary focus:outline-none"
+                                onChange={e => setMatchDate(e.target.value)}
+                            />
                         </div>
-                        <div className="flex gap-2 pt-4">
-                            <button type="button" onClick={() => setShowCreateMatch(false)} className="flex-1 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold">Cancelar</button>
-                            <button type="submit" className="flex-1 py-2 bg-primary text-white rounded font-bold">Guardar Fecha</button>
+
+                        {/* Slots de hora */}
+                        {slots.map((slot, index) => (
+                            <div key={index} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="bg-primary text-white text-xs font-black px-3 py-1 rounded-lg">{slot.hour} hrs</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 uppercase">Local</label>
+                                        <select
+                                            className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 mt-1 focus:border-primary focus:outline-none text-sm"
+                                            onChange={e => updateSlot(index, 'home_team_id', e.target.value)}
+                                        >
+                                            <option value="">Elegir...</option>
+                                            {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-slate-500 uppercase">Visita</label>
+                                        <select
+                                            className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 mt-1 focus:border-primary focus:outline-none text-sm"
+                                            onChange={e => updateSlot(index, 'away_team_id', e.target.value)}
+                                        >
+                                            <option value="">Elegir...</option>
+                                            {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                            <label className="text-xs font-bold text-amber-600 uppercase">Equipo con Fecha Libre</label>
+                            <select
+                                required
+                                className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-amber-200 dark:border-amber-700 mt-1 focus:border-primary focus:outline-none text-sm"
+                                onChange={e => setByeTeamId(e.target.value)}
+                            >
+                                <option value="">Seleccionar equipo...</option>
+                                {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="flex gap-2 pt-2">
+                            <button type="button" onClick={() => setShowCreateMatch(false)} className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold">Cancelar</button>
+                            <button type="submit" className="flex-1 py-3 bg-primary text-white rounded font-bold">Guardar Fecha</button>
                         </div>
                     </form>
                 </div>
@@ -384,9 +502,11 @@ const LeagueManager = () => {
                     </select>
                 </div>
                 {selectedTournament && (
-                    <button onClick={() => setShowCreateMatch(true)} className="w-full md:w-auto px-8 py-4 bg-primary text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_15px_rgba(236,19,19,0.2)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
-                        <span className="material-symbols-outlined text-2xl">event_available</span> Programar Fecha
-                    </button>
+                    <div className="flex gap-3">
+                        <button onClick={() => setShowCreateMatch(true)} className="w-full md:w-auto px-8 py-4 bg-primary text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_15px_rgba(236,19,19,0.2)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                            <span className="material-symbols-outlined text-2xl">event_available</span> Programar Fecha
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -434,6 +554,10 @@ const LeagueManager = () => {
                                                     {allFinished ? (
                                                         <span className="text-xs font-bold text-green-500 flex items-center gap-1">
                                                             <span className="material-symbols-outlined text-sm">check_circle</span> Completada
+                                                        </span>
+                                                    ) : roundMatches.every(m => m.status === 'scheduled') ? (
+                                                        <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                                                            <span className="material-symbols-outlined text-sm">schedule</span> Próximamente
                                                         </span>
                                                     ) : (
                                                         <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
@@ -498,7 +622,12 @@ const LeagueManager = () => {
                                                             <div className="text-center text-xs text-slate-500 font-bold uppercase bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800 shrink-0">
                                                                 {new Date(match.match_date).toLocaleDateString()} <br />
                                                                 <span className="text-primary text-sm mt-1 block">
-                                                                    {new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    {new Date(match.match_date).toLocaleTimeString('es-CL', {
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit',
+                                                                        timeZone: 'America/Santiago',
+                                                                        hour12: false
+                                                                    })}
                                                                 </span>
                                                             </div>
 
@@ -526,11 +655,26 @@ const LeagueManager = () => {
                                                                         <span className="material-symbols-outlined text-sm">edit</span> Corregir
                                                                     </button>
                                                                 )}
+                                                                {showByeModal && <ByeModal />}
                                                             </div>
                                                         </li>
                                                     ))}
                                                 </ul>
                                             )}
+                                            {/* FECHA LIBRE EN ADMIN */}
+                                            {(() => {
+                                                // Necesitas tener los byes cargados — agrega este estado y fetch
+                                                const bye = tournamentByes?.find(b => String(b.round) === String(round));
+                                                if (!bye) return null;
+                                                return (
+                                                    <div className="p-4 flex items-center gap-3 border-t border-slate-100 dark:border-slate-700 bg-amber-50/50 dark:bg-amber-900/10">
+                                                        <span className="material-symbols-outlined text-amber-500 text-sm">event_busy</span>
+                                                        <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                                                            Fecha libre — {teams.find(t => t.id === bye.team_id)?.name}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })()}
                                         </div>
                                     );
                                 })}

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import logoClaro from '../assets/logo.svg';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -11,22 +12,23 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
 
                 {/* 1. IDENTIDAD DEL CLUB */}
-                <div className="col-span-1">
-                    <div className="flex items-center gap-3 mb-6 group cursor-default">
-                        <div className="size-10 text-primary transition-transform duration-500 group-hover:rotate-180">
-                            {/* Logo SVG */}
-                            <svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M47.2426 24L24 47.2426L0.757355 24L24 0.757355L47.2426 24ZM12.2426 21H35.7574L24 9.24264L12.2426 21Z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <span className="font-black uppercase tracking-tighter text-2xl text-white block leading-none">Las Galaxias</span>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-primary block">Club Deportivo</span>
-                        </div>
-                    </div>
+                <div className="col-span-1 flex flex-col gap-4">
+                    <Link to="/" className="block hover:-translate-y-1 transition-transform w-fit">
+                        <img
+                            src={logoClaro}
+                            alt="Logo CD Las Galaxias"
+                            className="h-14 w-auto object-contain"
+                        />
+                    </Link>
+
                     <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-                        Pasión, disciplina y familia. Formando deportistas y personas de bien desde <strong className="text-white">2017</strong>. El club del barrio, el club de tu vida.
+                        Pasión, disciplina y familia. Formando deportistas y personas de bien desde <strong className="text-white">2017</strong>.
                     </p>
+
+                    <div className="flex items-center gap-2 mt-1">
+                        <span className="size-2 bg-primary rounded-full animate-pulse"></span>
+                        <span className="text-xs font-bold text-primary uppercase tracking-widest">El Orgullo del Puerto</span>
+                    </div>
                 </div>
 
                 {/* 2. ENLACES RÁPIDOS */}
