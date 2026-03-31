@@ -27,7 +27,7 @@ const Footer = () => {
 
                     <div className="flex items-center gap-2 mt-1">
                         <span className="size-2 bg-primary rounded-full animate-pulse"></span>
-                        <span className="text-xs font-bold text-primary uppercase tracking-widest">El Orgullo del Puerto</span>
+                        <span className="text-xs font-bold text-primary uppercase tracking-widest">Fútbol y Conciencia</span>
                     </div>
                 </div>
 

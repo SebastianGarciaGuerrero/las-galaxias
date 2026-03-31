@@ -5,6 +5,7 @@ import FutbolLoader from '../components/FutbolLoader';
 const Liga = () => {
     const [leaguesList, setLeaguesList] = useState([]);
     const [loadingLeagues, setLoadingLeagues] = useState(true);
+    const [expandedBios, setExpandedBios] = useState({});
 
     const [selectedLeague, setSelectedLeague] = useState(null);
     const [leagueData, setLeagueData] = useState(null);
@@ -164,6 +165,12 @@ const Liga = () => {
         );
     }
 
+    const toggleBio = (teamId) => {
+        setExpandedBios(prev => ({
+            ...prev,
+            [teamId]: !prev[teamId]
+        }));
+    };
     // ==========================================
     // VISTA DE CARGA INICIAL (Usando el nuevo componente)
     // ==========================================
@@ -520,17 +527,37 @@ const Liga = () => {
                                     Aprende más sobre los equipos que conforman este campeonato.
                                 </p>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {leagueData.standings.map((team) => (
-                                        team.bio_title && (
-                                            <div key={team.id} className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 hover:border-primary transition-colors">
+                                    {leagueData.standings.map((team) => {
+                                        // Si el equipo no tiene historia, no dibujamos la tarjeta
+                                        if (!team.bio_title) return null;
+
+                                        // Verificamos si la historia es lo suficientemente larga para necesitar el botón
+                                        const isLongText = team.bio_description && team.bio_description.length > 120;
+                                        // Verificamos si ESTA tarjeta en específico está expandida
+                                        const isExpanded = expandedBios[team.id];
+
+                                        return (
+                                            <div key={team.id} className="bg-slate-800/50 backdrop-blur-sm p-6 rounded-xl border border-slate-700 hover:border-primary transition-colors flex flex-col">
                                                 <h4 className="text-primary font-black uppercase text-lg mb-2">{team.bio_title}</h4>
                                                 <span className="text-[10px] uppercase font-bold text-slate-500 mb-3 block tracking-widest">{team.name}</span>
-                                                <p className="text-slate-300 text-sm leading-relaxed line-clamp-4">
+
+                                                {/* Aquí ocurre la magia del truncado: si no está expandido, aplica line-clamp-4 */}
+                                                <p className={`text-slate-300 text-sm leading-relaxed transition-all duration-300 ${!isExpanded ? 'line-clamp-4' : ''}`}>
                                                     {team.bio_description}
                                                 </p>
+
+                                                {/* Renderizamos el botón solo si el texto es largo */}
+                                                {isLongText && (
+                                                    <button
+                                                        onClick={() => toggleBio(team.id)}
+                                                        className="mt-4 text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors self-start border border-primary/20 px-3 py-1.5 rounded-full hover:bg-primary"
+                                                    >
+                                                        {isExpanded ? 'Ver menos' : 'Leer más'}
+                                                    </button>
+                                                )}
                                             </div>
-                                        )
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
