@@ -221,11 +221,22 @@ const LeagueManager = () => {
     // MODAL: PROGRAMAR FECHA
     // ==========================================
     const CreateMatchModal = () => {
-        const [slots, setSlots] = useState([
-            { hour: '19:00', home_team_id: '', away_team_id: '' },
-            { hour: '20:00', home_team_id: '', away_team_id: '' },
-            { hour: '22:00', home_team_id: '', away_team_id: '' },
-        ]);
+        const currentTournament = tournaments.find(t => t.id === Number(selectedTournament));
+        const isMartes = currentTournament?.category === 'martes';
+        const [slots, setSlots] = useState(
+            isMartes
+                ? [
+                    { hour: '19:00', home_team_id: '', away_team_id: '' },
+                    { hour: '20:00', home_team_id: '', away_team_id: '' },
+                    { hour: '21:00', home_team_id: '', away_team_id: '' },
+                    { hour: '22:00', home_team_id: '', away_team_id: '' },
+                ]
+                : [
+                    { hour: '19:00', home_team_id: '', away_team_id: '' },
+                    { hour: '20:00', home_team_id: '', away_team_id: '' },
+                    { hour: '22:00', home_team_id: '', away_team_id: '' },
+                ]
+        );
         const [matchDate, setMatchDate] = useState('');
 
         const availableTeams = [...new Set(tournamentPlayers.map(p => p.team_id))]
@@ -258,7 +269,7 @@ const LeagueManager = () => {
                     });
                 }
 
-                if (byeTeamId) {
+                if (byeTeamId && !isMartes) {
                     const lastMatch = await fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`);
                     const lastMatchData = await lastMatch.json();
                     const currentRound = Math.max(...lastMatchData.map(m => m.round || 1));
@@ -326,17 +337,19 @@ const LeagueManager = () => {
                                 </div>
                             </div>
                         ))}
-                        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
-                            <label className="text-xs font-bold text-amber-600 uppercase">Equipo con Fecha Libre</label>
-                            <select
-                                required
-                                className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-amber-200 dark:border-amber-700 mt-1 focus:border-primary focus:outline-none text-sm"
-                                onChange={e => setByeTeamId(e.target.value)}
-                            >
-                                <option value="">Seleccionar equipo...</option>
-                                {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                            </select>
-                        </div>
+                        {!isMartes && (
+                            <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
+                                <label className="text-xs font-bold text-amber-600 uppercase">Equipo con Fecha Libre</label>
+                                <select
+                                    // quitar required
+                                    className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-amber-200 dark:border-amber-700 mt-1 focus:border-primary focus:outline-none text-sm"
+                                    onChange={e => setByeTeamId(e.target.value)}
+                                >
+                                    <option value="">Seleccionar equipo...</option>
+                                    {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div>
+                        )}
 
                         <div className="flex gap-2 pt-2">
                             <button type="button" onClick={() => setShowCreateMatch(false)} className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold">Cancelar</button>
