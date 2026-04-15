@@ -31,17 +31,55 @@ router.get('/teams', async (req, res) => {
 
 // 2. OBTENER TODOS LOS JUGADORES (Para los parches)
 router.get('/players', async (req, res) => {
-    const { data, error } = await supabase.from('players').select('*, teams(name)').order('name');
+    const { data, error } = await supabase
+        .from('players')
+        .select('id, name, photo_url')
+        .order('name');
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
 });
 
 // 3. CREAR JUGADOR NUEVO AL VUELO
 router.post('/players', async (req, res) => {
-    const { name, team_id } = req.body;
-    const { data, error } = await supabase.from('players').insert([{ name, team_id }]).select();
-    if (error) return res.status(500).json({ error: error.message });
-    res.status(201).json(data[0]);
+    const { name, team_id, tournament_id } = req.body;
+
+    // Verificar si ya existe el jugador
+    let { data: existing } = await supabase
+        .from('players')
+        .select('id')
+        .eq('name', name);
+
+    let playerId;
+
+    if (existing && existing.length > 0) {
+        playerId = existing[0].id;
+    } else {
+        // Crear jugador nuevo
+        const { data: newPlayer, error } = await supabase
+            .from('players')
+            .insert([{ name }])
+            .select();
+        if (error) return res.status(500).json({ error: error.message });
+        playerId = newPlayer[0].id;
+    }
+
+    // Verificar si ya está en este torneo y equipo
+    const { data: existingTp } = await supabase
+        .from('tournament_players')
+        .select('id')
+        .eq('player_id', playerId)
+        .eq('tournament_id', tournament_id);
+
+    if (existingTp && existingTp.length > 0)
+        return res.status(409).json({ error: `${name} ya está registrado en este torneo` });
+
+    // Insertar en tournament_players
+    const { error: tpError } = await supabase
+        .from('tournament_players')
+        .insert([{ player_id: playerId, team_id, tournament_id }]);
+
+    if (tpError) return res.status(500).json({ error: tpError.message });
+    res.status(201).json({ id: playerId, name, team_id, tournament_id });
 });
 
 // 4. OBTENER EL FIXTURE DE UNA LIGA
@@ -125,22 +163,23 @@ router.post('/match/:id/result', async (req, res) => {
 router.get('/tournament/:tournamentId/players', async (req, res) => {
     const { tournamentId } = req.params;
 
-    const { data: tournamentTeams } = await supabase
-        .from('tournament_teams')
-        .select('team_id')
-        .eq('tournament_id', tournamentId);
-
-    if (!tournamentTeams || tournamentTeams.length === 0) return res.json([]);
-
-    const teamIds = tournamentTeams.map(t => t.team_id);
-
-    const { data: players, error } = await supabase
-        .from('players')
-        .select('*, teams(id, name)')
-        .in('team_id', teamIds)
-        .order('name');
+    const { data, error } = await supabase
+        .from('tournament_players')
+        .select('*, players(id, name, photo_url), teams(id, name)')
+        .eq('tournament_id', tournamentId)
+        .order('players(name)');
 
     if (error) return res.status(500).json({ error: error.message });
+
+    // Normalizar para que el frontend reciba el mismo formato de antes
+    const players = data.map(tp => ({
+        id: tp.players.id,
+        name: tp.players.name,
+        photo_url: tp.players.photo_url,
+        team_id: tp.team_id,
+        teams: tp.teams
+    }));
+
     res.json(players);
 });
 

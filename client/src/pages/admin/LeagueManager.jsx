@@ -163,22 +163,47 @@ const LeagueManager = () => {
     // ==========================================
     const CreatePlayerModal = () => {
         const [form, setForm] = useState({ name: '', team_id: '' });
+        const [suggestions, setSuggestions] = useState([]);
+        const [showSuggestions, setShowSuggestions] = useState(false);
 
-        // Si hay torneo seleccionado, filtra los equipos de ese torneo
-        // Si no, muestra lista vacía con aviso
         const availableTeams = selectedTournament
             ? [...new Set(tournamentPlayers.map(p => p.team_id))].map(id =>
                 teams.find(t => t.id === id)).filter(Boolean)
             : [];
 
+        const handleNameChange = (value) => {
+            setForm({ ...form, name: value });
+            if (value.length >= 1) {
+                const filtered = allPlayers.filter(p =>
+                    p.name.toLowerCase().includes(value.toLowerCase())
+                );
+                setSuggestions(filtered);
+                setShowSuggestions(true);
+            } else {
+                setShowSuggestions(false);
+            }
+        };
+
         const handleSubmit = async (e) => {
             e.preventDefault();
             try {
                 const res = await fetch(`${API_URL}/api/league-admin/players`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: form.name,
+                        team_id: form.team_id,
+                        tournament_id: selectedTournament  // ← agregar esto
+                    })
                 });
-                if (res.ok) { setShowCreatePlayer(false); fetchInitialData(); fetchMatches(); }
-                else alert("Error al crear jugador");
+                if (res.ok) {
+                    setShowCreatePlayer(false);
+                    fetchInitialData();
+                    fetchMatches();
+                } else {
+                    const err = await res.json();
+                    alert(err.error || "Error al crear jugador");
+                }
             } catch (error) { console.error(error); }
         };
 
@@ -195,20 +220,53 @@ const LeagueManager = () => {
                         </div>
                     ) : (
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
+                            <div className="relative">
                                 <label className="text-xs font-bold text-slate-500 uppercase">Apodo / Nombre</label>
-                                <input type="text" required placeholder="Ej: Pelao, Tato..." className="w-full p-3 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1 focus:border-primary focus:outline-none" onChange={e => setForm({ ...form, name: e.target.value })} />
+                                <input
+                                    type="text"
+                                    required
+                                    value={form.name}
+                                    placeholder="Ej: Pelao, Tato..."
+                                    className="w-full p-3 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1 focus:border-primary focus:outline-none"
+                                    onChange={e => handleNameChange(e.target.value)}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                                    onFocus={() => form.name.length >= 1 && setShowSuggestions(true)}
+                                    autoComplete="off"
+                                />
+                                {showSuggestions && suggestions.length > 0 && (
+                                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        {suggestions.map(p => (
+                                            <button
+                                                key={p.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setForm({ ...form, name: p.name });
+                                                    setShowSuggestions(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                            >
+                                                <span className="font-bold text-slate-900 dark:text-white text-sm">{p.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
+
                             <div>
                                 <label className="text-xs font-bold text-slate-500 uppercase">Equipo</label>
-                                <select required className="w-full p-3 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1 focus:border-primary focus:outline-none" onChange={e => setForm({ ...form, team_id: e.target.value })}>
+                                <select
+                                    required
+                                    className="w-full p-3 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1 focus:border-primary focus:outline-none"
+                                    onChange={e => setForm({ ...form, team_id: e.target.value })}
+                                >
                                     <option value="">Seleccionar Equipo...</option>
                                     {availableTeams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                                 </select>
                             </div>
+
                             <div className="flex gap-2 pt-4">
-                                <button type="button" onClick={() => setShowCreatePlayer(false)} className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold hover:bg-slate-300 transition-colors">Cancelar</button>
-                                <button type="submit" className="flex-1 py-3 bg-primary text-white rounded font-bold hover:bg-primary/90 transition-colors">Guardar</button>
+                                <button type="button" onClick={() => setShowCreatePlayer(false)} className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold">Cancelar</button>
+                                <button type="submit" className="flex-1 py-3 bg-primary text-white rounded font-bold">Guardar</button>
                             </div>
                         </form>
                     )}
