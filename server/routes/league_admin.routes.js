@@ -157,6 +157,7 @@ router.patch('/match/:id/round', async (req, res) => {
 });
 
 // POST registrar descanso
+// POST registrar descanso
 router.post('/bye', async (req, res) => {
     const { tournament_id, team_id, round } = req.body;
     const { data, error } = await supabase
@@ -165,6 +166,18 @@ router.post('/bye', async (req, res) => {
         .select();
     if (error) return res.status(500).json({ error: error.message });
     res.status(201).json(data[0]);
+});
+
+// EDITAR BYE EXISTENTE
+router.patch('/bye/:id', async (req, res) => {
+    const { team_id } = req.body;
+    const { data, error } = await supabase
+        .from('bye_weeks')
+        .update({ team_id })
+        .eq('id', req.params.id)
+        .select();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data[0]);
 });
 
 router.get('/tournament/:tournamentId/byes', async (req, res) => {
@@ -186,6 +199,18 @@ router.get('/tournament/:tournamentId/byes', async (req, res) => {
     }));
 
     res.json(byesWithTeam);
+});
+
+// EDITAR PARTIDO (equipos y fecha)
+router.patch('/match/:id', async (req, res) => {
+    const { home_team_id, away_team_id, match_date } = req.body;
+    const { data, error } = await supabase
+        .from('matches')
+        .update({ home_team_id, away_team_id, match_date })
+        .eq('id', req.params.id)
+        .select();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data[0]);
 });
 
 export default router;

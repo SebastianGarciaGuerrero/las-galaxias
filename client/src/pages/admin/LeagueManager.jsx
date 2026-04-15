@@ -11,8 +11,8 @@ const LeagueManager = () => {
     const [expandedRound, setExpandedRound] = useState(null);
     const [editingRound, setEditingRound] = useState(null);
     const [newRoundValue, setNewRoundValue] = useState('');
-    const [byeTeamId, setByeTeamId] = useState('');
     const [tournamentByes, setTournamentByes] = useState([]);
+    const [fixtureToEdit, setFixtureToEdit] = useState(null);
 
     const [showCreateMatch, setShowCreateMatch] = useState(false);
     const [showCreatePlayer, setShowCreatePlayer] = useState(false);
@@ -223,8 +223,20 @@ const LeagueManager = () => {
     const CreateMatchModal = () => {
         const currentTournament = tournaments.find(t => t.id === Number(selectedTournament));
         const isMartes = currentTournament?.category === 'martes';
-        const [slots, setSlots] = useState(
-            isMartes
+        const isEditing = !!fixtureToEdit;
+
+        // Si estamos editando, pre-poblar slots con datos existentes
+        const initialSlots = isEditing
+            ? fixtureToEdit.matches.map(m => ({
+                matchId: m.id,
+                hour: new Date(m.match_date).toLocaleTimeString('es-CL', {
+                    hour: '2-digit', minute: '2-digit',
+                    timeZone: 'America/Santiago', hour12: false
+                }),
+                home_team_id: String(m.home_team_id),
+                away_team_id: String(m.away_team_id),
+            }))
+            : isMartes
                 ? [
                     { hour: '19:00', home_team_id: '', away_team_id: '' },
                     { hour: '20:00', home_team_id: '', away_team_id: '' },
@@ -235,9 +247,17 @@ const LeagueManager = () => {
                     { hour: '19:00', home_team_id: '', away_team_id: '' },
                     { hour: '20:00', home_team_id: '', away_team_id: '' },
                     { hour: '22:00', home_team_id: '', away_team_id: '' },
-                ]
+                ];
+
+        const [slots, setSlots] = useState(initialSlots);
+        const [matchDate, setMatchDate] = useState(
+            isEditing
+                ? new Date(fixtureToEdit.matches[0].match_date).toLocaleDateString('en-CA', { timeZone: 'America/Santiago' })
+                : ''
         );
-        const [matchDate, setMatchDate] = useState('');
+        const [byeTeamId, setByeTeamId] = useState(
+            isEditing ? String(fixtureToEdit.bye?.team_id || '') : ''
+        );
 
         const availableTeams = [...new Set(tournamentPlayers.map(p => p.team_id))]
             .map(id => teams.find(t => t.id === id)).filter(Boolean);
@@ -256,36 +276,63 @@ const LeagueManager = () => {
             try {
                 for (const slot of filledSlots) {
                     if (slot.home_team_id === slot.away_team_id) return alert("Un equipo no puede jugar contra sí mismo");
-                    await fetch(`${API_URL}/api/league-admin/match`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            tournament_id: selectedTournament,
-                            home_team_id: slot.home_team_id,
-                            away_team_id: slot.away_team_id,
-                            match_date: `${matchDate}T${slot.hour}:00-03:00`,
-                            location: 'Cancha Principal'
-                        })
-                    });
+
+                    if (isEditing && slot.matchId) {
+                        // PATCH partido existente
+                        await fetch(`${API_URL}/api/league-admin/match/${slot.matchId}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                home_team_id: slot.home_team_id,
+                                away_team_id: slot.away_team_id,
+                                match_date: `${matchDate}T${slot.hour}:00-03:00`,
+                            })
+                        });
+                    } else {
+                        // POST partido nuevo
+                        await fetch(`${API_URL}/api/league-admin/match`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                tournament_id: selectedTournament,
+                                home_team_id: slot.home_team_id,
+                                away_team_id: slot.away_team_id,
+                                match_date: `${matchDate}T${slot.hour}:00-03:00`,
+                                location: 'Cancha Principal'
+                            })
+                        });
+                    }
                 }
 
-                if (byeTeamId && !isMartes) {
-                    const lastMatch = await fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`);
-                    const lastMatchData = await lastMatch.json();
-                    const currentRound = Math.max(...lastMatchData.map(m => m.round || 1));
-
-                    await fetch(`${API_URL}/api/league-admin/bye`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            tournament_id: selectedTournament,
-                            team_id: byeTeamId,
-                            round: currentRound
-                        })
-                    });
+                if (!isMartes) {
+                    if (isEditing && fixtureToEdit.bye) {
+                        // Actualizar bye existente
+                        if (byeTeamId) {
+                            await fetch(`${API_URL}/api/league-admin/bye/${fixtureToEdit.bye.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ team_id: byeTeamId })
+                            });
+                        }
+                    } else if (byeTeamId) {
+                        // Crear bye nuevo
+                        const lastMatch = await fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`);
+                        const lastMatchData = await lastMatch.json();
+                        const currentRound = Math.max(...lastMatchData.map(m => m.round || 1));
+                        await fetch(`${API_URL}/api/league-admin/bye`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                tournament_id: selectedTournament,
+                                team_id: byeTeamId,
+                                round: currentRound
+                            })
+                        });
+                    }
                 }
 
                 setShowCreateMatch(false);
+                setFixtureToEdit(null);
                 fetchMatches();
             } catch (error) { console.error(error); }
         };
@@ -293,21 +340,22 @@ const LeagueManager = () => {
         return (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
                 <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-lg p-6 border border-slate-200 dark:border-slate-700 shadow-2xl my-auto">
-                    <h3 className="text-xl font-black uppercase mb-6 text-slate-900 dark:text-white text-center">Programar Fecha</h3>
+                    <h3 className="text-xl font-black uppercase mb-6 text-slate-900 dark:text-white text-center">
+                        {isEditing ? `Editar Jornada ${fixtureToEdit.round}` : 'Programar Fecha'}
+                    </h3>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Fecha */}
                         <div>
                             <label className="text-xs font-bold text-slate-500 uppercase">Día</label>
                             <input
                                 type="date"
                                 required
+                                value={matchDate}
                                 className="w-full p-3 rounded bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 mt-1 focus:border-primary focus:outline-none"
                                 onChange={e => setMatchDate(e.target.value)}
                             />
                         </div>
 
-                        {/* Slots de hora */}
                         {slots.map((slot, index) => (
                             <div key={index} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
                                 <div className="flex items-center gap-2 mb-3">
@@ -317,6 +365,7 @@ const LeagueManager = () => {
                                     <div>
                                         <label className="text-xs font-bold text-slate-500 uppercase">Local</label>
                                         <select
+                                            value={slot.home_team_id}
                                             className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 mt-1 focus:border-primary focus:outline-none text-sm"
                                             onChange={e => updateSlot(index, 'home_team_id', e.target.value)}
                                         >
@@ -327,6 +376,7 @@ const LeagueManager = () => {
                                     <div>
                                         <label className="text-xs font-bold text-slate-500 uppercase">Visita</label>
                                         <select
+                                            value={slot.away_team_id}
                                             className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 mt-1 focus:border-primary focus:outline-none text-sm"
                                             onChange={e => updateSlot(index, 'away_team_id', e.target.value)}
                                         >
@@ -337,11 +387,12 @@ const LeagueManager = () => {
                                 </div>
                             </div>
                         ))}
+
                         {!isMartes && (
                             <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 border border-amber-200 dark:border-amber-800">
                                 <label className="text-xs font-bold text-amber-600 uppercase">Equipo con Fecha Libre</label>
                                 <select
-                                    // quitar required
+                                    value={byeTeamId}
                                     className="w-full p-2 rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-amber-200 dark:border-amber-700 mt-1 focus:border-primary focus:outline-none text-sm"
                                     onChange={e => setByeTeamId(e.target.value)}
                                 >
@@ -352,15 +403,19 @@ const LeagueManager = () => {
                         )}
 
                         <div className="flex gap-2 pt-2">
-                            <button type="button" onClick={() => setShowCreateMatch(false)} className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold">Cancelar</button>
-                            <button type="submit" className="flex-1 py-3 bg-primary text-white rounded font-bold">Guardar Fecha</button>
+                            <button type="button" onClick={() => { setShowCreateMatch(false); setFixtureToEdit(null); }}
+                                className="flex-1 py-3 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded font-bold">
+                                Cancelar
+                            </button>
+                            <button type="submit" className="flex-1 py-3 bg-primary text-white rounded font-bold">
+                                {isEditing ? 'Guardar Cambios' : 'Guardar Fecha'}
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         );
     };
-
     // ==========================================
     // MODAL: RESULTADOS
     // ==========================================
@@ -626,6 +681,18 @@ const LeagueManager = () => {
                                                     <span className="material-symbols-outlined text-sm">edit</span> Editar jornada
                                                 </button>
                                             )}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    const bye = tournamentByes?.find(b => String(b.round) === String(round));
+                                                    setFixtureToEdit({ round, matches: roundMatches, bye });
+                                                    setShowCreateMatch(true);
+                                                }}
+                                                className="px-3 mx-2 mb-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-primary flex items-center gap-1 transition-colors"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">calendar_clock</span> Editar Fecha
+                                            </button>
+
 
                                             {/* PARTIDOS DE LA JORNADA */}
                                             {isExpanded && (
