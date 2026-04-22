@@ -63,15 +63,16 @@ router.post('/players', async (req, res) => {
         playerId = newPlayer[0].id;
     }
 
-    // Verificar si ya está en este torneo y equipo
+    // Verificar si ya está en este torneo Y equipo (no solo torneo)
     const { data: existingTp } = await supabase
         .from('tournament_players')
         .select('id')
         .eq('player_id', playerId)
-        .eq('tournament_id', tournament_id);
+        .eq('tournament_id', tournament_id)
+        .eq('team_id', team_id);
 
     if (existingTp && existingTp.length > 0)
-        return res.status(409).json({ error: `${name} ya está registrado en este torneo` });
+        return res.status(409).json({ error: `${name} ya está registrado en este equipo` });
 
     // Insertar en tournament_players
     const { error: tpError } = await supabase
