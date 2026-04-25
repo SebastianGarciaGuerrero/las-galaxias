@@ -343,7 +343,7 @@ const LeagueManager = () => {
                             body: JSON.stringify({
                                 home_team_id: slot.home_team_id,
                                 away_team_id: slot.away_team_id,
-                                match_date: `${matchDate}T${slot.hour}:00-03:00`,
+                                match_date: new Date(`${matchDate}T${slot.hour}:00-04:00`).toISOString(),
                             })
                         });
                     } else {
@@ -355,7 +355,7 @@ const LeagueManager = () => {
                                 tournament_id: selectedTournament,
                                 home_team_id: slot.home_team_id,
                                 away_team_id: slot.away_team_id,
-                                match_date: `${matchDate}T${slot.hour}:00-03:00`,
+                                match_date: new Date(`${matchDate}T${slot.hour}:00-04:00`).toISOString(),
                                 location: 'Cancha Principal'
                             })
                         });

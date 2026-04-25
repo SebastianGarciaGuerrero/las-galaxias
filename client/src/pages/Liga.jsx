@@ -485,7 +485,12 @@ const Liga = () => {
                                                                         </span>
                                                                     ) : (
                                                                         <span className="text-slate-300 dark:text-slate-600 px-3 shrink-0 text-sm">
-                                                                            {new Date(match.match_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                            {new Date(match.match_date).toLocaleTimeString('es-CL', {
+                                                                                hour: '2-digit',
+                                                                                minute: '2-digit',
+                                                                                timeZone: 'America/Santiago',
+                                                                                hour12: false
+                                                                            })}
                                                                         </span>
                                                                     )}
 
@@ -493,16 +498,6 @@ const Liga = () => {
                                                                         {match.away?.name}
                                                                     </span>
                                                                 </div>
-                                                            </div>
-                                                        ))}
-
-                                                        {/* ✅ FECHA LIBRE — fuera del map de partidos */}
-                                                        {byeWeeks.filter(b => String(b.round) === String(round)).map(bye => (
-                                                            <div key={`bye-${bye.id}`} className="p-4 flex items-center gap-3 bg-amber-50/50 dark:bg-amber-900/10">
-                                                                <span className="material-symbols-outlined text-amber-500 text-sm">event_busy</span>
-                                                                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-                                                                    Fecha libre — <span className="font-black text-slate-700 dark:text-slate-200">{bye.team?.name}</span>
-                                                                </span>
                                                             </div>
                                                         ))}
                                                     </div>
