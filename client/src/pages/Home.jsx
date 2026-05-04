@@ -1,209 +1,346 @@
-import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import SoccerLoader from '../components/FutbolLoader'; // Ajusta la ruta según dónde lo guardaste
+
+const SHIELD_LOGO = 'https://res.cloudinary.com/du4oddnjl/image/upload/v1777847657/shieldRed_rbivg8.svg';
+
+const martesFeatures = [
+    { icon: 'person_add', title: 'Invita',   desc: 'Que compartas los valores' },
+    { icon: 'group',      title: 'Juega',    desc: 'Tribute a los amistosos' },
+    { icon: 'favorite',   title: 'Vivencia', desc: 'Que viva la experiencia' },
+    { icon: 'groups',     title: 'Grupo',    desc: 'Cuando esté listo... se suma' },
+];
+
+const viernesFeatures = [
+    { icon: 'bolt',         title: 'Dinámica', desc: 'Equipos rotativos cada fecha. Dispuestos a competir y aprender.' },
+    { icon: 'schema',       title: 'Sistema',  desc: 'Equipos opcionales. Dispuestos a competir al máximo.' },
+    { icon: 'emoji_events', title: 'Premios',  desc: 'Premio al campeón.' },
+];
+
+const academiaFeatures = [
+    { icon: 'self_improvement', title: 'Formación',     desc: 'Fortalecemos valores fundamentales como el respeto, la amistad, el trabajo en equipo y la constancia. Aquí recuerda siempre forman personas.' },
+    { icon: 'fitness_center',   title: 'Entrenamiento', desc: 'Clases dinámicas y adaptadas a distintas habilidades y niveles, para que nunca pierda el disfrute.' },
+    { icon: 'sports_soccer',    title: 'Técnica',        desc: 'Trabajamos habilidades clave del fútbol: control de balón, pase, regate, disparo y comprensión del juego.' },
+];
 
 const Home = () => {
-    const [latestNews, setLatestNews] = useState([]);
-    const [upcomingMatches, setUpcomingMatches] = useState([]);
-    const [leagues, setLeagues] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-
-    useEffect(() => {
-        const fetchHomeData = async () => {
-            try {
-                const [resNews, resMatches, resLeagues] = await Promise.all([
-                    fetch(`${API_URL}/api/news`),
-                    fetch(`${API_URL}/api/matches`),
-                    fetch(`${API_URL}/api/leagues`)
-                ]);
-
-                const newsData = await resNews.json();
-                const matchesData = await resMatches.json();
-                const leaguesData = await resLeagues.json();
-
-                setLatestNews(newsData.slice(0, 3));
-
-                const futureMatches = matchesData.filter(m => m.status === 'scheduled').slice(0, 4);
-                setUpcomingMatches(futureMatches);
-
-                setLeagues(leaguesData.filter(l => l.status !== 'past').slice(0, 2));
-
-            } catch (error) {
-                console.error("Error cargando el Home:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchHomeData();
-    }, []);
-
-    // ==========================================
-    // PANTALLA DE CARGA (Pelota Rodando)
-    // ==========================================
-    if (loading) {
-        return <SoccerLoader />;
-    }
-
     return (
-        <div className="bg-background-light dark:bg-background-dark min-h-screen pb-20">
+        <div className="bg-background-light dark:bg-background-dark min-h-screen">
 
-            {/* 1. HERO SECTION (Portada Mejorada) */}
-            {/* 1. HERO SECTION */}
-            <div className="relative h-[70vh] min-h-[500px] flex items-center justify-center overflow-hidden">
-                {/* Degradado más suave para que el texto resalte mejor y se funda con la página */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-background-light dark:to-background-dark z-10"></div>
-
+            {/* ── 1. HERO ── */}
+            <section className="relative h-screen min-h-[600px] overflow-hidden flex flex-col items-center">
+                <div className="absolute inset-0 bg-black/45 z-10" />
                 <img
                     src="https://res.cloudinary.com/du4oddnjl/image/upload/v1773720639/DJI_20260203214638_0295_D.JPG_u9ccia.jpg"
-                    alt="Club Deportivo Las Galaxias"
+                    alt="Las Galaxias"
                     className="absolute inset-0 w-full h-full object-cover"
                 />
 
-                <div className="relative z-20 text-center px-4 max-w-4xl mx-auto animate-fade-in-up pb-10">
-                    <span className="text-primary font-black tracking-widest uppercase text-sm md:text-base mb-4 block drop-shadow-lg">
-                        El Orgullo del Puerto
-                    </span>
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white uppercase italic leading-none mb-6 drop-shadow-2xl">
-                        Club Deportivo <br /><span className="text-primary">Las Galaxias</span>
-                    </h1>
-                    <p className="text-slate-200 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto drop-shadow-md">
-                        Más que un club, una familia. Sigue el día a día de nuestras series Todo Competidor, Seniors y nuestras ligas organizadas.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <Link to="/partidos" className="bg-primary text-white px-8 py-4 rounded-full font-black uppercase tracking-widest hover:bg-red-700 transition-colors shadow-lg hover:-translate-y-1">
-                            Ver Fixture
-                        </Link>
-                        <Link to="/liga" className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full font-black uppercase tracking-widest hover:bg-white/20 transition-colors hover:-translate-y-1">
-                            Nuestras Ligas
-                        </Link>
-                    </div>
-                </div>
-            </div>
+                <div className="relative z-20 flex flex-col items-center text-center pt-20 md:pt-[150px] px-6">
+                    <img
+                        src={SHIELD_LOGO}
+                        alt="Club Deportivo Las Galaxias"
+                        className="w-44 sm:w-56 md:w-72 lg:w-[340px] drop-shadow-2xl"
+                    />
 
-            {/* Contenedor Principal (Ya no se sobrepone al Hero) */}
-            <div className="max-w-[1536px] mx-auto px-6 lg:px-12 py-12 relative z-30">
-
-                {/* 2. PRÓXIMOS PARTIDOS DEL CLUB (TC y Seniors) */}
-                <section className="mb-24">
-                    <div className="flex items-end justify-between mb-8">
+                    <div className="mt-8 md:mt-[94px] flex flex-col items-center gap-4 md:gap-6">
                         <div>
-                            <h2 className="text-3xl md:text-4xl font-black uppercase text-slate-900 dark:text-white border-l-4 border-primary pl-4 leading-tight">
-                                Próximos Desafíos
+                            <p className="text-white font-bold text-base md:text-lg lg:text-xl">
+                                Pasión, disciplina &amp; familia.
+                            </p>
+                            <p className="text-white/85 text-sm md:text-base lg:text-lg font-light">
+                                Formando deportistas y personas de bien desde{' '}
+                                <strong className="font-bold text-white">2017.</strong>
+                            </p>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-3 mt-1">
+                            <Link
+                                to="/nosotros"
+                                className="text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:text-white/70 transition-colors"
+                            >
+                                Saber Más
+                            </Link>
+                            <div className="w-6 h-10 rounded-full border border-white/40 flex items-start justify-center pt-2">
+                                <div className="w-0.5 h-3 bg-white/60 rounded-full" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── 2. NOSOTROS ── */}
+            <section className="bg-white dark:bg-black overflow-hidden">
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:h-[744px]">
+
+                    <div className="flex flex-col justify-between py-10 px-6 sm:px-8 md:px-14 lg:pl-[200px] lg:pr-16 lg:py-16 flex-1">
+                        <div>
+                            <div className="flex items-start justify-between mb-1">
+                                <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-[0.25em]">
+                                    [ Nosotros ]
+                                </span>
+                                <img src={SHIELD_LOGO} alt="" aria-hidden="true" className="w-12 h-12 md:w-16 md:h-16" />
+                            </div>
+                            <h2 className="text-[56px] sm:text-[72px] md:text-[90px] lg:text-[120px] font-black text-primary leading-none">
+                                *2017
                             </h2>
                         </div>
-                        <Link to="/partidos" className="text-sm font-bold text-primary hover:underline uppercase tracking-wider hidden sm:block">
-                            Ver Calendario Completo &rarr;
-                        </Link>
+
+                        <div>
+                            <h3 className="text-4xl sm:text-5xl md:text-6xl font-black text-primary leading-tight mb-6 md:mb-8">
+                                Fútbol &amp;<br />Conciencia.
+                            </h3>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-md mb-4">
+                                Fundado por un grupo de amigos en los cerros de Valparaíso,
+                                el <strong className="text-slate-900 dark:text-slate-100 font-bold">Club Deportivo Las Galaxias</strong> nació
+                                para ser más que un equipo: somos una plataforma social.
+                            </p>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-md">
+                                Con experiencia en academias formativas, equipo en dos divisiones:
+                                Senior +35 &amp; Honor (a portas del Super Senior +42).
+                                Hoy nuestra casa está en el{' '}
+                                <strong className="text-slate-900 dark:text-slate-100 font-bold">Estadio Bellavista.</strong>
+                            </p>
+                        </div>
                     </div>
 
-                    {upcomingMatches.length === 0 ? (
-                        <div className="bg-white dark:bg-slate-800 p-10 rounded-2xl text-center border border-slate-200 dark:border-slate-700 shadow-sm">
-                            <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600 mb-2">event_busy</span>
-                            <p className="text-slate-500 font-bold uppercase tracking-widest">No hay partidos programados por el momento.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {upcomingMatches.map(match => {
-                                const dateObj = new Date(match.match_date);
-                                const isLocal = match.is_local;
-                                const clubName = match.category === 'seniors' ? 'Galaxias Sr' : 'Galaxias TC';
-
-                                return (
-                                    <div key={match.id} className="bg-white dark:bg-slate-800 p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary hover:shadow-md transition-all flex items-center justify-between group cursor-pointer gap-2">
-
-                                        {/* Fecha */}
-                                        <div className="flex flex-col items-center text-center w-14 md:w-24 shrink-0">
-                                            <span className="text-2xl md:text-4xl font-black text-slate-300 dark:text-slate-600 leading-none group-hover:text-primary transition-colors">
-                                                {dateObj.getDate()}
-                                            </span>
-                                            <span className="text-[10px] md:text-xs font-bold uppercase text-primary bg-primary/10 px-2 py-1 rounded mt-2">
-                                                {dateObj.toLocaleString('es-ES', { month: 'short' }).replace('.', '')}
-                                            </span>
-                                        </div>
-
-                                        {/* Equipos */}
-                                        <div className="flex-1 flex justify-between items-center min-w-0">
-                                            <span className={`font-black uppercase text-right flex-1 text-sm md:text-lg truncate ${isLocal ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
-                                                {isLocal ? clubName : match.rival}
-                                            </span>
-                                            <span className="text-slate-400 font-black px-2 md:px-4 text-sm md:text-xl shrink-0">
-                                                VS
-                                            </span>
-                                            <span className={`font-black uppercase text-left flex-1 text-sm md:text-lg truncate ${!isLocal ? 'text-primary' : 'text-slate-900 dark:text-white'}`}>
-                                                {!isLocal ? clubName : match.rival}
-                                            </span>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
-                    {/* Botón en móviles */}
-                    <Link to="/partidos" className="block sm:hidden text-center mt-6 text-sm font-bold text-primary hover:underline uppercase tracking-wider">
-                        Ver Calendario Completo &rarr;
-                    </Link>
-                </section>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-10">
-
-                    {/* 3. ÚLTIMAS NOTICIAS */}
-                    <section className="lg:col-span-2">
-                        <div className="flex items-center justify-between mb-8">
-                            <h2 className="text-3xl md:text-4xl font-black uppercase text-slate-900 dark:text-white border-l-4 border-primary pl-4">
-                                Actualidad
-                            </h2>
-                            <Link to="/noticias" className="text-sm font-bold text-primary hover:underline uppercase tracking-wider">Ver Más</Link>
-                        </div>
-
-                        <div className="grid sm:grid-cols-2 gap-6">
-                            {latestNews.map((news, index) => (
-                                <Link to={`/noticias/${news.id}`} key={news.id} className={`group ${index === 0 ? 'sm:col-span-2' : ''}`}>
-                                    <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all h-full flex flex-col">
-                                        <div className={`relative overflow-hidden ${index === 0 ? 'h-72 md:h-96' : 'h-56'}`}>
-                                            <img src={news.image_url || 'https://via.placeholder.com/800x400'} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                            <div className="absolute top-4 left-4 bg-primary text-white text-[10px] font-black uppercase px-3 py-1 rounded-full">{news.category}</div>
-                                        </div>
-                                        <div className="p-6 flex-1 flex flex-col">
-                                            <h3 className={`font-black uppercase text-slate-900 dark:text-white mb-3 line-clamp-2 ${index === 0 ? 'text-2xl md:text-3xl' : 'text-xl'}`}>{news.title}</h3>
-                                            <p className="text-slate-500 text-sm line-clamp-3 mb-6 flex-1">{news.summary}</p>
-                                            <span className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1 group-hover:gap-2 transition-all">Leer Artículo <span className="material-symbols-outlined text-sm">arrow_forward</span></span>
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </section>
-
-                    {/* 4. LIGAS ORGANIZADAS */}
-                    <section>
-                        <h2 className="text-3xl md:text-4xl font-black uppercase text-slate-900 dark:text-white border-l-4 border-primary pl-4 mb-8">
-                            Nuestras Ligas
-                        </h2>
-
-                        <div className="flex flex-col gap-6">
-                            {leagues.map(league => (
-                                <Link to={`/liga?category=${league.category}`} key={league.id} className="group relative rounded-2xl overflow-hidden h-56 border border-slate-700 shadow-md block">
-                                    <img src={league.image_url || 'https://via.placeholder.com/400x300'} alt={league.name} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/50 to-transparent"></div>
-
-                                    <div className="absolute bottom-0 left-0 p-6 w-full">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <span className="size-2 bg-green-500 rounded-full animate-pulse"></span>
-                                            <span className="text-[10px] font-black uppercase text-green-400 tracking-widest">{league.status === 'active' ? 'En Juego' : 'Próximamente'}</span>
-                                        </div>
-                                        <h3 className="text-2xl font-black uppercase text-white leading-tight mb-1">{league.name}</h3>
-                                        <p className="text-slate-300 text-xs font-bold uppercase tracking-wider">{league.season}</p>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </section>
-
+                    <div className="h-[280px] sm:h-[360px] md:h-[440px] lg:h-full lg:w-[504px] flex-shrink-0">
+                        <img
+                            src="https://res.cloudinary.com/du4oddnjl/image/upload/v1777847307/camiseta_c3pgn5.jpg"
+                            alt="Camiseta Las Galaxias"
+                            className="w-full h-full object-cover object-center"
+                        />
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            {/* ── 3. BANNER FRASE ── */}
+            <section className="relative h-[220px] sm:h-[280px] md:h-[400px] lg:h-[570px] overflow-hidden bg-primary">
+                <img
+                    src="https://res.cloudinary.com/du4oddnjl/image/upload/v1777846739/f7bfe9e52016f30bdc4d9c1336dfd3bb6b795659_ewqlla.png"
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover object-left"
+                    style={{ transform: 'scaleX(-1)' }}
+                />
+                <div className="absolute inset-0 bg-primary/55 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent from-40% via-primary/90 via-60% to-primary" />
+
+                <div className="absolute inset-0 flex items-center justify-end px-5 sm:px-8 md:px-16 lg:px-28">
+                    <div className="max-w-[200px] sm:max-w-xs md:max-w-sm">
+                        <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl font-light leading-snug mb-3 md:mb-5">
+                            Jugamos por competir, sí...
+                        </p>
+                        <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl font-light leading-snug">
+                            pero también por<br />
+                            <strong className="font-black">encontrarnos.</strong>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── 4. LIGA MARTES ── */}
+            <section className="bg-white dark:bg-black py-12 md:py-20 px-5 sm:px-6 lg:px-20">
+                <div className="max-w-6xl mx-auto">
+
+                    <div className="flex items-start justify-between mb-6 md:mb-8 gap-2">
+                        <div>
+                            <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
+                                [ Liga ]
+                            </span>
+                            <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-primary leading-none">
+                                *Martes
+                            </h2>
+                        </div>
+                        <div className="text-right pt-4 md:pt-6">
+                            <p className="font-black text-slate-900 dark:text-white text-base md:text-xl leading-tight">
+                                Martes<br />de Liga.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-2">
+                        Más que jugar, buscamos <strong className="text-slate-800 dark:text-slate-200">generar conciencia.</strong>{' '}
+                        Cada temporada la liga adopta una temática distinta para educar, visibilizar y conectar a través del fútbol.
+                    </p>
+                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-3">Temática Actual:</p>
+
+                    <div className="inline-flex items-center gap-2 border border-slate-300 dark:border-slate-700 rounded-full px-4 py-2 mb-3">
+                        <span className="text-base">🎵</span>
+                        <span className="font-black text-slate-800 dark:text-slate-200 text-xs sm:text-sm tracking-wider uppercase">
+                            Bailes Latinos
+                        </span>
+                    </div>
+
+                    <p className="text-slate-400 text-xs mb-8 md:mb-10">La comunidad crece de forma orgánica.</p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-12">
+                        {martesFeatures.map((f) => (
+                            <div key={f.title} className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 md:p-5 text-center hover:border-primary transition-colors">
+                                <span className="material-symbols-outlined text-xl md:text-2xl text-slate-500 dark:text-slate-400 mb-2 md:mb-3 block">{f.icon}</span>
+                                <h4 className="font-black text-slate-900 dark:text-white text-[10px] md:text-xs uppercase tracking-wider mb-1">{f.title}</h4>
+                                <p className="text-slate-400 text-[10px] md:text-[11px] leading-snug">{f.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="pt-6 md:pt-8 border-t border-slate-100 dark:border-slate-900">
+                        <p className="text-xl sm:text-2xl md:text-3xl text-slate-900 dark:text-white leading-snug">
+                            Aquí no vienes solo a jugar.<br />
+                            <strong className="font-black">Vienes a ser parte.</strong>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── 5. LIGA VIERNES ── */}
+            <section className="bg-white dark:bg-black border-t border-slate-100 dark:border-slate-900 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
+                <div className="max-w-6xl mx-auto">
+
+                    <div className="flex items-start justify-between mb-6 md:mb-8 gap-2">
+                        <div>
+                            <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
+                                [ Liga ]
+                            </span>
+                            <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-primary leading-none">
+                                *Viernes
+                            </h2>
+                        </div>
+                        <div className="flex items-center gap-2 pt-4 md:pt-6">
+                            <span className="material-symbols-outlined text-slate-900 dark:text-white text-xl md:text-2xl">emoji_events</span>
+                            <p className="font-black text-slate-900 dark:text-white text-base md:text-xl uppercase tracking-widest">
+                                Superliga
+                            </p>
+                        </div>
+                    </div>
+
+                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8 md:mb-10">
+                        Aquí los capitanes arman su propia historia.<br className="hidden sm:block" />
+                        Una liga competitiva diseñada para quienes buscan desafío, intensidad y compromiso en cada fecha.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                        {viernesFeatures.map((f) => (
+                            <div key={f.title} className="border border-slate-200 dark:border-slate-800 rounded-xl p-5 md:p-6 hover:border-primary transition-colors">
+                                <span className="material-symbols-outlined text-xl md:text-2xl text-slate-500 dark:text-slate-400 mb-2 md:mb-3 block">{f.icon}</span>
+                                <h4 className="font-black text-slate-900 dark:text-white text-[10px] md:text-xs uppercase tracking-wider mb-2">{f.title}</h4>
+                                <p className="text-slate-400 text-[10px] md:text-[11px] leading-relaxed">{f.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── 6. ACADEMIA ── */}
+            <section className="bg-primary py-12 md:py-20 px-5 sm:px-6 lg:px-20">
+                <div className="max-w-6xl mx-auto">
+
+                    <div className="flex items-start justify-between mb-6 md:mb-8 gap-2">
+                        <div>
+                            <span className="text-[10px] md:text-[11px] font-bold text-white/60 uppercase tracking-[0.25em] block mb-1 md:mb-2">
+                                [ Academia ]
+                            </span>
+                            <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-white leading-none">
+                                *Formación
+                            </h2>
+                        </div>
+                        <div className="text-right pt-4 md:pt-6">
+                            <p className="font-black text-white/70 text-xs sm:text-sm italic mb-1">academia</p>
+                            <span className="material-symbols-outlined text-white text-4xl md:text-5xl">sports_soccer</span>
+                        </div>
+                    </div>
+
+                    <p className="text-white/80 text-sm leading-relaxed mb-2 max-w-2xl">
+                        Todos los viernes de <strong className="text-white">16:00 a 18:00</strong> hrs, damos un espacio para que
+                        niños y niñas de Valparaíso aprendan fútbol desde un modelo formativo, cercano y consciente.
+                    </p>
+                    <p className="text-white/70 text-sm leading-relaxed mb-8 md:mb-10 max-w-2xl">
+                        Las clases están a cargo del profesor <strong className="text-white">Jesús (Ayullán)</strong>, enfocado
+                        en desarrollar habilidades deportivas mientras se fortalecen valores que van más allá de la cancha.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                        {academiaFeatures.map((f) => (
+                            <div key={f.title} className="border border-white/25 rounded-xl p-5 md:p-6 hover:border-white/50 transition-colors bg-white/5">
+                                <span className="material-symbols-outlined text-xl md:text-2xl text-white/60 mb-2 md:mb-3 block">{f.icon}</span>
+                                <h4 className="font-black text-white text-[10px] md:text-xs uppercase tracking-wider mb-2">{f.title}</h4>
+                                <p className="text-white/60 text-[10px] md:text-[11px] leading-relaxed">{f.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── 7. CTA FINAL ── */}
+            {/* Mobile: columna — foto arriba, texto abajo. Desktop: lado a lado */}
+            <section className="bg-white dark:bg-black overflow-hidden">
+
+                {/* Mobile */}
+                <div className="block md:hidden">
+                    <div className="relative h-[260px] overflow-hidden">
+                        <img
+                            src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
+                            alt=""
+                            aria-hidden="true"
+                            className="w-full h-full object-cover object-center grayscale"
+                            style={{
+                                maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
+                                WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
+                            }}
+                        />
+                    </div>
+                    <div className="px-6 pb-12 -mt-8 relative z-10">
+                        <p className="text-slate-900 dark:text-white text-2xl font-light leading-snug mb-6">
+                            Un espacio para crecer, aprender y disfrutar del fútbol en comunidad.
+                        </p>
+                        <a
+                            href="https://wa.me/56900000000"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-[11px] font-black uppercase tracking-[0.15em] px-6 py-3 rounded-full transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.549 4.103 1.504 5.837L.057 23.882a.5.5 0 0 0 .61.61l6.044-1.447A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.686-.524-5.204-1.433l-.374-.217-3.868.927.946-3.867-.228-.381A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                            </svg>
+                            Hablar con el Profesor
+                        </a>
+                    </div>
+                </div>
+
+                {/* Desktop */}
+                <div className="hidden md:block relative h-[570px]">
+                    <img
+                        src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-contain object-left grayscale"
+                        style={{
+                            maskImage: 'linear-gradient(to right, black 30%, transparent 55%)',
+                            WebkitMaskImage: 'linear-gradient(to right, black 30%, transparent 55%)',
+                        }}
+                    />
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="ml-auto w-[52%] pr-16 md:pr-24 lg:pr-32">
+                            <p className="text-slate-900 dark:text-white text-3xl md:text-4xl lg:text-5xl font-light leading-snug mb-6">
+                                Un espacio para crecer, aprender y disfrutar del fútbol en comunidad.
+                            </p>
+                            <a
+                                href="https://wa.me/56900000000"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-[11px] font-black uppercase tracking-[0.15em] px-6 py-3 rounded-full transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.549 4.103 1.504 5.837L.057 23.882a.5.5 0 0 0 .61.61l6.044-1.447A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.686-.524-5.204-1.433l-.374-.217-3.868.927.946-3.867-.228-.381A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                                </svg>
+                                Hablar con el Profesor
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
         </div>
     );
 };

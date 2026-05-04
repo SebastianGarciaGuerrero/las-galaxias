@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Liga from './pages/Liga';
 import Partidos from './pages/Partidos';
 import SobreNosotros from './pages/SobreNosotros';
+import Academia from './pages/Academia';
 import Noticias from './pages/Noticias';
 import NoticiaDetalle from './pages/NoticiaDetalle';
 
@@ -66,6 +67,7 @@ function App() {
           <Route path="/noticias" element={<Noticias />} />
           <Route path="/noticias/:id" element={<NoticiaDetalle />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
+          <Route path="/academia" element={<Academia />} />
         </Route>
 
         {/* GRUPO 2: Rutas Admin (NO tienen Navbar ni Footer públicos) */}

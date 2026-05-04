@@ -8,9 +8,9 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: "#ec1313", // Rojo del club
-                "background-light": "#f8f6f6",
-                "background-dark": "#1a0a0a", // Un negro con un tinte muy leve de rojo para elegancia
+                primary: "#E13C64",
+                "background-light": "#ffffff",
+                "background-dark": "#0a0a0a",
             },
             fontFamily: {
                 sans: ['Outfit', 'sans-serif'],

@@ -1,94 +1,114 @@
 import { Link } from 'react-router-dom';
+import logoColor from '../assets/logoLGColor.svg';
 import logoClaro from '../assets/logo.svg';
+
+const NAV_LINKS = [
+    { label: 'Nosotros', to: '/sobre-nosotros' },
+    { label: 'Ligas',    to: '/liga' },
+    { label: 'Academia', to: '/academia' },
+    { label: 'Colabora', to: '/sobre-nosotros' },
+];
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="bg-slate-950 text-white py-12 px-4 md:px-8 mt-auto border-t border-slate-900 relative overflow-hidden">
-            {/* Decoración de fondo sutil */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
+        <footer>
 
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+            {/* ── Área principal ── */}
+            <div className="bg-white dark:bg-black px-8 md:px-14 lg:px-20 py-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-10 border-t border-slate-100 dark:border-white/10">
 
-                {/* 1. IDENTIDAD DEL CLUB */}
-                <div className="col-span-1 flex flex-col gap-4">
-                    <Link to="/" className="block hover:-translate-y-1 transition-transform w-fit">
+                {/* Izquierda: logo + tagline + descripción */}
+                <div className="flex flex-col gap-1">
+                    <Link to="/">
+                        <img
+                            src={logoColor}
+                            alt="CD Las Galaxias"
+                            className="h-10 w-auto object-contain block dark:hidden"
+                        />
                         <img
                             src={logoClaro}
-                            alt="Logo CD Las Galaxias"
-                            className="h-14 w-auto object-contain"
+                            alt="CD Las Galaxias"
+                            className="h-10 w-auto object-contain hidden dark:block"
                         />
                     </Link>
-
-                    <p className="text-slate-400 text-sm leading-relaxed max-w-xs">
-                        Pasión, disciplina y familia. Formando deportistas y personas de bien desde <strong className="text-white">2017</strong>.
+                    <span className="text-primary text-sm font-medium mt-1">Fútbol &amp; Conciencia</span>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed mt-0.5">
+                        Pasión, disciplina y familia.<br />
+                        Formando deportistas y personas de bien desde <strong className="text-slate-800 dark:text-slate-200">2017.</strong>
                     </p>
-
-                    <div className="flex items-center gap-2 mt-1">
-                        <span className="size-2 bg-primary rounded-full animate-pulse"></span>
-                        <span className="text-xs font-bold text-primary uppercase tracking-widest">Fútbol y Conciencia</span>
-                    </div>
                 </div>
 
-                {/* 2. ENLACES RÁPIDOS */}
-                <div className="flex flex-col md:items-center">
-                    <div>
-                        <h4 className="font-black uppercase mb-6 tracking-widest text-primary text-xs border-b border-slate-800 pb-2 inline-block">Navegación</h4>
-                        <ul className="flex flex-col gap-3 text-sm text-slate-300">
-                            <li><Link to="/" className="hover:text-primary transition-colors hover:translate-x-1 inline-block duration-200">Inicio</Link></li>
-                            <li><Link to="/noticias" className="hover:text-primary transition-colors hover:translate-x-1 inline-block duration-200">Noticias</Link></li>
-                            <li><Link to="/partidos" className="hover:text-primary transition-colors hover:translate-x-1 inline-block duration-200">Partidos y Resultados</Link></li>
-                            <li><Link to="/liga" className="hover:text-primary transition-colors hover:translate-x-1 inline-block duration-200">Tabla de Posiciones</Link></li>
-                        </ul>
-                    </div>
+                {/* Centro: navegación */}
+                <nav className="flex items-center gap-8 md:gap-12">
+                    {NAV_LINKS.map(({ label, to }) => (
+                        <Link
+                            key={to}
+                            to={to}
+                            className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-800 dark:text-white hover:text-primary dark:hover:text-primary transition-colors"
+                        >
+                            {label}
+                        </Link>
+                    ))}
+                </nav>
+
+                {/* Derecha: redes sociales */}
+                <div className="flex items-center gap-4">
+                    {/* Instagram */}
+                    <a
+                        href="https://www.instagram.com/cdgalaxias/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Instagram"
+                    >
+                        <svg viewBox="0 0 24 24" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="ig-grad" cx="30%" cy="107%" r="150%">
+                                    <stop offset="0%" stopColor="#fdf497" />
+                                    <stop offset="5%" stopColor="#fdf497" />
+                                    <stop offset="45%" stopColor="#fd5949" />
+                                    <stop offset="60%" stopColor="#d6249f" />
+                                    <stop offset="90%" stopColor="#285AEB" />
+                                </radialGradient>
+                            </defs>
+                            <rect width="24" height="24" rx="6" fill="url(#ig-grad)" />
+                            <path fill="white" d="M12 7.2A4.8 4.8 0 1 0 12 16.8 4.8 4.8 0 1 0 12 7.2Zm0 7.92A3.12 3.12 0 1 1 12 8.88 3.12 3.12 0 0 1 12 15.12Zm4.992-8.16a1.12 1.12 0 1 1-2.24 0 1.12 1.12 0 0 1 2.24 0Zm3.18 1.137c-.071-1.496-.413-2.821-1.508-3.912C17.579 3.097 16.254 2.755 14.758 2.68c-1.541-.088-6.16-.088-7.702 0C5.562 2.751 4.237 3.093 3.143 4.184 2.048 5.275 1.71 6.6 1.635 8.096c-.088 1.541-.088 6.16 0 7.701.075 1.497.413 2.821 1.508 3.912 1.095 1.091 2.419 1.433 3.915 1.508 1.541.088 6.16.088 7.701 0 1.497-.075 2.822-.413 3.912-1.508 1.091-1.091 1.433-2.415 1.508-3.912.088-1.541.088-6.156 0-7.697Zm-2.002 9.35a3.16 3.16 0 0 1-1.781 1.781c-1.233.489-4.159.376-5.52.376s-4.292.108-5.52-.376a3.16 3.16 0 0 1-1.782-1.78c-.489-1.233-.376-4.159-.376-5.52s-.108-4.292.376-5.52A3.16 3.16 0 0 1 6.349 4.77c1.233-.489 4.159-.376 5.52-.376s4.292-.108 5.52.376a3.16 3.16 0 0 1 1.781 1.78c.489 1.233.376 4.159.376 5.52s.113 4.292-.376 5.52Z"/>
+                        </svg>
+                    </a>
+
+                    {/* YouTube */}
+                    <a
+                        href="https://www.youtube.com/@CDGalaxias"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="YouTube"
+                    >
+                        <svg viewBox="0 0 24 24" className="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="24" height="24" rx="6" fill="#FF0000" />
+                            <path fill="white" d="M19.59 7.13a2.01 2.01 0 0 0-1.41-1.42C16.76 5.4 12 5.4 12 5.4s-4.76 0-6.18.34A2.01 2.01 0 0 0 4.41 7.13 21.1 21.1 0 0 0 4.07 12a21.1 21.1 0 0 0 .34 4.87 2.01 2.01 0 0 0 1.41 1.41C7.24 18.6 12 18.6 12 18.6s4.76 0 6.18-.34a2.01 2.01 0 0 0 1.41-1.41A21.1 21.1 0 0 0 19.93 12a21.1 21.1 0 0 0-.34-4.87ZM10.18 14.72V9.28L14.91 12l-4.73 2.72Z"/>
+                        </svg>
+                    </a>
                 </div>
-
-                {/* 3. REDES SOCIALES */}
-                <div>
-                    <h4 className="font-black uppercase mb-6 tracking-widest text-primary text-xs border-b border-slate-800 pb-2 inline-block">Síguenos</h4>
-                    <p className="text-slate-400 text-sm mb-4">Únete a nuestra comunidad digital.</p>
-
-                    <div className="flex gap-4">
-
-                        {/* INSTAGRAM (Corregido) */}
-                        <a href="https://www.instagram.com/cdgalaxias/" target="_blank" rel="noopener noreferrer"
-                            className="size-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-white hover:bg-gradient-to-br hover:from-purple-600 hover:to-orange-500 hover:border-transparent hover:-translate-y-1 transition-all duration-300 shadow-lg group">
-                            <svg className="size-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                            </svg>
-                        </a>
-
-                        {/* FACEBOOK (Nuevo) */}
-                        <a href="https://www.facebook.com/CDLasGalaxias/" target="_blank" rel="noopener noreferrer"
-                            className="size-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-white hover:bg-blue-600 hover:border-transparent hover:-translate-y-1 transition-all duration-300 shadow-lg group">
-                            <svg className="size-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                            </svg>
-                        </a>
-
-                        {/* YOUTUBE */}
-                        <a href="https://www.youtube.com/@CDGalaxias" target="_blank" rel="noopener noreferrer"
-                            className="size-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-white hover:bg-red-600 hover:border-transparent hover:-translate-y-1 transition-all duration-300 shadow-lg group">
-                            <svg className="size-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
             </div>
 
-            {/* COPYRIGHT & CRÉDITOS */}
-            <div className="max-w-7xl mx-auto pt-8 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">
+            {/* ── Barra inferior ── */}
+            <div className="bg-primary px-8 md:px-14 lg:px-20 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <p className="text-white text-[10px] font-bold uppercase tracking-[0.2em]">
                     © {currentYear} Club Deportivo Las Galaxias.
                 </p>
-
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                    Desarrollado  <span className="text-red-500 mx-1">X</span> <a href="https://sebastiangarcia.cl" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-primary transition-colors border-b border-transparent hover:border-primary pb-0.5">sebastiangarcia.cl</a>
-                </div>
+                <p className="text-white/80 text-[10px] font-bold uppercase tracking-[0.2em]">
+                    Desarrollado X{' '}
+                    <a
+                        href="https://sebastiangarcia.cl"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white hover:underline"
+                    >
+                        SebastianGarcia.cl
+                    </a>
+                </p>
             </div>
+
         </footer>
     );
 };

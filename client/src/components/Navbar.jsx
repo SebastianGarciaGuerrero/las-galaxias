@@ -1,119 +1,124 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import logoColor from '../assets/logoLGColor.svg';
 import logoClaro from '../assets/logo.svg';
 
-const Navbar = () => {
-    // Estado para el tema oscuro/claro
-    const [theme, setTheme] = useState(() => {
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-        }
-        return 'light';
-    });
+const NAV_LINKS = [
+    { label: 'Nosotros', to: '/sobre-nosotros' },
+    { label: 'Ligas',    to: '/liga' },
+    { label: 'Academia', to: '/academia' },
+    { label: 'Colabora', to: '/sobre-nosotros' },
+];
 
-    // Estado para el menú móvil (abierto/cerrado)
+const Navbar = () => {
+    const { pathname } = useLocation();
+    const isHome = pathname === '/';
+
+    const [theme, setTheme] = useState(() =>
+        window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    );
+    const [scrolled, setScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
-        if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        document.documentElement.classList.toggle('dark', theme === 'dark');
     }, [theme]);
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-    };
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 5);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
 
-    // Función para cerrar el menú al hacer clic en un enlace
-    const closeMenu = () => setIsMenuOpen(false);
+    const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 md:px-20 lg:px-40 py-3 transition-colors duration-300">
-            <div className="flex items-center justify-between max-w-[1280px] mx-auto whitespace-nowrap relative">
+        <header
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+                scrolled || !isHome
+                    ? 'bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10'
+                    : 'bg-transparent'
+            }`}
+        >
+            <div className="max-w-6xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16 md:h-18">
 
                 {/* Logo */}
-                <Link to="/" className="block py-1 hover:-translate-y-1 transition-transform">
-
-                    {/* 1. LOGO MODO CLARO (Se muestra por defecto, se oculta en modo oscuro) */}
+                <Link to="/" className="flex-shrink-0">
                     <img
-                        src={logoColor}
-                        alt="Logo CD Las Galaxias"
-                        className="h-12 md:h-16 w-auto object-contain block dark:hidden"
+                        src={scrolled ? logoColor : logoColor}
+                        alt="CD Las Galaxias"
+                        className="h-10 w-auto object-contain block dark:hidden"
                     />
-
-                    {/* 2. LOGO MODO OSCURO (Está oculto por defecto, se muestra en modo oscuro) */}
                     <img
                         src={logoClaro}
-                        alt="Logo CD Las Galaxias"
-                        className="h-12 md:h-16 w-auto object-contain hidden dark:block"
+                        alt="CD Las Galaxias"
+                        className="h-10 w-auto object-contain hidden dark:block"
                     />
-
                 </Link>
 
-                {/* Navigation (Desktop) - Se oculta en móvil */}
-                <nav className="hidden md:flex flex-1 justify-center gap-8">
-                    <Link to="/partidos" className="text-slate-900 dark:text-slate-200 text-sm font-bold uppercase hover:text-primary transition-colors">Partidos</Link>
-                    <Link to="/liga" className="text-slate-900 dark:text-slate-200 text-sm font-bold uppercase hover:text-primary transition-colors">Liga</Link>
-                    <Link to="/noticias" className="text-slate-900 dark:text-slate-200 text-sm font-bold uppercase hover:text-primary transition-colors">Noticias</Link>
-                    <Link to="/sobre-nosotros" className="text-slate-900 dark:text-slate-200 text-sm font-bold uppercase hover:text-primary transition-colors">Sobre Nosotros</Link>
+                {/* Nav desktop */}
+                <nav className="hidden md:flex items-center gap-8">
+                    {NAV_LINKS.map(({ label, to }) => (
+                        <Link
+                            key={to}
+                            to={to}
+                            className={`text-[11px] font-bold uppercase tracking-[0.18em] transition-colors hover:text-primary ${
+                                scrolled || !isHome
+                                    ? 'text-black dark:text-white'
+                                    : 'text-white'
+                            }`}
+                        >
+                            {label}
+                        </Link>
+                    ))}
                 </nav>
 
-                {/* Actions & Theme Toggle & Mobile Menu Button */}
-                <div className="flex gap-2 z-50">
-                    <button onClick={toggleTheme} className="flex size-10 cursor-pointer items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary hover:text-white transition-all">
-                        <span className="material-symbols-outlined text-[20px]">
+                {/* Acciones derecha */}
+                <div className="flex items-center gap-2">
+                    {/* Theme toggle */}
+                    <button
+                        onClick={toggleTheme}
+                        aria-label="Cambiar tema"
+                        className={`w-6 h-6 md:w-8 md:h-8 rounded-sm flex items-center justify-center transition-all active:scale-90 hover:opacity-80 ${
+                            theme === 'dark' ? 'bg-primary' : 'bg-amber-400'
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-white text-[13px] md:text-[16px] leading-none">
                             {theme === 'dark' ? 'light_mode' : 'dark_mode'}
                         </span>
                     </button>
 
-                    {/* Botón Hamburguesa (Visible solo en móvil 'md:hidden') */}
+                    {/* Hamburguesa móvil */}
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="md:hidden flex size-10 cursor-pointer items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary hover:text-white transition-all"
+                        className={`md:hidden flex items-center justify-center w-7 h-7 transition-colors ${
+                            scrolled || !isHome
+                                ? 'text-black dark:text-white'
+                                : 'text-white'
+                        }`}
+                        aria-label="Menú"
                     >
-                        <span className="material-symbols-outlined text-[24px]">
+                        <span className="material-symbols-outlined text-[20px]">
                             {isMenuOpen ? 'close' : 'menu'}
                         </span>
                     </button>
                 </div>
             </div>
 
-            {/* Menú Desplegable (Móvil) */}
-            {/* Se muestra solo si isMenuOpen es true y estamos en móvil */}
+            {/* Menú móvil desplegable */}
             {isMenuOpen && (
-                <div className="absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-xl md:hidden animate-fade-in z-40">
-                    <nav className="flex flex-col p-4 space-y-4">
-                        <Link
-                            to="/partidos"
-                            onClick={closeMenu}
-                            className="text-slate-900 dark:text-white text-lg font-black uppercase tracking-wide hover:text-primary p-2 border-b border-slate-100 dark:border-slate-800"
-                        >
-                            Partidos
-                        </Link>
-                        <Link
-                            to="/liga"
-                            onClick={closeMenu}
-                            className="text-slate-900 dark:text-white text-lg font-black uppercase tracking-wide hover:text-primary p-2 border-b border-slate-100 dark:border-slate-800"
-                        >
-                            Liga
-                        </Link>
-                        <Link
-                            to="/noticias"
-                            onClick={closeMenu}
-                            className="text-slate-900 dark:text-white text-lg font-black uppercase tracking-wide hover:text-primary p-2 border-b border-slate-100 dark:border-slate-800"
-                        >
-                            Noticias
-                        </Link>
-                        <Link
-                            to="/sobre-nosotros"
-                            onClick={closeMenu}
-                            className="text-slate-900 dark:text-white text-lg font-black uppercase tracking-wide hover:text-primary p-2"
-                        >
-                            Sobre Nosotros
-                        </Link>
+                <div className="md:hidden bg-white dark:bg-black border-t border-slate-100 dark:border-white/10">
+                    <nav className="flex flex-col px-6 py-4 gap-1">
+                        {NAV_LINKS.map(({ label, to }) => (
+                            <Link
+                                key={to}
+                                to={to}
+                                onClick={() => setIsMenuOpen(false)}
+                                className="text-slate-900 dark:text-white text-base font-black uppercase tracking-widest py-3 border-b border-slate-100 dark:border-white/10 hover:text-primary transition-colors"
+                            >
+                                {label}
+                            </Link>
+                        ))}
                     </nav>
                 </div>
             )}
