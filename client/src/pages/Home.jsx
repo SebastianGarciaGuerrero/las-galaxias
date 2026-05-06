@@ -54,7 +54,7 @@ const Home = () => {
 
                         <div className="flex flex-col items-center gap-3 mt-1">
                             <Link
-                                to="/nosotros"
+                                to="/sobre-nosotros"
                                 className="text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:text-white/70 transition-colors"
                             >
                                 Saber Más
