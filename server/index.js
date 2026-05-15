@@ -1,6 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Importar rutas
 import leaguesRoutes from './routes/leagues.routes.js';
@@ -8,8 +12,10 @@ import newsRoutes from './routes/news.routes.js';
 import matchesRoutes from './routes/matches.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import leagueAdminRoutes from './routes/league_admin.routes.js';
+import stagingRoutes from './routes/staging.routes.js';
 
 dotenv.config();
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
 const app = express();
 
@@ -41,7 +47,8 @@ app.use('/api/leagues', leaguesRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/matches', matchesRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/league-admin', leagueAdminRoutes); 
+app.use('/api/league-admin', leagueAdminRoutes);
+app.use('/api/staging', stagingRoutes);
 
 // --- ROOT (Para verificar que el server vive) ---
 app.get('/', (req, res) => {
