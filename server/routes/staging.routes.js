@@ -91,13 +91,15 @@ router.post('/submissions', async (req, res) => {
 
     if (goals.length > 0) {
         const rows = goals
-            .filter(g => g.player_id && g.team_id && g.count > 0)
+            .filter(g => g.player_id && g.team_id)
             .map(g => ({
                 submission_id: submission.id,
                 player_id: g.player_id,
                 team_id: g.team_id,
-                count: g.count,
-            }));
+                count: g.count ?? 1,
+                minute: Number.isInteger(g.minute) ? g.minute : null,
+            }))
+            .filter(r => r.count > 0);
 
         if (rows.length > 0) {
             const { error: goalsErr } = await supabase
@@ -140,7 +142,7 @@ router.get('/submissions', async (req, res) => {
     if (ids.length > 0) {
         const { data: goalsData, error: gErr } = await supabase
             .from('staging_match_goals')
-            .select('id, submission_id, player_id, team_id, count, players(id, name), teams(id, name)')
+            .select('id, submission_id, player_id, team_id, count, minute, players(id, name), teams(id, name)')
             .in('submission_id', ids);
         if (gErr) return res.status(500).json({ error: gErr.message });
 
@@ -152,6 +154,7 @@ router.get('/submissions', async (req, res) => {
                 team_id: g.team_id,
                 team_name: g.teams?.name,
                 count: g.count,
+                minute: g.minute,
             });
             return acc;
         }, {});
@@ -189,13 +192,15 @@ router.patch('/submissions/:id', async (req, res) => {
         if (delErr) return res.status(500).json({ error: delErr.message });
 
         const rows = goals
-            .filter(g => g.player_id && g.team_id && g.count > 0)
+            .filter(g => g.player_id && g.team_id)
             .map(g => ({
                 submission_id: Number(req.params.id),
                 player_id: g.player_id,
                 team_id: g.team_id,
-                count: g.count,
-            }));
+                count: g.count ?? 1,
+                minute: Number.isInteger(g.minute) ? g.minute : null,
+            }))
+            .filter(r => r.count > 0);
 
         if (rows.length > 0) {
             const { error: insErr } = await supabase

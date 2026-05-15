@@ -223,19 +223,31 @@ const SubmissionCard = ({ sub, busy, onApprove, onReject, onEdit }) => {
     );
 };
 
-const TeamColumn = ({ name, goals, align }) => (
-    <div className={`text-${align}`}>
-        <p className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">{name}</p>
-        <ul className="mt-1 space-y-0.5">
-            {goals.length === 0 && <li className="text-[11px] text-slate-300 dark:text-slate-600 italic">Sin goles</li>}
-            {goals.map(g => (
-                <li key={g.id} className="text-[12px] text-slate-600 dark:text-slate-300">
-                    {g.player_name} {g.count > 1 && <span className="text-primary font-black">×{g.count}</span>}
-                </li>
-            ))}
-        </ul>
-    </div>
-);
+const TeamColumn = ({ name, goals, align }) => {
+    // Si todos los goles tienen minuto, ordenamos cronológicamente
+    const sorted = [...goals].sort((a, b) => {
+        if (a.minute == null && b.minute == null) return 0;
+        if (a.minute == null) return 1;
+        if (b.minute == null) return -1;
+        return a.minute - b.minute;
+    });
+    return (
+        <div className={`text-${align}`}>
+            <p className="text-xs font-black uppercase tracking-widest text-slate-900 dark:text-white">{name}</p>
+            <ul className="mt-1 space-y-0.5">
+                {sorted.length === 0 && <li className="text-[11px] text-slate-300 dark:text-slate-600 italic">Sin goles</li>}
+                {sorted.map(g => (
+                    <li key={g.id} className="text-[12px] text-slate-600 dark:text-slate-300">
+                        {g.minute != null && (
+                            <span className="inline-block w-7 text-right font-mono text-[10px] text-primary font-black mr-1">{g.minute}'</span>
+                        )}
+                        {g.player_name} {g.count > 1 && <span className="text-primary font-black">×{g.count}</span>}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+};
 
 const EditSubmissionModal = ({ sub, onClose, onSaved }) => {
     const [homeScore, setHomeScore] = useState(sub.home_score);

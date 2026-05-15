@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/tournament.dart';
 import '../services/staging_service.dart';
 import 'matches_screen.dart';
+import 'submissions_history_screen.dart';
 
 class TournamentsScreen extends StatefulWidget {
   const TournamentsScreen({super.key});
@@ -30,6 +31,14 @@ class _TournamentsScreenState extends State<TournamentsScreen> {
       appBar: AppBar(
         title: const Text('Marcador en cancha'),
         actions: [
+          IconButton(
+            tooltip: 'Mis envíos',
+            icon: const Icon(Icons.history),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SubmissionsHistoryScreen()),
+            ),
+          ),
           IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
         ],
       ),
