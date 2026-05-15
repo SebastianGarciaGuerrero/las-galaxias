@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import NewsManager from './NewsManager';
 import MatchesManager from './MatchesManager';
 import LeagueManager from './LeagueManager';
+import ValidateManager from './ValidateManager';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -68,6 +69,17 @@ const Dashboard = () => {
                         ⚽ Partidos
                     </button>
 
+                    {/* Botón Validar (resultados desde app mobile) */}
+                    <button
+                        onClick={() => setActiveTab('validate')}
+                        className={`w-full text-left px-4 py-3 rounded-lg transition-colors font-medium flex items-center gap-2 ${activeTab === 'validate'
+                                ? 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary border-r-4 border-primary'
+                                : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                            }`}
+                    >
+                        ✅ Validar
+                    </button>
+
                 </nav>
                 <div className="absolute bottom-0 w-64 p-4 border-t border-slate-200 dark:border-slate-700">
                     <button onClick={handleLogout} className="flex items-center gap-2 text-red-500 font-bold text-sm w-full hover:bg-red-50 dark:hover:bg-red-900/10 p-2 rounded transition-colors">
@@ -90,6 +102,7 @@ const Dashboard = () => {
                 {activeTab === 'news' && <NewsManager />}
                 {activeTab === 'matches' && <MatchesManager />}
                 {activeTab === 'league' && <LeagueManager />}
+                {activeTab === 'validate' && <ValidateManager />}
 
             </main>
         </div>
