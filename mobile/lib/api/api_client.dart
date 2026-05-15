@@ -11,7 +11,9 @@ class ApiException implements Exception {
 
 class ApiClient {
   Future<List<dynamic>> getJsonList(String path) async {
-    final res = await http.get(Uri.parse('${AppConfig.apiUrl}$path'));
+    final res = await http
+        .get(Uri.parse('${AppConfig.apiUrl}$path'))
+        .timeout(AppConfig.httpTimeout);
     if (res.statusCode >= 400) {
       throw ApiException('HTTP ${res.statusCode}: ${res.body}');
     }
@@ -19,11 +21,13 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> postJson(String path, Map<String, dynamic> body) async {
-    final res = await http.post(
-      Uri.parse('${AppConfig.apiUrl}$path'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    final res = await http
+        .post(
+          Uri.parse('${AppConfig.apiUrl}$path'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(body),
+        )
+        .timeout(AppConfig.httpTimeout);
     if (res.statusCode >= 400) {
       String msg = 'HTTP ${res.statusCode}';
       try {

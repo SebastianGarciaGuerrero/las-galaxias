@@ -38,8 +38,13 @@ create table if not exists public.staging_match_goals (
     player_id       bigint not null references public.players(id),
     team_id         bigint not null references public.teams(id),
     count           int not null check (count > 0),
+    minute          int check (minute is null or minute between 0 and 200),
     created_at      timestamptz not null default now()
 );
+
+-- Migración aditiva por si la tabla ya existía sin la columna
+alter table public.staging_match_goals
+    add column if not exists minute int check (minute is null or minute between 0 and 200);
 
 create index if not exists idx_staging_match_goals_submission
     on public.staging_match_goals(submission_id);

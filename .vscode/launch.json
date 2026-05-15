@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Marcador (prod)",
+            "request": "launch",
+            "type": "dart",
+            "program": "mobile/lib/main.dart",
+            "cwd": "${workspaceFolder}/mobile",
+            "toolArgs": [
+                "--dart-define=API_URL=https://las-galaxias-api.vercel.app"
+            ]
+        },
+        {
+            "name": "Marcador (local - emulador Android)",
+            "request": "launch",
+            "type": "dart",
+            "program": "mobile/lib/main.dart",
+            "cwd": "${workspaceFolder}/mobile",
+            "toolArgs": [
+                "--dart-define=API_URL=http://10.0.2.2:3001"
+            ]
+        },
+        {
+            "name": "Marcador (local - LAN)",
+            "request": "launch",
+            "type": "dart",
+            "program": "mobile/lib/main.dart",
+            "cwd": "${workspaceFolder}/mobile",
+            "toolArgs": [
+                "--dart-define=API_URL=http://192.168.1.20:3001"
+            ]
+        }
+    ]
+}
