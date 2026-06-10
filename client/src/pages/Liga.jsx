@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import FutbolLoader from '../components/FutbolLoader';
+import TeamBadge from '../components/TeamBadge';
+import ShareStandings from '../components/ShareStandings';
+import ShareScorers from '../components/ShareScorers';
+import ShareResults from '../components/ShareResults';
 
 const Liga = () => {
     const [leaguesList, setLeaguesList] = useState([]);
@@ -270,9 +274,12 @@ const Liga = () => {
                     {/* TABLA DE POSICIONES */}
                     {leagueData.standings?.length > 0 && (
                         <div className="mb-16">
-                            <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary">table_chart</span> Tabla General
-                            </h3>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">table_chart</span> Tabla General
+                                </h3>
+                                <ShareStandings league={selectedLeague} standings={leagueData.standings} />
+                            </div>
                             <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 shadow-lg bg-white dark:bg-slate-900">
                                 <table className="w-full text-sm text-left whitespace-nowrap">
                                     <thead className="text-xs text-slate-400 uppercase bg-slate-900 dark:bg-black border-b border-slate-800">
@@ -298,13 +305,7 @@ const Liga = () => {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-3">
-                                                    <div className="size-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                                                        {team.shield_url ? (
-                                                            <img src={team.shield_url} alt="escudo" className="w-full h-full object-cover rounded-full" />
-                                                        ) : (
-                                                            <span className="text-[10px] font-black text-slate-500">{team.name.substring(0, 1)}</span>
-                                                        )}
-                                                    </div>
+                                                    <TeamBadge name={team.name} shieldUrl={team.shield_url} size={24} />
                                                     {team.name}
                                                 </td>
                                                 <td className="px-6 py-4 text-center font-black text-lg text-primary">{team.points}</td>
@@ -328,9 +329,12 @@ const Liga = () => {
                     {/* SECCIÓN GOLEADORES */}
                     {scorers.length > 0 && (
                         <div className="mb-16">
-                            <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-8 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary">sports_soccer</span> Goleadores
-                            </h3>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                                <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">sports_soccer</span> Goleadores
+                                </h3>
+                                <ShareScorers league={selectedLeague} scorers={scorers} />
+                            </div>
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                 <div className="lg:col-span-2 bg-slate-100 dark:bg-slate-900/50 rounded-xl p-6 border border-slate-200 dark:border-slate-800 flex items-end justify-center gap-2 md:gap-4 h-[400px]">
                                     <div className="flex flex-col items-center w-1/3">
@@ -429,35 +433,38 @@ const Liga = () => {
                                             <div key={round} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
 
                                                 {/* HEADER JORNADA */}
-                                                <button
-                                                    onClick={() => setExpandedRound(isExpanded ? null : round)}
-                                                    className="w-full p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="text-sm font-black uppercase tracking-widest text-white bg-primary px-4 py-1.5 rounded-lg">
-                                                            Jornada {round}
-                                                        </span>
-                                                        {allFinished ? (
-                                                            <span className="text-xs font-bold text-green-500 flex items-center gap-1">
-                                                                <span className="material-symbols-outlined text-sm">check_circle</span> Completada
-                                                            </span>
-                                                        ) : roundMatches.every(m => m.status === 'scheduled') ? (
-                                                            <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
-                                                                <span className="material-symbols-outlined text-sm">schedule</span> Próximamente
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
-                                                                <span className="material-symbols-outlined text-sm">pending</span> En curso
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <span
-                                                        className="material-symbols-outlined text-slate-400 transition-transform duration-200"
-                                                        style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                                                <div className="w-full p-4 flex items-center justify-between gap-3">
+                                                    <button
+                                                        onClick={() => setExpandedRound(isExpanded ? null : round)}
+                                                        className="flex-1 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-lg -m-2 p-2"
                                                     >
-                                                        expand_more
-                                                    </span>
-                                                </button>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-sm font-black uppercase tracking-widest text-white bg-primary px-4 py-1.5 rounded-lg">
+                                                                Jornada {round}
+                                                            </span>
+                                                            {allFinished ? (
+                                                                <span className="text-xs font-bold text-green-500 flex items-center gap-1">
+                                                                    <span className="material-symbols-outlined text-sm">check_circle</span> Completada
+                                                                </span>
+                                                            ) : roundMatches.every(m => m.status === 'scheduled') ? (
+                                                                <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
+                                                                    <span className="material-symbols-outlined text-sm">schedule</span> Próximamente
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
+                                                                    <span className="material-symbols-outlined text-sm">pending</span> En curso
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <span
+                                                            className="material-symbols-outlined text-slate-400 transition-transform duration-200"
+                                                            style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                                                        >
+                                                            expand_more
+                                                        </span>
+                                                    </button>
+                                                    <ShareResults league={selectedLeague} round={round} matches={roundMatches} />
+                                                </div>
 
                                                 {/* PARTIDOS */}
                                                 {isExpanded && (
