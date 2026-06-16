@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
-const SHIELD_LOGO = 'https://res.cloudinary.com/du4oddnjl/image/upload/v1777847657/shieldRed_rbivg8.svg';
+import shieldRed from '../assets/shieldRed.svg';
+const SHIELD_LOGO = shieldRed;
 
 const pillars = [
     {

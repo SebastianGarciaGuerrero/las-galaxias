@@ -33,10 +33,11 @@ const Navbar = () => {
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
 
     return (
+        <>
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
                 scrolled || !isHome
-                    ? 'bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-slate-200/60 dark:border-white/10'
+                    ? 'bg-white/95 dark:bg-black/95 backdrop-blur-md'
                     : 'bg-transparent'
             }`}
         >
@@ -47,12 +48,12 @@ const Navbar = () => {
                     <img
                         src={scrolled ? logoColor : logoColor}
                         alt="CD Las Galaxias"
-                        className="h-10 w-auto object-contain block dark:hidden"
+                        className="h-6 w-auto object-contain block dark:hidden"
                     />
                     <img
                         src={logoClaro}
                         alt="CD Las Galaxias"
-                        className="h-10 w-auto object-contain hidden dark:block"
+                        className="h-6 w-auto object-contain hidden dark:block"
                     />
                 </Link>
 
@@ -79,50 +80,70 @@ const Navbar = () => {
                     <button
                         onClick={toggleTheme}
                         aria-label="Cambiar tema"
-                        className={`w-6 h-6 md:w-8 md:h-8 rounded-sm flex items-center justify-center transition-all active:scale-90 hover:opacity-80 ${
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center transition-all active:scale-90 hover:opacity-80 ${
                             theme === 'dark' ? 'bg-primary' : 'bg-amber-400'
                         }`}
                     >
-                        <span className="material-symbols-outlined text-white text-[13px] md:text-[16px] leading-none">
+                        <span className="material-symbols-outlined text-white text-[16px] md:text-[20px] leading-none">
                             {theme === 'dark' ? 'light_mode' : 'dark_mode'}
                         </span>
                     </button>
 
-                    {/* Hamburguesa móvil */}
-                    <button
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className={`md:hidden flex items-center justify-center w-7 h-7 transition-colors ${
-                            scrolled || !isHome
-                                ? 'text-black dark:text-white'
-                                : 'text-white'
-                        }`}
-                        aria-label="Menú"
-                    >
-                        <span className="material-symbols-outlined text-[20px]">
-                            {isMenuOpen ? 'close' : 'menu'}
-                        </span>
-                    </button>
+                    {/* Hamburguesa móvil (solo cuando el menú está cerrado) */}
+                    {!isMenuOpen && (
+                        <button
+                            onClick={() => setIsMenuOpen(true)}
+                            className={`md:hidden flex flex-col items-center justify-center w-8 h-8 ${
+                                scrolled || !isHome
+                                    ? 'text-black dark:text-white'
+                                    : 'text-white'
+                            }`}
+                            aria-label="Abrir menú"
+                        >
+                            <span className="block w-5 h-[2.5px] mb-[4px] bg-current rounded-sm" />
+                            <span className="block w-5 h-[2.5px] mb-[4px] bg-current rounded-sm" />
+                            <span className="block w-5 h-[2.5px] bg-current rounded-sm" />
+                        </button>
+                    )}
                 </div>
             </div>
 
+        </header>
+
             {/* Menú móvil desplegable */}
             {isMenuOpen && (
-                <div className="md:hidden bg-white dark:bg-black border-t border-slate-100 dark:border-white/10">
-                    <nav className="flex flex-col px-6 py-4 gap-1">
+                <div className="md:hidden fixed inset-0 bg-white dark:bg-black z-50 flex flex-col items-center justify-center">
+                    <button
+                        onClick={() => setIsMenuOpen(false)}
+                        className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center z-[60] text-black dark:text-white"
+                        aria-label="Cerrar menú"
+                    >
+                        <span className="block w-6 h-[3px] bg-current rounded-sm absolute rotate-45" />
+                        <span className="block w-6 h-[3px] bg-current rounded-sm absolute -rotate-45" />
+                    </button>
+                    <nav className="flex flex-col items-center gap-8">
                         {NAV_LINKS.map(({ label, to }) => (
                             <Link
                                 key={to}
                                 to={to}
                                 onClick={() => setIsMenuOpen(false)}
-                                className="text-slate-900 dark:text-white text-base font-black uppercase tracking-widest py-3 border-b border-slate-100 dark:border-white/10 hover:text-primary transition-colors"
+                                className="text-slate-900 dark:text-white text-4xl font-black uppercase tracking-widest hover:text-primary transition-colors"
                             >
                                 {label}
                             </Link>
                         ))}
                     </nav>
+                    <a
+                        href="https://www.instagram.com/cdgalaxias/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="absolute bottom-8 text-primary text-xs font-bold tracking-wider"
+                    >
+                        @cdgalaxias
+                    </a>
                 </div>
             )}
-        </header>
+        </>
     );
 };
 

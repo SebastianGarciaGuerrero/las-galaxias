@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
+import Mdl from '../components/icons/Mdl';
+import Slv from '../components/icons/Slv';
+import Academia from '../components/icons/Acad';
 
-const SHIELD_LOGO = 'https://res.cloudinary.com/du4oddnjl/image/upload/v1777847657/shieldRed_rbivg8.svg';
+import shieldRed from '../assets/shieldRed.svg';
+import heroVideo from '../assets/videos/galaxiasDrone.mp4';
+const SHIELD_LOGO = shieldRed;
 
 const martesFeatures = [
     { icon: 'person_add', title: 'Invita',   desc: 'Que compartas los valores' },
@@ -26,24 +31,28 @@ const Home = () => {
         <div className="bg-background-light dark:bg-background-dark min-h-screen">
 
             {/* ── 1. HERO ── */}
-            <section className="relative h-screen min-h-[600px] overflow-hidden flex flex-col items-center">
-                <div className="absolute inset-0 bg-black/45 z-10" />
-                <img
-                    src="https://res.cloudinary.com/du4oddnjl/image/upload/v1773720639/DJI_20260203214638_0295_D.JPG_u9ccia.jpg"
-                    alt="Las Galaxias"
+            <section className="relative h-screen min-h-[600px] overflow-hidden flex flex-col items-center justify-center">
+                <div className="absolute inset-0 bg-black/20 z-10" />
+                <video
+                    src={heroVideo}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
                     className="absolute inset-0 w-full h-full object-cover"
                 />
 
-                <div className="relative z-20 flex flex-col items-center text-center pt-20 md:pt-[150px] px-6">
+                <div className="relative z-20 flex flex-col items-center text-center px-6">
                     <img
                         src={SHIELD_LOGO}
                         alt="Club Deportivo Las Galaxias"
-                        className="w-44 sm:w-56 md:w-72 lg:w-[340px] drop-shadow-2xl"
+                        className="w-44 sm:w-56 md:w-72 lg:w-[340px]"
                     />
 
                     <div className="mt-8 md:mt-[94px] flex flex-col items-center gap-4 md:gap-6">
                         <div>
-                            <p className="text-white font-bold text-base md:text-lg lg:text-xl">
+                            <p className="text-white font-bold text-base md:text-lg lg:text-5xl">
                                 Pasión, disciplina &amp; familia.
                             </p>
                             <p className="text-white/85 text-sm md:text-base lg:text-lg font-light">
@@ -55,12 +64,12 @@ const Home = () => {
                         <div className="flex flex-col items-center gap-3 mt-1">
                             <Link
                                 to="/sobre-nosotros"
-                                className="text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:text-white/70 transition-colors"
+                                className="text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:text-white/70 transition-colors animate-pulse"
                             >
                                 Saber Más
                             </Link>
                             <div className="w-6 h-10 rounded-full border border-white/40 flex items-start justify-center pt-2">
-                                <div className="w-0.5 h-3 bg-white/60 rounded-full" />
+                                <div className="w-0.5 h-3 bg-white/60 rounded-full animate-scroll" />
                             </div>
                         </div>
                     </div>
@@ -73,11 +82,11 @@ const Home = () => {
 
                     <div className="flex flex-col justify-between py-10 px-6 sm:px-8 md:px-14 lg:pl-[200px] lg:pr-16 lg:py-16 flex-1">
                         <div>
-                            <div className="flex items-start justify-between mb-1">
+                            <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-[0.25em]">
                                     [ Nosotros ]
                                 </span>
-                                <img src={SHIELD_LOGO} alt="" aria-hidden="true" className="w-12 h-12 md:w-16 md:h-16" />
+                                <img src={SHIELD_LOGO} alt="" aria-hidden="true" className="w-24 h-24 md:w-16 md:h-16" />
                             </div>
                             <h2 className="text-[56px] sm:text-[72px] md:text-[90px] lg:text-[120px] font-black text-primary leading-none">
                                 *2017
@@ -118,7 +127,7 @@ const Home = () => {
                     src="https://res.cloudinary.com/du4oddnjl/image/upload/v1777846739/f7bfe9e52016f30bdc4d9c1336dfd3bb6b795659_ewqlla.png"
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover object-left"
+                    className="absolute inset-0 w-full h-full object-cover object-left mix-blend-lighten"
                     style={{ transform: 'scaleX(-1)' }}
                 />
                 <div className="absolute inset-0 bg-primary/55 mix-blend-multiply" />
@@ -126,10 +135,10 @@ const Home = () => {
 
                 <div className="absolute inset-0 flex items-center justify-end px-5 sm:px-8 md:px-16 lg:px-28">
                     <div className="max-w-[200px] sm:max-w-xs md:max-w-sm">
-                        <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl font-light leading-snug mb-3 md:mb-5">
+                        <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-6xl font-light leading-snug mb-3 md:mb-5">
                             Jugamos por competir, sí...
                         </p>
-                        <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-3xl font-light leading-snug">
+                        <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-4xl font-light leading-snug">
                             pero también por<br />
                             <strong className="font-black">encontrarnos.</strong>
                         </p>
@@ -141,20 +150,19 @@ const Home = () => {
             <section className="bg-white dark:bg-black py-12 md:py-20 px-5 sm:px-6 lg:px-20">
                 <div className="max-w-6xl mx-auto">
 
-                    <div className="flex items-start justify-between mb-6 md:mb-8 gap-2">
-                        <div>
-                            <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
-                                [ Liga ]
-                            </span>
-                            <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-primary leading-none">
-                                *Martes
-                            </h2>
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
+                        <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
+                            <Mdl size={100} className="text-black dark:text-white shrink-0 md:hidden" />
+                            <div className="text-left">
+                                <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
+                                    [ Liga ]
+                                </span>
+                                <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-primary leading-none">
+                                    *Martes
+                                </h2>
+                            </div>
                         </div>
-                        <div className="text-right pt-4 md:pt-6">
-                            <p className="font-black text-slate-900 dark:text-white text-base md:text-xl leading-tight">
-                                Martes<br />de Liga.
-                            </p>
-                        </div>
+                        <Mdl size={120} className="text-black dark:text-white shrink-0 hidden md:block" />
                     </div>
 
                     <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-2">
@@ -172,12 +180,12 @@ const Home = () => {
 
                     <p className="text-slate-400 text-xs mb-8 md:mb-10">La comunidad crece de forma orgánica.</p>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-12">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-12">
                         {martesFeatures.map((f) => (
-                            <div key={f.title} className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 md:p-5 text-center hover:border-primary transition-colors">
-                                <span className="material-symbols-outlined text-xl md:text-2xl text-slate-500 dark:text-slate-400 mb-2 md:mb-3 block">{f.icon}</span>
-                                <h4 className="font-black text-slate-900 dark:text-white text-[10px] md:text-xs uppercase tracking-wider mb-1">{f.title}</h4>
-                                <p className="text-slate-400 text-[10px] md:text-[11px] leading-snug">{f.desc}</p>
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10">
+                                <span className="material-symbols-outlined text-xl md:text-3xl text-primary mb-2 md:mb-3 block">{f.icon}</span>
+                                <h4 className="font-black text-slate-900 dark:text-white text-md md:text-2xl uppercase tracking-wider mb-1">{f.title}</h4>
+                                <p className="text-zinc-700 text-sm md:text-md leading-snug">{f.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -195,21 +203,19 @@ const Home = () => {
             <section className="bg-white dark:bg-black border-t border-slate-100 dark:border-slate-900 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
                 <div className="max-w-6xl mx-auto">
 
-                    <div className="flex items-start justify-between mb-6 md:mb-8 gap-2">
-                        <div>
-                            <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
-                                [ Liga ]
-                            </span>
-                            <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-primary leading-none">
-                                *Viernes
-                            </h2>
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
+                        <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
+                            <Slv size={200} className="text-black dark:text-white shrink-0 md:hidden" />
+                            <div className="text-left">
+                                <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
+                                    [ Liga ]
+                                </span>
+                                <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-primary leading-none">
+                                    *Viernes
+                                </h2>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2 pt-4 md:pt-6">
-                            <span className="material-symbols-outlined text-slate-900 dark:text-white text-xl md:text-2xl">emoji_events</span>
-                            <p className="font-black text-slate-900 dark:text-white text-base md:text-xl uppercase tracking-widest">
-                                Superliga
-                            </p>
-                        </div>
+                        <Slv size={200} className="text-black dark:text-white shrink-0 hidden md:block" />
                     </div>
 
                     <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8 md:mb-10">
@@ -219,10 +225,10 @@ const Home = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                         {viernesFeatures.map((f) => (
-                            <div key={f.title} className="border border-slate-200 dark:border-slate-800 rounded-xl p-5 md:p-6 hover:border-primary transition-colors">
-                                <span className="material-symbols-outlined text-xl md:text-2xl text-slate-500 dark:text-slate-400 mb-2 md:mb-3 block">{f.icon}</span>
-                                <h4 className="font-black text-slate-900 dark:text-white text-[10px] md:text-xs uppercase tracking-wider mb-2">{f.title}</h4>
-                                <p className="text-slate-400 text-[10px] md:text-[11px] leading-relaxed">{f.desc}</p>
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10">
+                                <span className="material-symbols-outlined text-xl md:text-3xl text-primary dark:text-white/40 mb-2 md:mb-3 block">{f.icon}</span>
+                                <h4 className="font-black text-slate-900 dark:text-white text-lg md:text-xl uppercase tracking-wider mb-2">{f.title}</h4>
+                                <p className="text-slate-800 text-sm md:text-md leading-snug">{f.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -233,36 +239,36 @@ const Home = () => {
             <section className="bg-primary py-12 md:py-20 px-5 sm:px-6 lg:px-20">
                 <div className="max-w-6xl mx-auto">
 
-                    <div className="flex items-start justify-between mb-6 md:mb-8 gap-2">
-                        <div>
-                            <span className="text-[10px] md:text-[11px] font-bold text-white/60 uppercase tracking-[0.25em] block mb-1 md:mb-2">
-                                [ Academia ]
-                            </span>
-                            <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-white leading-none">
-                                *Formación
-                            </h2>
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
+                        <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
+                            <Academia size={100} className="text-black dark:text-white shrink-0 md:hidden" />
+                            <div className="text-left">
+                                <span className="text-[10px] md:text-[11px] font-bold text-black/60 dark:text-white/60 uppercase tracking-[0.25em] block mb-1 md:mb-2">
+                                    [ Academia ]
+                                </span>
+                                <h2 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[88px] font-black text-black dark:text-white leading-none">
+                                    *Formación
+                                </h2>
+                            </div>
                         </div>
-                        <div className="text-right pt-4 md:pt-6">
-                            <p className="font-black text-white/70 text-xs sm:text-sm italic mb-1">academia</p>
-                            <span className="material-symbols-outlined text-white text-4xl md:text-5xl">sports_soccer</span>
-                        </div>
+                        <Academia size={120} className="text-black dark:text-white shrink-0 hidden md:block" />
                     </div>
 
-                    <p className="text-white/80 text-sm leading-relaxed mb-2 max-w-2xl">
-                        Todos los viernes de <strong className="text-white">16:00 a 18:00</strong> hrs, damos un espacio para que
+                    <p className="text-black/80dark:text-white/80 text-sm leading-relaxed mb-2 max-w-2xl">
+                        Todos los viernes de <strong className="text-red-200 dark:text-red-900">16:00 a 18:00</strong> hrs, damos un espacio para que
                         niños y niñas de Valparaíso aprendan fútbol desde un modelo formativo, cercano y consciente.
                     </p>
-                    <p className="text-white/70 text-sm leading-relaxed mb-8 md:mb-10 max-w-2xl">
-                        Las clases están a cargo del profesor <strong className="text-white">Jesús (Ayullán)</strong>, enfocado
+                    <p className="text-black/80 dark:text-white text-sm leading-relaxed mb-8 md:mb-10 max-w-2xl">
+                        Las clases están a cargo del profesor <strong className="text-red-200 dark:text-red-900">Jesús (Ayullán)</strong>, enfocado
                         en desarrollar habilidades deportivas mientras se fortalecen valores que van más allá de la cancha.
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                         {academiaFeatures.map((f) => (
-                            <div key={f.title} className="border border-white/25 rounded-xl p-5 md:p-6 hover:border-white/50 transition-colors bg-white/5">
-                                <span className="material-symbols-outlined text-xl md:text-2xl text-white/60 mb-2 md:mb-3 block">{f.icon}</span>
-                                <h4 className="font-black text-white text-[10px] md:text-xs uppercase tracking-wider mb-2">{f.title}</h4>
-                                <p className="text-white/60 text-[10px] md:text-[11px] leading-relaxed">{f.desc}</p>
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 hover:bg-red-300 transition-all 300s hover:scale-105 cursor-pointer bg-white/10">
+                                <span className="material-symbols-outlined text-xl md:text-2xl text-black/60 dark:text-white/60 mb-2 md:mb-3 block">{f.icon}</span>
+                                <h4 className="font-black text-red-200 dark:text-red-900 text-lg md:text-xl uppercase tracking-wider mb-2">{f.title}</h4>
+                                <p className="text-black/80 dark:text-white/80 text-[10px] md:text-[11px] leading-relaxed">{f.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -286,8 +292,10 @@ const Home = () => {
                                 WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
                             }}
                         />
+                        <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 100%)' }} />
+                        <div className="absolute inset-0 block dark:hidden" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.95) 100%)' }} />
                     </div>
-                    <div className="px-6 pb-12 -mt-8 relative z-10">
+                    <div className="px-6 pb-12 -mt-8 relative z-10 flex flex-col items-center text-center">
                         <p className="text-slate-900 dark:text-white text-2xl font-light leading-snug mb-6">
                             Un espacio para crecer, aprender y disfrutar del fútbol en comunidad.
                         </p>
@@ -314,10 +322,12 @@ const Home = () => {
                         aria-hidden="true"
                         className="absolute inset-0 w-full h-full object-contain object-left grayscale"
                         style={{
-                            maskImage: 'linear-gradient(to right, black 30%, transparent 55%)',
-                            WebkitMaskImage: 'linear-gradient(to right, black 30%, transparent 55%)',
+                            maskImage: 'linear-gradient(to right, black 0%, transparent 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, black 0%, transparent 40%)',
                         }}
                     />
+                    <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.95) 100%)' }} />
+                    <div className="absolute inset-0 block dark:hidden" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0.85) 70%, rgba(255,255,255,0.95) 100%)' }} />
                     <div className="absolute inset-0 flex items-center">
                         <div className="ml-auto w-[52%] pr-16 md:pr-24 lg:pr-32">
                             <p className="text-slate-900 dark:text-white text-3xl md:text-4xl lg:text-5xl font-light leading-snug mb-6">
