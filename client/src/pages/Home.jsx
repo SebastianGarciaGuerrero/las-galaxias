@@ -152,7 +152,7 @@ const Home = () => {
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
-                            <Mdl size={100} className="text-black dark:text-white shrink-0 md:hidden" />
+                            <Mdl size={100} className="text-black dark:text-white shrink-0 md:hidden mb-10" />
                             <div className="text-left">
                                 <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
                                     [ Liga ]
@@ -182,16 +182,16 @@ const Home = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-12">
                         {martesFeatures.map((f) => (
-                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10">
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10 dark:border-white/10">
                                 <span className="material-symbols-outlined text-xl md:text-3xl text-primary mb-2 md:mb-3 block">{f.icon}</span>
                                 <h4 className="font-black text-slate-900 dark:text-white text-md md:text-2xl uppercase tracking-wider mb-1">{f.title}</h4>
-                                <p className="text-zinc-700 text-sm md:text-md leading-snug">{f.desc}</p>
+                                <p className="text-zinc-700 dark:text-slate-400 text-sm md:text-md leading-snug">{f.desc}</p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="pt-6 md:pt-8 border-t border-slate-100 dark:border-slate-900">
-                        <p className="text-xl sm:text-2xl md:text-3xl text-slate-900 dark:text-white leading-snug">
+                    <div className="pt-6 md:pt-8 border-t border-slate-100 dark:border-slate-100/10">
+                        <p className="text-2xl sm:text-2xl md:text-3xl text-slate-900 dark:text-white leading-snug">
                             Aquí no vienes solo a jugar.<br />
                             <strong className="font-black">Vienes a ser parte.</strong>
                         </p>
@@ -200,12 +200,12 @@ const Home = () => {
             </section>
 
             {/* ── 5. LIGA VIERNES ── */}
-            <section className="bg-white dark:bg-black border-t border-slate-100 dark:border-slate-900 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
+            <section className="bg-white dark:bg-black border-t border-slate-100 dark:border-slate-100/10 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
                 <div className="max-w-6xl mx-auto">
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
-                            <Slv size={200} className="text-black dark:text-white shrink-0 md:hidden" />
+                            <Slv size={200} className="text-black dark:text-white shrink-0 md:hidden mb-10" />
                             <div className="text-left">
                                 <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
                                     [ Liga ]
@@ -225,10 +225,10 @@ const Home = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                         {viernesFeatures.map((f) => (
-                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10">
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10 dark:border-white/10">
                                 <span className="material-symbols-outlined text-xl md:text-3xl text-primary dark:text-white/40 mb-2 md:mb-3 block">{f.icon}</span>
                                 <h4 className="font-black text-slate-900 dark:text-white text-lg md:text-xl uppercase tracking-wider mb-2">{f.title}</h4>
-                                <p className="text-slate-800 text-sm md:text-md leading-snug">{f.desc}</p>
+                                <p className="text-slate-800 dark:text-slate-400 text-sm md:text-md leading-snug">{f.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -241,7 +241,7 @@ const Home = () => {
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
-                            <Academia size={100} className="text-black dark:text-white shrink-0 md:hidden" />
+                            <Academia size={100} className="text-black dark:text-white shrink-0 md:hidden mb-10" />
                             <div className="text-left">
                                 <span className="text-[10px] md:text-[11px] font-bold text-black/60 dark:text-white/60 uppercase tracking-[0.25em] block mb-1 md:mb-2">
                                     [ Academia ]

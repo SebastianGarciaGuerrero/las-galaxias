@@ -19,6 +19,7 @@ const Navbar = () => {
     );
     const [scrolled, setScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
 
     useEffect(() => {
         document.documentElement.classList.toggle('dark', theme === 'dark');
@@ -31,6 +32,16 @@ const Navbar = () => {
     }, []);
 
     const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+
+    const openMenu = () => setIsMenuOpen(true);
+
+    const closeMenu = () => {
+            setIsClosing(true);
+        setTimeout(() => {
+            setIsMenuOpen(false);
+            setIsClosing(false);
+        }, 400);
+    };
 
     return (
         <>
@@ -90,9 +101,9 @@ const Navbar = () => {
                     </button>
 
                     {/* Hamburguesa móvil (solo cuando el menú está cerrado) */}
-                    {!isMenuOpen && (
+                    {!isMenuOpen && !isClosing && (
                         <button
-                            onClick={() => setIsMenuOpen(true)}
+                            onClick={openMenu}
                             className={`md:hidden flex flex-col items-center justify-center w-8 h-8 ${
                                 scrolled || !isHome
                                     ? 'text-black dark:text-white'
@@ -112,9 +123,9 @@ const Navbar = () => {
 
             {/* Menú móvil desplegable */}
             {isMenuOpen && (
-                <div className="md:hidden fixed inset-0 bg-white dark:bg-black z-50 flex flex-col items-center justify-center">
+                <div className={`md:hidden fixed inset-0 bg-white dark:bg-black z-50 flex flex-col items-center justify-center ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`}>
                     <button
-                        onClick={() => setIsMenuOpen(false)}
+                        onClick={closeMenu}
                         className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center z-[60] text-black dark:text-white"
                         aria-label="Cerrar menú"
                     >
@@ -122,25 +133,36 @@ const Navbar = () => {
                         <span className="block w-6 h-[3px] bg-current rounded-sm absolute -rotate-45" />
                     </button>
                     <nav className="flex flex-col items-center gap-8">
-                        {NAV_LINKS.map(({ label, to }) => (
+                        {NAV_LINKS.map(({ label, to }, i) => (
                             <Link
                                 key={to}
                                 to={to}
-                                onClick={() => setIsMenuOpen(false)}
-                                className="text-slate-900 dark:text-white text-4xl font-black uppercase tracking-widest hover:text-primary transition-colors"
+                                onClick={closeMenu}
+                                className={`text-slate-900 dark:text-white text-4xl font-black uppercase tracking-widest hover:text-primary transition-colors ${isClosing ? 'animate-slideDown' : 'opacity-0 translate-y-5 animate-slideUp'}`}
+                                style={{ animationDelay: `${isClosing ? 0 : i * 0.2}s` }}
                             >
                                 {label}
                             </Link>
                         ))}
+                        <a
+                            href="https://www.instagram.com/cdgalaxias/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`mt-10 ${isClosing ? 'animate-slideDown' : 'opacity-0 translate-y-5 animate-slideUp'}`}
+                            style={{ animationDelay: `${isClosing ? 0 : NAV_LINKS.length * 0.2}s` }}
+                        >
+                            <img
+                                src={logoColor}
+                                alt="CD Las Galaxias"
+                                className="h-5 w-auto object-contain block dark:hidden"
+                            />
+                            <img
+                                src={logoColor}
+                                alt="CD Las Galaxias"
+                                className="h-5 w-auto object-contain hidden dark:block"
+                            />
+                        </a>
                     </nav>
-                    <a
-                        href="https://www.instagram.com/cdgalaxias/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="absolute bottom-8 text-primary text-xs font-bold tracking-wider"
-                    >
-                        @cdgalaxias
-                    </a>
                 </div>
             )}
         </>

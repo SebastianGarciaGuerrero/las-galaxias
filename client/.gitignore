@@ -22,4 +22,5 @@ Thumbs.db
 
 # Configuración de IDEs
 .vscode/
-.idea/src/assets/videos/
+.idea/
+src/assets/videos/
