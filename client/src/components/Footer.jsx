@@ -45,7 +45,7 @@ const Footer = () => {
                 <nav className="flex flex-col md:flex-row items-center gap-3 md:gap-12">
                     {NAV_LINKS.map(({ label, to }) => (
                         <Link
-                            key={to}
+                            key={label}
                             to={to}
                             className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-800 dark:text-white hover:text-primary dark:hover:text-primary transition-colors"
                         >

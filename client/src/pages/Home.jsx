@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import Mdl from '../components/icons/Mdl';
 import Slv from '../components/icons/Slv';
+import Shield from '../components/icons/Shield';
+import shieldRed from '../assets/shieldRed.svg';
 import Academia from '../components/icons/Acad';
 
-import shieldRed from '../assets/shieldRed.svg';
 import heroVideo from '../assets/videos/galaxiasDrone.mp4';
-const SHIELD_LOGO = shieldRed;
 
 const martesFeatures = [
     { icon: 'person_add', title: 'Invita',   desc: 'Que compartas los valores' },
@@ -44,11 +44,7 @@ const Home = () => {
                 />
 
                 <div className="relative z-20 flex flex-col items-center text-center px-6">
-                    <img
-                        src={SHIELD_LOGO}
-                        alt="Club Deportivo Las Galaxias"
-                        className="w-44 sm:w-56 md:w-72 lg:w-[340px]"
-                    />
+                    <img src={shieldRed} alt="" aria-hidden="true" className="w-100 sm:w-56 md:w-[300px]" />
 
                     <div className="mt-8 md:mt-[94px] flex flex-col items-center gap-4 md:gap-6">
                         <div>
@@ -86,7 +82,7 @@ const Home = () => {
                                 <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-[0.25em]">
                                     [ Nosotros ]
                                 </span>
-                                <img src={SHIELD_LOGO} alt="" aria-hidden="true" className="w-24 h-24 md:w-16 md:h-16" />
+                                <Shield className="text-primary w-24 h-24 md:w-28 md:h-28 shrink-0" aria-hidden="true" />
                             </div>
                             <h2 className="text-[56px] sm:text-[72px] md:text-[90px] lg:text-[120px] font-black text-primary leading-none">
                                 *2017

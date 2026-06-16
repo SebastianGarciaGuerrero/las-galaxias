@@ -72,7 +72,7 @@ const Navbar = () => {
                 <nav className="hidden md:flex items-center gap-8">
                     {NAV_LINKS.map(({ label, to }) => (
                         <Link
-                            key={to}
+                            key={label}
                             to={to}
                             className={`text-[11px] font-bold uppercase tracking-[0.18em] transition-colors hover:text-primary ${
                                 scrolled || !isHome
@@ -135,7 +135,7 @@ const Navbar = () => {
                     <nav className="flex flex-col items-center gap-8">
                         {NAV_LINKS.map(({ label, to }, i) => (
                             <Link
-                                key={to}
+                                key={label}
                                 to={to}
                                 onClick={closeMenu}
                                 className={`text-slate-900 dark:text-white text-4xl font-black uppercase tracking-widest hover:text-primary transition-colors ${isClosing ? 'animate-slideDown' : 'opacity-0 translate-y-5 animate-slideUp'}`}
