@@ -5,7 +5,7 @@ import Shield from '../components/icons/Shield';
 import shieldRed from '../assets/shieldRed.svg';
 import Academia from '../components/icons/Acad';
 
-import heroVideo from '../assets/videos/galaxiasDrone.mp4';
+const heroVideo = 'https://res.cloudinary.com/du4oddnjl/video/upload/q_auto/v1781823917/galaxiasDrone-web_t3te3m.mp4';
 
 const martesFeatures = [
     { icon: 'person_add', title: 'Invita',   desc: 'Que compartas los valores' },
