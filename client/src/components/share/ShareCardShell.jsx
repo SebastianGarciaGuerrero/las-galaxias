@@ -2,7 +2,8 @@
 // de la liga, contenido al medio y footer con el link del sitio.
 // Se renderiza fuera de pantalla; el ref apunta al nodo que se captura.
 
-const SHIELD_LOGO = 'https://res.cloudinary.com/du4oddnjl/image/upload/v1777847657/shieldRed_rbivg8.svg';
+import shieldRed from '../../assets/shieldRed.svg';
+const SHIELD_LOGO = shieldRed;
 
 const ShareCardShell = ({ cardRef, league, children }) => {
     const today = new Date().toLocaleDateString('es-CL', {
