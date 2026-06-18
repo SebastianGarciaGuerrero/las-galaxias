@@ -5,6 +5,7 @@ import TeamBadge from '../components/TeamBadge';
 import ShareStandings from '../components/ShareStandings';
 import ShareScorers from '../components/ShareScorers';
 import ShareResults from '../components/ShareResults';
+import ChampionCelebration from '../components/ChampionCelebration';
 
 const Liga = () => {
     const [leaguesList, setLeaguesList] = useState([]);
@@ -18,6 +19,7 @@ const Liga = () => {
     const [leagueMatches, setLeagueMatches] = useState([]);
     const [expandedRound, setExpandedRound] = useState(null);
     const [byeWeeks, setByeWeeks] = useState([]);
+    const [celebration, setCelebration] = useState(null); // { champion, key } al entrar a una liga finalizada
     const [searchParams] = useSearchParams();
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -84,12 +86,22 @@ const Liga = () => {
         }
     }, [selectedLeague]);
 
+    // Celebración del campeón al entrar a una liga ya finalizada.
+    useEffect(() => {
+        if (selectedLeague?.status === 'past' && leagueData?.standings?.length) {
+            setCelebration({ champion: leagueData.standings[0], key: Date.now() });
+        } else {
+            setCelebration(null);
+        }
+    }, [leagueData, selectedLeague]);
+
     const handleBack = () => {
         setSelectedLeague(null);
         setLeagueData(null);
         setLeagueMatches([]);
         setByeWeeks([]);  // ← agrega esto
         setShowAllScorers(false);
+        setCelebration(null);
     };
 
     useEffect(() => {
@@ -240,6 +252,9 @@ const Liga = () => {
     // ==========================================
     return (
         <div className="w-full max-w-[1280px] mx-auto px-4 py-12 animate-fade-in min-h-screen">
+            {celebration && (
+                <ChampionCelebration key={celebration.key} champion={celebration.champion} />
+            )}
             <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
                 <div>
                     <div className="flex items-center gap-2 mb-1">
