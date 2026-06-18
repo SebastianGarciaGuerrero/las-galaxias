@@ -19,7 +19,7 @@ const VISIBLE = 'opacity-100 translate-x-0 translate-y-0 scale-100';
 // Uso:
 //   const r = useReveal('right', 200);
 //   <div ref={r.ref} className={`${r.className} mis-clases`} style={r.style}>
-export const useReveal = (variant = 'up', delay = 0, threshold = 0.15) => {
+export const useReveal = (variant = 'up', delay = 0) => {
     const ref = useRef(null);
     const [visible, setVisible] = useState(false);
 
@@ -34,6 +34,8 @@ export const useReveal = (variant = 'up', delay = 0, threshold = 0.15) => {
             return;
         }
 
+        // Dispara cuando el elemento entra ~18% dentro del viewport desde abajo,
+        // así la animación se ve mientras sube (no termina antes de ser visible).
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
@@ -41,11 +43,11 @@ export const useReveal = (variant = 'up', delay = 0, threshold = 0.15) => {
                     observer.unobserve(el);
                 }
             },
-            { threshold }
+            { threshold: 0, rootMargin: '0px 0px -18% 0px' }
         );
         observer.observe(el);
         return () => observer.disconnect();
-    }, [threshold]);
+    }, []);
 
     return {
         ref,

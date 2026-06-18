@@ -291,19 +291,17 @@ const Home = () => {
 
                 {/* Mobile */}
                 <div className="block md:hidden">
-                    <div className="relative h-[260px] overflow-hidden">
+                    <div className="relative h-[300px] overflow-hidden bg-white dark:bg-black">
                         <img
                             src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
                             alt=""
                             aria-hidden="true"
                             className="w-full h-full object-cover object-center grayscale"
                             style={{
-                                maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
-                                WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
+                                maskImage: 'linear-gradient(to bottom, black 0%, black 35%, transparent 92%)',
+                                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 35%, transparent 92%)',
                             }}
                         />
-                        <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 100%)' }} />
-                        <div className="absolute inset-0 block dark:hidden" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.95) 100%)' }} />
                     </div>
                     <div className="px-6 pb-12 -mt-8 relative z-10 flex flex-col items-center text-center">
                         <p className="text-slate-900 dark:text-white text-2xl font-light leading-snug mb-6">
@@ -325,19 +323,17 @@ const Home = () => {
                 </div>
 
                 {/* Desktop */}
-                <div className="hidden md:block relative h-[570px]">
+                <div className="hidden md:block relative h-[570px] bg-white dark:bg-black">
                     <img
                         src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
                         alt=""
                         aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-contain object-left grayscale"
+                        className="absolute inset-0 w-full h-full object-cover object-left grayscale"
                         style={{
-                            maskImage: 'linear-gradient(to right, black 0%, transparent 100%)',
-                            WebkitMaskImage: 'linear-gradient(to right, black 0%, transparent 40%)',
+                            maskImage: 'linear-gradient(to right, black 0%, black 28%, transparent 72%)',
+                            WebkitMaskImage: 'linear-gradient(to right, black 0%, black 28%, transparent 72%)',
                         }}
                     />
-                    <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.95) 100%)' }} />
-                    <div className="absolute inset-0 block dark:hidden" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0.85) 70%, rgba(255,255,255,0.95) 100%)' }} />
                     <div className="absolute inset-0 flex items-center">
                         <div className="ml-auto w-[52%] pr-16 md:pr-24 lg:pr-32">
                             <p className="text-slate-900 dark:text-white text-3xl md:text-4xl lg:text-5xl font-light leading-snug mb-6">
