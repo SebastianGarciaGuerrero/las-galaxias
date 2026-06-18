@@ -4,6 +4,7 @@ import Slv from '../components/icons/Slv';
 import Shield from '../components/icons/Shield';
 import shieldRed from '../assets/shieldRed.svg';
 import Academia from '../components/icons/Acad';
+import { useReveal } from '../hooks/useReveal';
 
 const heroVideo = 'https://res.cloudinary.com/du4oddnjl/video/upload/q_auto/v1781823917/galaxiasDrone-web_t3te3m.mp4';
 
@@ -27,6 +28,18 @@ const academiaFeatures = [
 ];
 
 const Home = () => {
+    // Animaciones de entrada (scroll reveal)
+    const logoR       = useReveal('zoom',  100);
+    const heroTextR   = useReveal('up',    500);
+    const nosTopR     = useReveal('right', 0);
+    const nosBottomR  = useReveal('up',    150);
+    const nosPhotoR   = useReveal('right', 100);
+    const ballR       = useReveal('fade',  0);
+    const bannerTextR = useReveal('right', 150);
+    const martesR     = useReveal('up',    0);
+    const viernesR    = useReveal('up',    0);
+    const academiaR   = useReveal('up',    0);
+
     return (
         <div className="bg-background-light dark:bg-background-dark min-h-screen">
 
@@ -44,9 +57,9 @@ const Home = () => {
                 />
 
                 <div className="relative z-20 flex flex-col items-center text-center px-6">
-                    <img src={shieldRed} alt="" aria-hidden="true" className="w-100 sm:w-56 md:w-[300px]" />
+                    <img ref={logoR.ref} style={logoR.style} src={shieldRed} alt="" aria-hidden="true" className={`${logoR.className} w-100 sm:w-56 md:w-[300px]`} />
 
-                    <div className="mt-8 md:mt-[94px] flex flex-col items-center gap-4 md:gap-6">
+                    <div ref={heroTextR.ref} style={heroTextR.style} className={`${heroTextR.className} mt-8 md:mt-[94px] flex flex-col items-center gap-4 md:gap-6`}>
                         <div>
                             <p className="text-white font-bold text-base md:text-lg lg:text-5xl">
                                 Pasión, disciplina &amp; familia.
@@ -77,7 +90,7 @@ const Home = () => {
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:h-[744px]">
 
                     <div className="flex flex-col justify-between py-10 px-6 sm:px-8 md:px-14 lg:pl-[200px] lg:pr-16 lg:py-16 flex-1">
-                        <div>
+                        <div ref={nosTopR.ref} style={nosTopR.style} className={nosTopR.className}>
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-[0.25em]">
                                     [ Nosotros ]
@@ -89,7 +102,7 @@ const Home = () => {
                             </h2>
                         </div>
 
-                        <div>
+                        <div ref={nosBottomR.ref} style={nosBottomR.style} className={nosBottomR.className}>
                             <h3 className="text-4xl sm:text-5xl md:text-6xl font-black text-primary leading-tight mb-6 md:mb-8">
                                 Fútbol &amp;<br />Conciencia.
                             </h3>
@@ -107,7 +120,7 @@ const Home = () => {
                         </div>
                     </div>
 
-                    <div className="h-[280px] sm:h-[360px] md:h-[440px] lg:h-full lg:w-[504px] flex-shrink-0">
+                    <div ref={nosPhotoR.ref} style={nosPhotoR.style} className={`${nosPhotoR.className} h-[280px] sm:h-[360px] md:h-[440px] lg:h-full lg:w-[504px] flex-shrink-0`}>
                         <img
                             src="https://res.cloudinary.com/du4oddnjl/image/upload/v1777847307/camiseta_c3pgn5.jpg"
                             alt="Camiseta Las Galaxias"
@@ -120,17 +133,18 @@ const Home = () => {
             {/* ── 3. BANNER FRASE ── */}
             <section className="relative h-[220px] sm:h-[280px] md:h-[400px] lg:h-[570px] overflow-hidden bg-primary">
                 <img
+                    ref={ballR.ref}
                     src="https://res.cloudinary.com/du4oddnjl/image/upload/v1777846739/f7bfe9e52016f30bdc4d9c1336dfd3bb6b795659_ewqlla.png"
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 w-full h-full object-cover object-left mix-blend-lighten"
-                    style={{ transform: 'scaleX(-1)' }}
+                    className={`${ballR.className} absolute inset-0 w-full h-full object-cover object-left mix-blend-lighten`}
+                    style={{ transform: 'scaleX(-1)', ...ballR.style }}
                 />
                 <div className="absolute inset-0 bg-primary/55 mix-blend-multiply" />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent from-40% via-primary/90 via-60% to-primary" />
 
                 <div className="absolute inset-0 flex items-center justify-end px-5 sm:px-8 md:px-16 lg:px-28">
-                    <div className="max-w-[200px] sm:max-w-xs md:max-w-sm">
+                    <div ref={bannerTextR.ref} style={bannerTextR.style} className={`${bannerTextR.className} max-w-[200px] sm:max-w-xs md:max-w-sm`}>
                         <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-6xl font-light leading-snug mb-3 md:mb-5">
                             Jugamos por competir, sí...
                         </p>
@@ -144,7 +158,7 @@ const Home = () => {
 
             {/* ── 4. LIGA MARTES ── */}
             <section className="bg-white dark:bg-black py-12 md:py-20 px-5 sm:px-6 lg:px-20">
-                <div className="max-w-6xl mx-auto">
+                <div ref={martesR.ref} style={martesR.style} className={`${martesR.className} max-w-6xl mx-auto`}>
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
@@ -197,7 +211,7 @@ const Home = () => {
 
             {/* ── 5. LIGA VIERNES ── */}
             <section className="bg-white dark:bg-black border-t border-slate-100 dark:border-slate-100/10 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
-                <div className="max-w-6xl mx-auto">
+                <div ref={viernesR.ref} style={viernesR.style} className={`${viernesR.className} max-w-6xl mx-auto`}>
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
@@ -233,7 +247,7 @@ const Home = () => {
 
             {/* ── 6. ACADEMIA ── */}
             <section className="bg-primary py-12 md:py-20 px-5 sm:px-6 lg:px-20">
-                <div className="max-w-6xl mx-auto">
+                <div ref={academiaR.ref} style={academiaR.style} className={`${academiaR.className} max-w-6xl mx-auto`}>
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
