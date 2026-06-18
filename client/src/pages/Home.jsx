@@ -323,15 +323,15 @@ const Home = () => {
                 </div>
 
                 {/* Desktop */}
-                <div className="hidden md:block relative h-[570px] bg-white dark:bg-black">
+                <div className="hidden md:block relative h-[570px] bg-white dark:bg-black overflow-hidden">
                     <img
                         src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
                         alt=""
                         aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-cover object-left grayscale"
+                        className="absolute inset-y-0 left-0 h-full w-auto grayscale"
                         style={{
-                            maskImage: 'linear-gradient(to right, black 0%, black 28%, transparent 72%)',
-                            WebkitMaskImage: 'linear-gradient(to right, black 0%, black 28%, transparent 72%)',
+                            maskImage: 'linear-gradient(to right, black 0%, black 55%, transparent 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, black 0%, black 55%, transparent 100%)',
                         }}
                     />
                     <div className="absolute inset-0 flex items-center">
