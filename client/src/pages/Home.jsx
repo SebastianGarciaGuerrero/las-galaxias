@@ -298,8 +298,8 @@ const Home = () => {
                             aria-hidden="true"
                             className="w-full h-full object-cover object-center grayscale"
                             style={{
-                                maskImage: 'linear-gradient(to bottom, black 0%, black 35%, transparent 92%)',
-                                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 35%, transparent 92%)',
+                                maskImage: 'linear-gradient(to bottom, black 0%, black 12%, transparent 100%)',
+                                WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 12%, transparent 100%)',
                             }}
                         />
                     </div>
@@ -330,8 +330,8 @@ const Home = () => {
                         aria-hidden="true"
                         className="absolute inset-y-0 left-0 h-full w-auto grayscale"
                         style={{
-                            maskImage: 'linear-gradient(to right, black 0%, black 55%, transparent 100%)',
-                            WebkitMaskImage: 'linear-gradient(to right, black 0%, black 55%, transparent 100%)',
+                            maskImage: 'linear-gradient(to right, black 0%, black 20%, transparent 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, black 0%, black 20%, transparent 100%)',
                         }}
                     />
                     <div className="absolute inset-0 flex items-center">
