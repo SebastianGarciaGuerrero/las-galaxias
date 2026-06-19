@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import FutbolLoader from '../components/FutbolLoader';
+import SEO from '../components/SEO';
 
 // --- 1. COMPONENTE DE CUENTA REGRESIVA (Reloj) ---
 const Countdown = ({ targetDate }) => {
@@ -148,6 +149,12 @@ const Partidos = () => {
     );
 
     return (
+        <>
+        <SEO
+          title="Calendario de Partidos"
+          description="Revisa la programación, resultados y próximos partidos del Club Deportivo Las Galaxias. Senior +35 y Todo Competidor en el Estadio Bellavista, Valparaíso."
+          url="https://lasgalaxias.cl/partidos"
+        />
         <div className="w-full max-w-[1280px] mx-auto px-4 py-12 relative min-h-screen">
             <div className="mb-10 border-l-4 border-primary pl-4">
                 <h1 className="text-4xl font-black uppercase text-slate-900 dark:text-white">Calendario de Partidos</h1>
@@ -249,6 +256,7 @@ const Partidos = () => {
                 </div>
             )}
         </div>
+        </>
     );
 };
 

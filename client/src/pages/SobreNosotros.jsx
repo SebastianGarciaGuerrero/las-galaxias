@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SEO from '../components/SEO';
 
 const SobreNosotros = () => {
     const [showModal, setShowModal] = useState(false);
@@ -44,6 +45,12 @@ const SobreNosotros = () => {
     };
 
     return (
+        <>
+        <SEO
+          title="Sobre Nosotros"
+          description="Conoce la historia del Club Deportivo Las Galaxias. Fundado en Valparaíso, somos fútbol y conciencia desde 2017. Dos ligas, una academia formativa y una comunidad."
+          url="https://lasgalaxias.cl/sobre-nosotros"
+        />
         <div className="w-full animate-fade-in pb-20">
 
             {/* SECCIÓN 1: INTRODUCCIÓN E HISTORIA */}
@@ -251,6 +258,7 @@ const SobreNosotros = () => {
             )}
 
         </div>
+        </>
     );
 };
 

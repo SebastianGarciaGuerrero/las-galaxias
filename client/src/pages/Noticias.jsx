@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import FutbolLoader from '../components/FutbolLoader';
+import SEO from '../components/SEO';
 
 const Noticias = () => {
     const [news, setNews] = useState([]);
@@ -48,6 +49,12 @@ const Noticias = () => {
         : filteredNews; // Si hay filtro, mostramos todas las que coincidan en la grilla
 
     return (
+        <>
+        <SEO
+          title="Noticias"
+          description="Mantente informado sobre las últimas noticias del Club Deportivo Las Galaxias: resultados, actividades sociales y novedades de nuestras ligas en Valparaíso."
+          url="https://lasgalaxias.cl/noticias"
+        />
         <div className="w-full animate-fade-in pb-20">
 
             {/* HEADER */}
@@ -216,6 +223,7 @@ const Noticias = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import FutbolLoader from '../components/FutbolLoader'; // Tu súper componente
+import FutbolLoader from '../components/FutbolLoader';
+import SEO from '../components/SEO';
 
 const NoticiaDetalle = () => {
     const { id } = useParams(); // Saca el ID de la URL (ej: /noticias/5)
@@ -67,15 +68,25 @@ const NoticiaDetalle = () => {
 
     if (!news) {
         return (
+            <>
+            <SEO title="Noticia no encontrada" description="La noticia que buscas no está disponible." />
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900">
                 <span className="material-symbols-outlined text-6xl text-slate-400 mb-4">newspaper</span>
                 <h2 className="text-2xl font-black text-slate-800 dark:text-white uppercase">Noticia no encontrada</h2>
                 <Link to="/" className="mt-4 text-primary font-bold hover:underline">Volver al inicio</Link>
             </div>
+            </>
         );
     }
 
     return (
+        <>
+        <SEO
+          title={news.title}
+          description={news.summary || `Lee la noticia: ${news.title}`}
+          image={news.image_url || undefined}
+          url={`https://lasgalaxias.cl/noticias/${news.id}`}
+        />
         <div className="bg-slate-50 dark:bg-slate-900 min-h-screen pb-20 animate-fade-in">
 
             {/* Cabecera (Hero de la noticia) */}
@@ -143,6 +154,7 @@ const NoticiaDetalle = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

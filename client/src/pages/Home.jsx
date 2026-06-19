@@ -1,9 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import Mdl from '../components/icons/Mdl';
 import Slv from '../components/icons/Slv';
 import Shield from '../components/icons/Shield';
 import shieldRed from '../assets/shieldRed.svg';
 import Academia from '../components/icons/Acad';
+import SEO from '../components/SEO';
 
 import heroVideo from '../assets/videos/galaxiasDrone.mp4';
 
@@ -27,11 +29,29 @@ const academiaFeatures = [
 ];
 
 const Home = () => {
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.hash) {
+            const id = location.hash.replace('#', '');
+            const el = document.getElementById(id);
+            if (el) {
+                setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 100);
+            }
+        }
+    }, [location]);
+
     return (
+        <>
+        <SEO
+          title="Inicio"
+          description="CD Las Galaxias de Valparaíso. Pasión, disciplina y familia desde 2017. Conoce nuestras ligas de fútbol, academia formativa y comunidad."
+          url="https://lasgalaxias.cl"
+        />
         <div className="bg-background-light dark:bg-background-dark min-h-screen">
 
             {/* ── 1. HERO ── */}
-            <section className="relative h-screen min-h-[600px] overflow-hidden flex flex-col items-center justify-center">
+            <section id="hero" className="relative h-screen min-h-[600px] overflow-hidden flex flex-col items-center justify-center">
                 <div className="absolute inset-0 bg-black/20 z-10" />
                 <video
                     src={heroVideo}
@@ -44,9 +64,9 @@ const Home = () => {
                 />
 
                 <div className="relative z-20 flex flex-col items-center text-center px-6">
-                    <img src={shieldRed} alt="" aria-hidden="true" className="w-100 sm:w-56 md:w-[300px]" />
+                    <img src={shieldRed} alt="" aria-hidden="true" className="w-100 sm:w-56 md:w-[300px]" data-aos="zoom-in" data-aos-duration="1000" />
 
-                    <div className="mt-8 md:mt-[94px] flex flex-col items-center gap-4 md:gap-6">
+                    <div className="mt-8 md:mt-[94px] flex flex-col items-center gap-4 md:gap-6" data-aos="fade-up" data-aos-delay="300">
                         <div>
                             <p className="text-white font-bold text-base md:text-lg lg:text-5xl">
                                 Pasión, disciplina &amp; familia.
@@ -73,11 +93,11 @@ const Home = () => {
             </section>
 
             {/* ── 2. NOSOTROS ── */}
-            <section className="bg-white dark:bg-black overflow-hidden">
+            <section id="nosotros" className="bg-white dark:bg-black overflow-hidden">
                 <div className="flex flex-col lg:flex-row lg:justify-between lg:h-[744px]">
 
                     <div className="flex flex-col justify-between py-10 px-6 sm:px-8 md:px-14 lg:pl-[200px] lg:pr-16 lg:py-16 flex-1">
-                        <div>
+                        <div data-aos="fade-right">
                             <div className="flex items-center justify-between mb-1">
                                 <span className="text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-[0.25em]">
                                     [ Nosotros ]
@@ -89,7 +109,7 @@ const Home = () => {
                             </h2>
                         </div>
 
-                        <div>
+                        <div data-aos="fade-up" data-aos-delay="200">
                             <h3 className="text-4xl sm:text-5xl md:text-6xl font-black text-primary leading-tight mb-6 md:mb-8">
                                 Fútbol &amp;<br />Conciencia.
                             </h3>
@@ -104,10 +124,16 @@ const Home = () => {
                                 Hoy nuestra casa está en el{' '}
                                 <strong className="text-slate-900 dark:text-slate-100 font-bold">Estadio Bellavista.</strong>
                             </p>
+                            <Link
+                                to="/sobre-nosotros"
+                                className="inline-flex items-center justify-center border-2 border-primary text-primary text-xs font-black uppercase tracking-[0.2em] px-8 py-3 rounded-full hover:bg-primary hover:text-white hover:scale-105 transition-all duration-100 mt-6"
+                            >
+                                Saber más de nosotros →
+                            </Link>
                         </div>
                     </div>
 
-                    <div className="h-[280px] sm:h-[360px] md:h-[440px] lg:h-full lg:w-[504px] flex-shrink-0">
+                    <div className="h-[280px] sm:h-[360px] md:h-[440px] lg:h-full lg:w-[504px] flex-shrink-0" data-aos="fade-left" data-aos-delay="100">
                         <img
                             src="https://res.cloudinary.com/du4oddnjl/image/upload/v1777847307/camiseta_c3pgn5.jpg"
                             alt="Camiseta Las Galaxias"
@@ -129,7 +155,7 @@ const Home = () => {
                 <div className="absolute inset-0 bg-primary/55 mix-blend-multiply" />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent from-40% via-primary/90 via-60% to-primary" />
 
-                <div className="absolute inset-0 flex items-center justify-end px-5 sm:px-8 md:px-16 lg:px-28">
+                <div className="absolute inset-0 flex items-center justify-end px-5 sm:px-8 md:px-16 lg:px-28" data-aos="fade-left">
                     <div className="max-w-[200px] sm:max-w-xs md:max-w-sm">
                         <p className="text-white text-lg sm:text-xl md:text-2xl lg:text-6xl font-light leading-snug mb-3 md:mb-5">
                             Jugamos por competir, sí...
@@ -143,12 +169,14 @@ const Home = () => {
             </section>
 
             {/* ── 4. LIGA MARTES ── */}
-            <section className="bg-white dark:bg-black py-12 md:py-20 px-5 sm:px-6 lg:px-20">
+            <section id="martes" className="bg-white dark:bg-black py-12 md:py-20 px-5 sm:px-6 lg:px-20">
                 <div className="max-w-6xl mx-auto">
 
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2" data-aos="fade-up">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
-                            <Mdl size={100} className="text-black dark:text-white shrink-0 md:hidden mb-10" />
+                            <Link to="/liga" className="md:hidden mb-10">
+                                <Mdl size={100} className="text-black dark:text-white shrink-0" />
+                            </Link>
                             <div className="text-left">
                                 <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
                                     [ Liga ]
@@ -158,27 +186,29 @@ const Home = () => {
                                 </h2>
                             </div>
                         </div>
-                        <Mdl size={120} className="text-black dark:text-white shrink-0 hidden md:block" />
+                        <Link to="/liga" className="hidden md:block">
+                            <Mdl size={120} className="text-black dark:text-white shrink-0" />
+                        </Link>
                     </div>
 
-                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-2">
+                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-2" data-aos="fade-up" data-aos-delay="100">
                         Más que jugar, buscamos <strong className="text-slate-800 dark:text-slate-200">generar conciencia.</strong>{' '}
                         Cada temporada la liga adopta una temática distinta para educar, visibilizar y conectar a través del fútbol.
                     </p>
-                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-3">Temática Actual:</p>
+                    <p className="text-slate-400 text-xs uppercase tracking-wider mb-3" data-aos="fade-up" data-aos-delay="150">Temática Actual:</p>
 
-                    <div className="inline-flex items-center gap-2 border border-slate-300 dark:border-slate-700 rounded-full px-4 py-2 mb-3">
+                    <div className="inline-flex items-center gap-2 border border-slate-300 dark:border-slate-700 rounded-full px-4 py-2 mb-3" data-aos="fade-up" data-aos-delay="200">
                         <span className="text-base">🎵</span>
                         <span className="font-black text-slate-800 dark:text-slate-200 text-xs sm:text-sm tracking-wider uppercase">
                             Bailes Latinos
                         </span>
                     </div>
 
-                    <p className="text-slate-400 text-xs mb-8 md:mb-10">La comunidad crece de forma orgánica.</p>
+                    <p className="text-slate-400 text-xs mb-8 md:mb-10" data-aos="fade-up" data-aos-delay="250">La comunidad crece de forma orgánica.</p>
 
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-12">
-                        {martesFeatures.map((f) => (
-                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10 dark:border-white/10">
+                        {martesFeatures.map((f, i) => (
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-rose-100 dark:hover:bg-rose-950 hover:border-red-200 transition-all duration-100 liga-card cursor-pointer border border-1 border-zinc-900/10 dark:border-white/10" data-aos="fade">
                                 <span className="material-symbols-outlined text-xl md:text-3xl text-primary mb-2 md:mb-3 block">{f.icon}</span>
                                 <h4 className="font-black text-slate-900 dark:text-white text-md md:text-2xl uppercase tracking-wider mb-1">{f.title}</h4>
                                 <p className="text-zinc-700 dark:text-slate-400 text-sm md:text-md leading-snug">{f.desc}</p>
@@ -186,22 +216,30 @@ const Home = () => {
                         ))}
                     </div>
 
-                    <div className="pt-6 md:pt-8 border-t border-slate-100 dark:border-slate-100/10">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-aos="fade-up">
                         <p className="text-2xl sm:text-2xl md:text-3xl text-slate-900 dark:text-white leading-snug">
-                            Aquí no vienes solo a jugar.<br />
-                            <strong className="font-black">Vienes a ser parte.</strong>
+                            No solo jugarás en la liga.<br />
+                            <strong className="font-black">Serás parte de la comunidad galáctica.</strong>
                         </p>
+                        <Link
+                            to="/liga"
+                            className="inline-flex items-center justify-center shrink-0 border-2 border-primary text-primary text-xs font-black uppercase tracking-[0.2em] px-8 py-3 rounded-full hover:bg-primary hover:text-white hover:scale-105 transition-all duration-100"
+                        >
+                            Saber más de la liga →
+                        </Link>
                     </div>
                 </div>
             </section>
 
             {/* ── 5. LIGA VIERNES ── */}
-            <section className="bg-white dark:bg-black border-t border-slate-100 dark:border-slate-100/10 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
+            <section id="viernes" className="bg-white dark:bg-black border-t border-slate-100 dark:border-slate-100/10 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
                 <div className="max-w-6xl mx-auto">
 
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2" data-aos="fade-up">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
-                            <Slv size={200} className="text-black dark:text-white shrink-0 md:hidden mb-10" />
+                            <Link to="/liga" className="md:hidden mb-10">
+                                <Slv size={200} className="text-black dark:text-white shrink-0" />
+                            </Link>
                             <div className="text-left">
                                 <span className="text-[10px] md:text-[11px] font-bold text-slate-400 uppercase tracking-[0.25em] block mb-1 md:mb-2">
                                     [ Liga ]
@@ -211,33 +249,50 @@ const Home = () => {
                                 </h2>
                             </div>
                         </div>
-                        <Slv size={200} className="text-black dark:text-white shrink-0 hidden md:block" />
+                        <Link to="/liga" className="hidden md:block">
+                            <Slv size={200} className="text-black dark:text-white shrink-0" />
+                        </Link>
                     </div>
 
-                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8 md:mb-10">
+                    <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8 md:mb-10" data-aos="fade-up" data-aos-delay="100">
                         Aquí los capitanes arman su propia historia.<br className="hidden sm:block" />
                         Una liga competitiva diseñada para quienes buscan desafío, intensidad y compromiso en cada fecha.
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-                        {viernesFeatures.map((f) => (
-                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-red-200 hover:border-red-200 transition-all duration-300 hover:scale-105 cursor-pointer border border-1 border-zinc-900/10 dark:border-white/10">
-                                <span className="material-symbols-outlined text-xl md:text-3xl text-primary dark:text-white/40 mb-2 md:mb-3 block">{f.icon}</span>
+                        {viernesFeatures.map((f, i) => (
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 text-center hover:bg-rose-100 dark:hover:bg-rose-950 hover:border-red-200 transition-all duration-100 liga-card cursor-pointer border border-1 border-zinc-900/10 dark:border-white/10" data-aos="fade">
+                                <span className="material-symbols-outlined text-xl md:text-3xl text-primary mb-2 md:mb-3 block">{f.icon}</span>
                                 <h4 className="font-black text-slate-900 dark:text-white text-lg md:text-xl uppercase tracking-wider mb-2">{f.title}</h4>
                                 <p className="text-slate-800 dark:text-slate-400 text-sm md:text-md leading-snug">{f.desc}</p>
                             </div>
                         ))}
                     </div>
+
+                    <div className="pt-6 md:pt-8 border-t border-slate-100 dark:border-slate-100/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4" data-aos="fade-up">
+                        <p className="text-2xl sm:text-2xl md:text-3xl text-slate-900 dark:text-white leading-snug">
+                            Equipos con capitán.<br />
+                            <strong className="font-black">Equipo fijo, compromiso total por la gloria.</strong>
+                        </p>
+                        <Link
+                            to="/liga"
+                            className="inline-flex items-center justify-center shrink-0 border-2 border-primary text-primary text-xs font-black uppercase tracking-[0.2em] px-8 py-3 rounded-full hover:bg-primary hover:text-white hover:scale-105 transition-all duration-100"
+                        >
+                            Saber más de la liga →
+                        </Link>
+                    </div>
                 </div>
             </section>
 
             {/* ── 6. ACADEMIA ── */}
-            <section className="bg-primary py-12 md:py-20 px-5 sm:px-6 lg:px-20">
+            <section id="academia" className="bg-primary dark:bg-rose-800 py-12 md:py-20 px-5 sm:px-6 lg:px-20">
                 <div className="max-w-6xl mx-auto">
 
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 md:mb-8 gap-2" data-aos="fade-up">
                         <div className="flex flex-col items-start md:flex-row md:items-center gap-2 md:gap-4">
-                            <Academia size={100} className="text-black dark:text-white shrink-0 md:hidden mb-10" />
+                            <Link to="/academia" className="md:hidden mb-10">
+                                <Academia size={100} className="text-black dark:text-white shrink-0" />
+                            </Link>
                             <div className="text-left">
                                 <span className="text-[10px] md:text-[11px] font-bold text-black/60 dark:text-white/60 uppercase tracking-[0.25em] block mb-1 md:mb-2">
                                     [ Academia ]
@@ -247,23 +302,25 @@ const Home = () => {
                                 </h2>
                             </div>
                         </div>
-                        <Academia size={120} className="text-black dark:text-white shrink-0 hidden md:block" />
+                        <Link to="/academia" className="hidden md:block">
+                            <Academia size={120} className="text-black dark:text-white shrink-0" />
+                        </Link>
                     </div>
 
-                    <p className="text-black/80dark:text-white/80 text-sm leading-relaxed mb-2 max-w-2xl">
-                        Todos los viernes de <strong className="text-red-200 dark:text-red-900">16:00 a 18:00</strong> hrs, damos un espacio para que
+                    <p className="text-black/80dark:text-white/80 text-sm leading-relaxed mb-2 max-w-2xl" data-aos="fade-up" data-aos-delay="100">
+                        Todos los viernes de <strong className="text-red-200 dark:text-red-400">16:00 a 18:00</strong> hrs, damos un espacio para que
                         niños y niñas de Valparaíso aprendan fútbol desde un modelo formativo, cercano y consciente.
                     </p>
-                    <p className="text-black/80 dark:text-white text-sm leading-relaxed mb-8 md:mb-10 max-w-2xl">
-                        Las clases están a cargo del profesor <strong className="text-red-200 dark:text-red-900">Jesús (Ayullán)</strong>, enfocado
+                    <p className="text-black/80 dark:text-white text-sm leading-relaxed mb-8 md:mb-10 max-w-2xl" data-aos="fade-up" data-aos-delay="150">
+                        Las clases están a cargo del profesor <strong className="text-red-200 dark:text-red-400">Jesús (Ayullán)</strong>, enfocado
                         en desarrollar habilidades deportivas mientras se fortalecen valores que van más allá de la cancha.
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-                        {academiaFeatures.map((f) => (
-                            <div key={f.title} className="rounded-xl p-5 md:p-6 hover:bg-red-300 transition-all 300s hover:scale-105 cursor-pointer bg-white/10">
-                                <span className="material-symbols-outlined text-xl md:text-2xl text-black/60 dark:text-white/60 mb-2 md:mb-3 block">{f.icon}</span>
-                                <h4 className="font-black text-red-200 dark:text-red-900 text-lg md:text-xl uppercase tracking-wider mb-2">{f.title}</h4>
+                        {academiaFeatures.map((f, i) => (
+                            <div key={f.title} className="rounded-xl p-5 md:p-6 hover:bg-red-300 dark:hover:bg-rose-600 transition-all duration-100 liga-card cursor-pointer bg-white/10" data-aos="fade">
+                                <span className="material-symbols-outlined text-xl md:text-2xl text-black/60 dark:text-rose-200 mb-2 md:mb-3 block">{f.icon}</span>
+                                <h4 className="font-black text-red-200 dark:text-rose-400 text-lg md:text-xl uppercase tracking-wider mb-2">{f.title}</h4>
                                 <p className="text-black/80 dark:text-white/80 text-[10px] md:text-[11px] leading-relaxed">{f.desc}</p>
                             </div>
                         ))}
@@ -277,7 +334,7 @@ const Home = () => {
 
                 {/* Mobile */}
                 <div className="block md:hidden">
-                    <div className="relative h-[260px] overflow-hidden">
+                    <div className="relative h-[260px] overflow-hidden" data-aos="fade-up">
                         <img
                             src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
                             alt=""
@@ -291,44 +348,11 @@ const Home = () => {
                         <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 100%)' }} />
                         <div className="absolute inset-0 block dark:hidden" style={{ background: 'linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.95) 100%)' }} />
                     </div>
-                    <div className="px-6 pb-12 -mt-8 relative z-10 flex flex-col items-center text-center">
+                    <div className="px-6 pb-12 -mt-8 relative z-10 flex flex-col items-center text-center" data-aos="fade-up">
                         <p className="text-slate-900 dark:text-white text-2xl font-light leading-snug mb-6">
                             Un espacio para crecer, aprender y disfrutar del fútbol en comunidad.
                         </p>
-                        <a
-                            href="https://wa.me/56900000000"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-[11px] font-black uppercase tracking-[0.15em] px-6 py-3 rounded-full transition-colors"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0">
-                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.549 4.103 1.504 5.837L.057 23.882a.5.5 0 0 0 .61.61l6.044-1.447A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.686-.524-5.204-1.433l-.374-.217-3.868.927.946-3.867-.228-.381A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-                            </svg>
-                            Hablar con el Profesor
-                        </a>
-                    </div>
-                </div>
-
-                {/* Desktop */}
-                <div className="hidden md:block relative h-[570px]">
-                    <img
-                        src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
-                        alt=""
-                        aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-contain object-left grayscale"
-                        style={{
-                            maskImage: 'linear-gradient(to right, black 0%, transparent 100%)',
-                            WebkitMaskImage: 'linear-gradient(to right, black 0%, transparent 40%)',
-                        }}
-                    />
-                    <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.95) 100%)' }} />
-                    <div className="absolute inset-0 block dark:hidden" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0.85) 70%, rgba(255,255,255,0.95) 100%)' }} />
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="ml-auto w-[52%] pr-16 md:pr-24 lg:pr-32">
-                            <p className="text-slate-900 dark:text-white text-3xl md:text-4xl lg:text-5xl font-light leading-snug mb-6">
-                                Un espacio para crecer, aprender y disfrutar del fútbol en comunidad.
-                            </p>
+                        <div className="flex flex-col sm:flex-row items-center gap-3">
                             <a
                                 href="https://wa.me/56900000000"
                                 target="_blank"
@@ -341,6 +365,55 @@ const Home = () => {
                                 </svg>
                                 Hablar con el Profesor
                             </a>
+                            <Link
+                                to="/academia"
+                                className="inline-flex items-center gap-2 bg-primary hover:bg-red-600 text-white text-[11px] font-black uppercase tracking-[0.15em] px-6 py-3 rounded-full transition-colors"
+                            >
+                                Más info →
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Desktop */}
+                <div className="hidden md:block relative h-[570px]" data-aos="zoom-in">
+                    <img
+                        src="https://res.cloudinary.com/du4oddnjl/image/upload/q_auto,f_auto,w_1600/v1777856225/regalonavidad_cqw27f.jpg"
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 w-full h-full object-contain object-left grayscale"
+                        style={{
+                            maskImage: 'linear-gradient(to right, black 0%, transparent 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, black 0%, transparent 40%)',
+                        }}
+                    />
+                    <div className="absolute inset-0 hidden dark:block" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.95) 100%)' }} />
+                    <div className="absolute inset-0 block dark:hidden" style={{ background: 'linear-gradient(to right, transparent 0%, rgba(255,255,255,0.35) 40%, rgba(255,255,255,0.85) 70%, rgba(255,255,255,0.95) 100%)' }} />
+                    <div className="absolute inset-0 flex items-center" data-aos="fade-left">
+                        <div className="ml-auto w-[52%] pr-16 md:pr-24 lg:pr-32">
+                            <p className="text-slate-900 dark:text-white text-3xl md:text-4xl lg:text-5xl font-light leading-snug mb-6">
+                                Un espacio para crecer, aprender y disfrutar del fútbol en comunidad.
+                            </p>
+                            <div className="flex items-center gap-3">
+                                <a
+                                    href="https://wa.me/56900000000"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-[11px] font-black uppercase tracking-[0.15em] px-6 py-3 rounded-full transition-colors"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 shrink-0">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.549 4.103 1.504 5.837L.057 23.882a.5.5 0 0 0 .61.61l6.044-1.447A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.686-.524-5.204-1.433l-.374-.217-3.868.927.946-3.867-.228-.381A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                                    </svg>
+                                    Hablar con el Profesor
+                                </a>
+                                <Link
+                                    to="/academia"
+                                    className="inline-flex items-center gap-2 bg-primary hover:bg-red-600 text-white text-[11px] font-black uppercase tracking-[0.15em] px-6 py-3 rounded-full transition-colors"
+                                >
+                                    Más info →
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -348,6 +421,7 @@ const Home = () => {
             </section>
 
         </div>
+        </>
     );
 };
 

@@ -5,6 +5,7 @@ import TeamBadge from '../components/TeamBadge';
 import ShareStandings from '../components/ShareStandings';
 import ShareScorers from '../components/ShareScorers';
 import ShareResults from '../components/ShareResults';
+import SEO from '../components/SEO';
 
 const Liga = () => {
     const [leaguesList, setLeaguesList] = useState([]);
@@ -179,7 +180,12 @@ const Liga = () => {
     // VISTA DE CARGA INICIAL (Usando el nuevo componente)
     // ==========================================
     if (loadingLeagues) {
-        return <FutbolLoader texto="Cargando Competiciones..." />;
+        return (
+          <>
+            <SEO title="Competiciones" description="Tablas de posiciones, goleadores y resultados de las ligas de fútbol del Club Deportivo Las Galaxias en Valparaíso." url="https://lasgalaxias.cl/liga" />
+            <FutbolLoader texto="Cargando Competiciones..." />
+          </>
+        );
     }
 
     // ==========================================
@@ -187,6 +193,8 @@ const Liga = () => {
     // ==========================================
     if (!selectedLeague) {
         return (
+            <>
+            <SEO title="Competiciones" description="Tablas de posiciones, goleadores y resultados de las ligas de fútbol del Club Deportivo Las Galaxias en Valparaíso." url="https://lasgalaxias.cl/liga" />
             <div className="w-full max-w-[1280px] mx-auto px-4 py-20 animate-fade-in min-h-screen">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-black uppercase text-slate-900 dark:text-white mb-4">Competiciones</h1>
@@ -225,6 +233,7 @@ const Liga = () => {
                     </div>
                 )}
             </div>
+            </>
         );
     }
 
@@ -232,13 +241,20 @@ const Liga = () => {
     // 2. VISTA DE CARGA DE DETALLE (Usando el nuevo componente)
     // ==========================================
     if (loadingDetails) {
-        return <FutbolLoader texto="Entrando a la liga..." />;
+        return (
+          <>
+            <SEO title={selectedLeague?.name || 'Competición'} description={`Estadísticas, tabla de posiciones y goleadores de ${selectedLeague?.name || 'la competición'} del Club Deportivo Las Galaxias.`} url={`https://lasgalaxias.cl/liga?id=${selectedLeague?.id}`} />
+            <FutbolLoader texto="Entrando a la liga..." />
+          </>
+        );
     }
 
     // ==========================================
     // 3. VISTA DE DETALLE
     // ==========================================
     return (
+        <>
+        <SEO title={selectedLeague?.name || 'Competición'} description={`Estadísticas, tabla de posiciones y goleadores de ${selectedLeague?.name || 'la competición'} del Club Deportivo Las Galaxias.`} url={`https://lasgalaxias.cl/liga?id=${selectedLeague?.id}`} />
         <div className="w-full max-w-[1280px] mx-auto px-4 py-12 animate-fade-in min-h-screen">
             <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
                 <div>
@@ -567,6 +583,7 @@ const Liga = () => {
                 </>
             )}
         </div>
+        </>
     );
 };
 
