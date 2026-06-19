@@ -241,6 +241,23 @@ router.get('/tournament/:tournamentId/byes', async (req, res) => {
     res.json(byesWithTeam);
 });
 
+// CAMBIAR ESTADO DE UN TORNEO (active / past / upcoming)
+// Se usa para finalizar un torneo manualmente desde el panel de admin.
+router.patch('/tournament/:id/status', async (req, res) => {
+    const { status } = req.body;
+    const allowed = ['active', 'past', 'upcoming'];
+    if (!allowed.includes(status)) {
+        return res.status(400).json({ error: 'Estado inválido' });
+    }
+    const { data, error } = await supabase
+        .from('tournaments')
+        .update({ status })
+        .eq('id', req.params.id)
+        .select();
+    if (error) return res.status(500).json({ error: error.message });
+    res.json(data[0]);
+});
+
 // EDITAR PARTIDO (equipos y fecha)
 router.patch('/match/:id', async (req, res) => {
     const { home_team_id, away_team_id, match_date } = req.body;

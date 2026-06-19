@@ -54,6 +54,34 @@ const LeagueManager = () => {
 
     useEffect(() => { fetchMatches(); }, [selectedTournament]);
 
+    // Torneo actualmente seleccionado (objeto completo, para conocer su estado)
+    const selectedTournamentObj = tournaments.find(t => String(t.id) === String(selectedTournament));
+
+    // Finalizar / reactivar torneo manualmente
+    const handleToggleStatus = async () => {
+        if (!selectedTournamentObj) return;
+        const isPast = selectedTournamentObj.status === 'past';
+        const newStatus = isPast ? 'active' : 'past';
+
+        const msg = isPast
+            ? '¿Reactivar este torneo? Volverá a aparecer como liga en juego.'
+            : '¿Finalizar este torneo? Se mostrará como campeonato terminado y se activará la celebración del campeón.';
+        if (!window.confirm(msg)) return;
+
+        try {
+            const res = await fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (!res.ok) throw new Error('Error del servidor');
+            await fetchInitialData(); // refresca la lista con el nuevo estado
+        } catch (error) {
+            console.error('Error cambiando estado:', error);
+            alert('No se pudo cambiar el estado del torneo.');
+        }
+    };
+
     // ==========================================
     // MODAL: NUEVO EQUIPO
     // ==========================================
@@ -628,10 +656,19 @@ const LeagueManager = () => {
                     </select>
                 </div>
                 {selectedTournament && (
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                         <button onClick={() => setShowCreateMatch(true)} className="w-full md:w-auto px-8 py-4 bg-primary text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_15px_rgba(236,19,19,0.2)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
                             <span className="material-symbols-outlined text-2xl">event_available</span> Programar Fecha
                         </button>
+                        {selectedTournamentObj?.status === 'past' ? (
+                            <button onClick={handleToggleStatus} className="w-full md:w-auto px-8 py-4 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-black uppercase tracking-widest rounded-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                                <span className="material-symbols-outlined text-2xl">restart_alt</span> Reactivar
+                            </button>
+                        ) : (
+                            <button onClick={handleToggleStatus} className="w-full md:w-auto px-8 py-4 bg-amber-500 text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3">
+                                <span className="material-symbols-outlined text-2xl">emoji_events</span> Finalizar Torneo
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
