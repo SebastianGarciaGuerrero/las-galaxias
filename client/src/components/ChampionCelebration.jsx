@@ -5,7 +5,7 @@ const COLORS = ['#E13C64', '#FFD700', '#22c55e', '#3b82f6', '#f97316', '#a855f7'
 
 // Celebración de campeón: serpentinas, globos, trofeo y escudo del equipo.
 // Se muestra ~3s y se desvanece sola.
-const ChampionCelebration = ({ champion, durationMs = 3000 }) => {
+const ChampionCelebration = ({ champion, durationMs = 5000 }) => {
     const [show, setShow] = useState(true);
     const [leaving, setLeaving] = useState(false);
 
