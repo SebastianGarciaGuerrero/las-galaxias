@@ -14,6 +14,11 @@ const PALETTES = [
     { bg: '#0f766e', fg: '#ffffff' }, // teal
 ];
 
+// Colores personalizados para equipos específicos (match por substring del nombre).
+const SPECIAL_PALETTES = [
+    { match: 'samba', bg: '#FFDF00', fg: '#009C3B' }, // Brasil: amarillo + verde
+];
+
 const hashName = (name) => {
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
@@ -44,7 +49,9 @@ const TeamBadge = ({ name = '', shieldUrl = null, size = 28 }) => {
         );
     }
 
-    const palette = PALETTES[hashName(name) % PALETTES.length];
+    const lower = name.toLowerCase();
+    const special = SPECIAL_PALETTES.find(s => lower.includes(s.match));
+    const palette = special || PALETTES[hashName(name) % PALETTES.length];
     const initials = getInitials(name);
 
     return (
