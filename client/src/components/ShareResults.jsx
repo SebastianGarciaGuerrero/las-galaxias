@@ -70,14 +70,18 @@ const ShareResults = ({ league, round, matches }) => {
 
                             {finished ? (
                                 <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                     backgroundColor: '#E13C64',
                                     color: '#ffffff',
                                     fontSize: 14,
                                     fontWeight: 900,
-                                    padding: '5px 14px',
+                                    lineHeight: 1,
+                                    height: 32,
+                                    minWidth: 64,
+                                    padding: '0 14px',
                                     borderRadius: 8,
-                                    minWidth: 58,
-                                    textAlign: 'center',
                                     flexShrink: 0,
                                     whiteSpace: 'nowrap',
                                 }}>
@@ -85,15 +89,20 @@ const ShareResults = ({ league, round, matches }) => {
                                 </span>
                             ) : (
                                 <span style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
                                     border: '1px solid rgba(255,255,255,0.25)',
                                     color: 'rgba(255,255,255,0.5)',
                                     fontSize: 11,
                                     fontWeight: 700,
-                                    padding: '5px 10px',
+                                    lineHeight: 1,
+                                    height: 32,
+                                    minWidth: 64,
+                                    padding: '0 10px',
                                     borderRadius: 8,
-                                    minWidth: 58,
-                                    textAlign: 'center',
                                     flexShrink: 0,
+                                    whiteSpace: 'nowrap',
                                 }}>
                                     {formatTime(match.match_date)}
                                 </span>
