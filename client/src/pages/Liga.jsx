@@ -6,6 +6,15 @@ import ShareStandings from '../components/ShareStandings';
 import ShareScorers from '../components/ShareScorers';
 import ShareResults from '../components/ShareResults';
 import ChampionCelebration from '../components/ChampionCelebration';
+import SEO from '../components/SEO';
+
+const LIGA_SEO = (
+    <SEO
+        title="Competiciones"
+        description="Tablas de posiciones, goleadores y resultados de las ligas de fútbol del Club Deportivo Las Galaxias en Valparaíso."
+        url="https://lasgalaxias.cl/liga"
+    />
+);
 
 const Liga = () => {
     const [leaguesList, setLeaguesList] = useState([]);
@@ -199,6 +208,8 @@ const Liga = () => {
     // ==========================================
     if (!selectedLeague) {
         return (
+            <>
+            {LIGA_SEO}
             <div className="w-full max-w-[1280px] mx-auto px-4 py-20 animate-fade-in min-h-screen">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-black uppercase text-slate-900 dark:text-white mb-4">Competiciones</h1>
@@ -237,6 +248,7 @@ const Liga = () => {
                     </div>
                 )}
             </div>
+            </>
         );
     }
 
@@ -252,6 +264,7 @@ const Liga = () => {
     // ==========================================
     return (
         <div className="w-full max-w-[1280px] mx-auto px-4 py-12 animate-fade-in min-h-screen">
+            {LIGA_SEO}
             {celebration && (
                 <ChampionCelebration key={celebration.key} champion={celebration.champion} />
             )}

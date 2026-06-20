@@ -5,6 +5,7 @@ import Shield from '../components/icons/Shield';
 import shieldRed from '../assets/shieldRed.svg';
 import Academia from '../components/icons/Acad';
 import { useReveal } from '../hooks/useReveal';
+import SEO from '../components/SEO';
 
 const heroVideo = 'https://res.cloudinary.com/du4oddnjl/video/upload/q_auto/v1781823917/galaxiasDrone-web_t3te3m.mp4';
 
@@ -41,6 +42,12 @@ const Home = () => {
     const academiaR   = useReveal('up',    0);
 
     return (
+        <>
+        <SEO
+          title="Inicio"
+          description="CD Las Galaxias de Valparaíso. Pasión, disciplina y familia desde 2017. Conoce nuestras ligas de fútbol, academia formativa y comunidad."
+          url="https://lasgalaxias.cl"
+        />
         <div className="bg-background-light dark:bg-background-dark min-h-screen">
 
             {/* ── 1. HERO ── */}
@@ -358,6 +365,7 @@ const Home = () => {
             </section>
 
         </div>
+        </>
     );
 };
 

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 
 import shieldRed from '../assets/shieldRed.svg';
 const SHIELD_LOGO = shieldRed;
@@ -30,6 +31,12 @@ const info = [
 
 const Academia = () => {
     return (
+        <>
+        <SEO
+          title="Academia de Fútbol"
+          description="Academia formativa de fútbol del Club Deportivo Las Galaxias en Valparaíso. Todos los viernes de 16:00 a 18:00 en el Estadio Bellavista. Formamos personas a través del fútbol."
+          url="https://lasgalaxias.cl/academia"
+        />
         <div className="bg-background-light dark:bg-background-dark min-h-screen">
 
             {/* ── 1. HERO ── */}
@@ -216,6 +223,7 @@ const Academia = () => {
             </section>
 
         </div>
+        </>
     );
 };
 
