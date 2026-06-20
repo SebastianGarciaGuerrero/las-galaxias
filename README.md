@@ -8,11 +8,13 @@ Plataforma digital oficial del Club Deportivo Las Galaxias. Un ecosistema comple
 
 ## Idea original
 
-**Sebastián García Guerrero** — creador y director del proyecto.
+**Sebastián García Guerrero** — creador y coordinador del proyecto.
 [sebastiangarcia.cl](https://www.sebastiangarcia.cl)
 
 **Rodolfo Fuentealba** — diseñador, desarrollo y arquitectura técnica.
 [rodfuentealba.com](https://rodfuentealba.com)
+
+**biuspater** — colaborador.
 
 ---
 
