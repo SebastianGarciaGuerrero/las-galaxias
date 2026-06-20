@@ -74,13 +74,14 @@ const ShareResults = ({ league, round, matches }) => {
                                     color: '#ffffff',
                                     fontSize: 14,
                                     fontWeight: 900,
-                                    padding: '5px 12px',
+                                    padding: '5px 14px',
                                     borderRadius: 8,
                                     minWidth: 58,
                                     textAlign: 'center',
                                     flexShrink: 0,
+                                    whiteSpace: 'nowrap',
                                 }}>
-                                    {match.home_score} - {match.away_score}
+                                    {match.home_score}&nbsp;-&nbsp;{match.away_score}
                                 </span>
                             ) : (
                                 <span style={{
