@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import cloudinary from '../config/cloudinary.js';
+import { requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -10,7 +11,9 @@ const upload = multer({ storage: storage });
 
 // OJO AQUÍ: La ruta es '/' porque en index.js ya definimos '/api/upload'
 // La ruta final será: POST http://localhost:3001/api/upload
-router.post('/', upload.single('file'), async (req, res) => {
+// requireAdmin va ANTES de multer: si no hay sesión, ni siquiera nos
+// tragamos el archivo en memoria.
+router.post('/', requireAdmin, upload.single('file'), async (req, res) => {
     try {
         console.log("📥 Recibiendo petición de subida...");
 

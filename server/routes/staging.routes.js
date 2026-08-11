@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { supabase } from '../config/supabase.js';
 
+import { requireAdmin } from '../middleware/auth.js';
+
 const router = Router();
 
 // ==========================================
@@ -167,7 +169,7 @@ router.get('/submissions', async (req, res) => {
 // ADMIN: EDITAR UNA SUBMISSION (antes de aprobar)
 // ------------------------------------------
 // Permite corregir score y/o goleadores sin tocar aún la tabla oficial.
-router.patch('/submissions/:id', async (req, res) => {
+router.patch('/submissions/:id', requireAdmin, async (req, res) => {
     const { home_score, away_score, goals, review_notes } = req.body;
 
     const updates = {};
@@ -216,7 +218,7 @@ router.patch('/submissions/:id', async (req, res) => {
 // ------------------------------------------
 // ADMIN: APROBAR -> ESCRIBE EN matches + goals
 // ------------------------------------------
-router.post('/submissions/:id/approve', async (req, res) => {
+router.post('/submissions/:id/approve', requireAdmin, async (req, res) => {
     try {
         const { data: sub, error: subErr } = await supabase
             .from('staging_match_results')
@@ -284,7 +286,7 @@ router.post('/submissions/:id/approve', async (req, res) => {
 // ------------------------------------------
 // ADMIN: RECHAZAR
 // ------------------------------------------
-router.post('/submissions/:id/reject', async (req, res) => {
+router.post('/submissions/:id/reject', requireAdmin, async (req, res) => {
     const { review_notes } = req.body;
     const { error } = await supabase
         .from('staging_match_results')

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../config/api';
 
 const NewsManager = () => {
     const [news, setNews] = useState([]);
@@ -18,7 +19,7 @@ const NewsManager = () => {
 
     const fetchNews = async () => {
         try {
-            const res = await fetch(`${API_URL}/api/news`);
+            const res = await apiFetch(`${API_URL}/api/news`);
             if (res.ok) {
                 const data = await res.json();
                 setNews(data);
@@ -38,7 +39,7 @@ const NewsManager = () => {
         formData.append('file', file);
 
         try {
-            const res = await fetch(`${API_URL}/api/upload`, {
+            const res = await apiFetch(`${API_URL}/api/upload`, {
                 method: 'POST',
                 body: formData
             });
@@ -67,7 +68,7 @@ const NewsManager = () => {
         setSubmitting(true); // Activar "Cargando..."
 
         try {
-            const res = await fetch(`${API_URL}/api/news`, {
+            const res = await apiFetch(`${API_URL}/api/news`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
@@ -97,7 +98,7 @@ const NewsManager = () => {
     const handleDelete = async (id) => {
         if (!confirm("¿Seguro que quieres borrar esta noticia?")) return;
         try {
-            await fetch(`${API_URL}/api/news/${id}`, { method: 'DELETE' });
+            await apiFetch(`${API_URL}/api/news/${id}`, { method: 'DELETE' });
             fetchNews();
         } catch (error) {
             alert("Error al eliminar");

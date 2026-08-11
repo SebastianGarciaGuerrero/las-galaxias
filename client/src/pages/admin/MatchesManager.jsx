@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../config/api';
 
 const MatchesManager = () => {
     const [matches, setMatches] = useState([]);
@@ -22,7 +23,7 @@ const MatchesManager = () => {
 
     const fetchMatches = async () => {
         try {
-            const res = await fetch(`${API_URL}/api/matches`);
+            const res = await apiFetch(`${API_URL}/api/matches`);
             const data = await res.json();
             setMatches(data);
         } catch (error) { console.error(error); }
@@ -31,7 +32,7 @@ const MatchesManager = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch(`${API_URL}/api/matches`, {
+            const res = await apiFetch(`${API_URL}/api/matches`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(form)
@@ -46,7 +47,7 @@ const MatchesManager = () => {
 
     const handleDelete = async (id) => {
         if (!confirm("¿Borrar?")) return;
-        await fetch(`${API_URL}/api/matches/${id}`, { method: 'DELETE' });
+        await apiFetch(`${API_URL}/api/matches/${id}`, { method: 'DELETE' });
         fetchMatches();
     };
 

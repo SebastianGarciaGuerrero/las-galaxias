@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../../config/api';
 
 const LeagueManager = () => {
     const [tournaments, setTournaments] = useState([]);
@@ -25,9 +26,9 @@ const LeagueManager = () => {
     const fetchInitialData = async () => {
         try {
             const [resTournaments, resTeams, resPlayers] = await Promise.all([
-                fetch(`${API_URL}/api/leagues`),
-                fetch(`${API_URL}/api/league-admin/teams`),
-                fetch(`${API_URL}/api/league-admin/players`)
+                apiFetch(`${API_URL}/api/leagues`),
+                apiFetch(`${API_URL}/api/league-admin/teams`),
+                apiFetch(`${API_URL}/api/league-admin/players`)
             ]);
             setTournaments(await resTournaments.json());
             setTeams(await resTeams.json());
@@ -41,9 +42,9 @@ const LeagueManager = () => {
         if (!selectedTournament) return;
         try {
             const [resMatches, resPlayers, resByes] = await Promise.all([
-                fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`),
-                fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/players`),
-                fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/byes`)
+                apiFetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`),
+                apiFetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/players`),
+                apiFetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/byes`)
             ]);
             setMatches(await resMatches.json());
             setTournamentPlayers(await resPlayers.json());
@@ -69,7 +70,7 @@ const LeagueManager = () => {
         if (!window.confirm(msg)) return;
 
         try {
-            const res = await fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/status`, {
+            const res = await apiFetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/status`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus }),
@@ -91,7 +92,7 @@ const LeagueManager = () => {
         const handleSubmit = async (e) => {
             e.preventDefault();
             try {
-                const res = await fetch(`${API_URL}/api/league-admin/teams`, {
+                const res = await apiFetch(`${API_URL}/api/league-admin/teams`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form)
                 });
                 if (res.ok) { setShowCreateTeam(false); fetchInitialData(); }
@@ -150,7 +151,7 @@ const LeagueManager = () => {
             e.preventDefault();
             const currentRound = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 1;
             try {
-                const res = await fetch(`${API_URL}/api/league-admin/bye`, {
+                const res = await apiFetch(`${API_URL}/api/league-admin/bye`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ tournament_id: selectedTournament, team_id: teamId, round: currentRound })
@@ -215,7 +216,7 @@ const LeagueManager = () => {
         const handleSubmit = async (e) => {
             e.preventDefault();
             try {
-                const res = await fetch(`${API_URL}/api/league-admin/players`, {
+                const res = await apiFetch(`${API_URL}/api/league-admin/players`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -365,7 +366,7 @@ const LeagueManager = () => {
 
                     if (isEditing && slot.matchId) {
                         // PATCH partido existente
-                        await fetch(`${API_URL}/api/league-admin/match/${slot.matchId}`, {
+                        await apiFetch(`${API_URL}/api/league-admin/match/${slot.matchId}`, {
                             method: 'PATCH',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -376,7 +377,7 @@ const LeagueManager = () => {
                         });
                     } else {
                         // POST partido nuevo
-                        await fetch(`${API_URL}/api/league-admin/match`, {
+                        await apiFetch(`${API_URL}/api/league-admin/match`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -394,7 +395,7 @@ const LeagueManager = () => {
                     if (isEditing && fixtureToEdit.bye) {
                         // Actualizar bye existente
                         if (byeTeamId) {
-                            await fetch(`${API_URL}/api/league-admin/bye/${fixtureToEdit.bye.id}`, {
+                            await apiFetch(`${API_URL}/api/league-admin/bye/${fixtureToEdit.bye.id}`, {
                                 method: 'PATCH',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ team_id: byeTeamId })
@@ -402,10 +403,10 @@ const LeagueManager = () => {
                         }
                     } else if (byeTeamId) {
                         // Crear bye nuevo
-                        const lastMatch = await fetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`);
+                        const lastMatch = await apiFetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}`);
                         const lastMatchData = await lastMatch.json();
                         const currentRound = Math.max(...lastMatchData.map(m => m.round || 1));
-                        await fetch(`${API_URL}/api/league-admin/bye`, {
+                        await apiFetch(`${API_URL}/api/league-admin/bye`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
@@ -535,7 +536,7 @@ const LeagueManager = () => {
             });
 
             try {
-                const res = await fetch(`${API_URL}/api/league-admin/match/${matchToResult.id}/result`, {
+                const res = await apiFetch(`${API_URL}/api/league-admin/match/${matchToResult.id}/result`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ home_score: homeScore, away_score: awayScore, goals })
@@ -748,7 +749,7 @@ const LeagueManager = () => {
                                                         onClick={async () => {
                                                             // Actualiza todos los partidos de esta jornada al nuevo número
                                                             await Promise.all(roundMatches.map(m =>
-                                                                fetch(`${API_URL}/api/league-admin/match/${m.id}/round`, {
+                                                                apiFetch(`${API_URL}/api/league-admin/match/${m.id}/round`, {
                                                                     method: 'PATCH',
                                                                     headers: { 'Content-Type': 'application/json' },
                                                                     body: JSON.stringify({ round: parseInt(newRoundValue) })

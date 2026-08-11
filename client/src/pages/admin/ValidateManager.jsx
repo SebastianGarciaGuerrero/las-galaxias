@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { apiFetch } from '../../config/api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -29,7 +30,7 @@ const ValidateManager = () => {
         try {
             const url = new URL(`${API_URL}/api/staging/submissions`);
             if (status) url.searchParams.set('status', status);
-            const res = await fetch(url);
+            const res = await apiFetch(url);
             const data = await res.json();
             setSubmissions(Array.isArray(data) ? data : []);
         } catch (err) {
@@ -46,7 +47,7 @@ const ValidateManager = () => {
         if (!confirm(`Aprobar ${sub.match?.home?.name} ${sub.home_score} - ${sub.away_score} ${sub.match?.away?.name}?\n\nEsto sobreescribe el resultado del partido oficial.`)) return;
         setBusyId(sub.id);
         try {
-            const res = await fetch(`${API_URL}/api/staging/submissions/${sub.id}/approve`, { method: 'POST' });
+            const res = await apiFetch(`${API_URL}/api/staging/submissions/${sub.id}/approve`, { method: 'POST' });
             if (!res.ok) {
                 const err = await res.json();
                 throw new Error(err.error || 'Error al aprobar');
@@ -64,7 +65,7 @@ const ValidateManager = () => {
         if (notes === null) return;
         setBusyId(sub.id);
         try {
-            const res = await fetch(`${API_URL}/api/staging/submissions/${sub.id}/reject`, {
+            const res = await apiFetch(`${API_URL}/api/staging/submissions/${sub.id}/reject`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ review_notes: notes }),
@@ -266,7 +267,7 @@ const EditSubmissionModal = ({ sub, onClose, onSaved }) => {
 
         const tid = sub.match?.tournament?.id;
         if (tid) {
-            fetch(`${API_URL}/api/staging/tournaments/${tid}/players`)
+            apiFetch(`${API_URL}/api/staging/tournaments/${tid}/players`)
                 .then(r => r.json())
                 .then(setPlayers)
                 .catch(console.error);
@@ -298,7 +299,7 @@ const EditSubmissionModal = ({ sub, onClose, onSaved }) => {
                 team_id: v.team_id,
                 count: v.count,
             }));
-            const res = await fetch(`${API_URL}/api/staging/submissions/${sub.id}`, {
+            const res = await apiFetch(`${API_URL}/api/staging/submissions/${sub.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

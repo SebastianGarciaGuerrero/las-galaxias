@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { supabase } from '../config/supabase.js';
 
+import { requireAdmin } from '../middleware/auth.js';
+
 const router = Router();
 
 // CREAR EQUIPO NUEVO AL VUELO
-router.post('/teams', async (req, res) => {
+router.post('/teams', requireAdmin, async (req, res) => {
     const { name, short_name, logo_url, bio_title, bio_description } = req.body;
 
     const { data, error } = await supabase
@@ -23,13 +25,16 @@ router.post('/teams', async (req, res) => {
 });
 
 // 1. OBTENER EQUIPOS (Ocultamos al Ghost Team para que no salga en las opciones)
-router.get('/teams', async (req, res) => {
+router.get('/teams', requireAdmin, async (req, res) => {
     const { data, error } = await supabase.from('teams').select('*').neq('name', 'Ghost Team').order('name');
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
 });
 
 // 2. OBTENER TODOS LOS JUGADORES (Para los parches)
+// SIN requireAdmin a propósito: la app de marcador (mobile/lib/services/
+// staging_service.dart) la usa sin sesión para armar la lista de goleadores.
+// Si algún día la app manda token, agregarle el middleware.
 router.get('/players', async (req, res) => {
     const { data, error } = await supabase
         .from('players')
@@ -40,6 +45,10 @@ router.get('/players', async (req, res) => {
 });
 
 // 3. CREAR JUGADOR NUEVO AL VUELO
+// SIN requireAdmin a propósito: la app de marcador crea jugadores en cancha
+// cuando aparece alguien que no estaba en la nómina. Es el único write que
+// queda abierto; solo agrega filas a players/tournament_players, no toca
+// resultados. Ver nota en GET /players.
 router.post('/players', async (req, res) => {
     const { name, team_id, tournament_id } = req.body;
 
@@ -84,7 +93,7 @@ router.post('/players', async (req, res) => {
 });
 
 // 4. OBTENER EL FIXTURE DE UNA LIGA
-router.get('/tournament/:tournamentId', async (req, res) => {
+router.get('/tournament/:tournamentId', requireAdmin, async (req, res) => {
     const { data, error } = await supabase
         .from('matches')
         .select(`*, home:home_team_id(id, name, logo_url), away:away_team_id(id, name, logo_url)`)
@@ -95,7 +104,7 @@ router.get('/tournament/:tournamentId', async (req, res) => {
 });
 
 // 5. PROGRAMAR UN PARTIDO DE LIGA
-router.post('/match', async (req, res) => {
+router.post('/match', requireAdmin, async (req, res) => {
     const { tournament_id, home_team_id, away_team_id, match_date, location } = req.body;
 
     const { data: existing } = await supabase
@@ -142,7 +151,7 @@ router.post('/match', async (req, res) => {
 });
 
 // 6. GUARDAR RESULTADOS Y GOLEADORES DE LA LIGA
-router.post('/match/:id/result', async (req, res) => {
+router.post('/match/:id/result', requireAdmin, async (req, res) => {
     const matchId = req.params.id;
     const { home_score, away_score, goals } = req.body;
     try {
@@ -161,7 +170,7 @@ router.post('/match/:id/result', async (req, res) => {
 });
 
 // 7. OBTENER JUGADORES DE UN TORNEO (por los equipos participantes)
-router.get('/tournament/:tournamentId/players', async (req, res) => {
+router.get('/tournament/:tournamentId/players', requireAdmin, async (req, res) => {
     const { tournamentId } = req.params;
 
     const { data, error } = await supabase
@@ -185,7 +194,7 @@ router.get('/tournament/:tournamentId/players', async (req, res) => {
 });
 
 // EDITAR JORNADA DE UN PARTIDO
-router.patch('/match/:id/round', async (req, res) => {
+router.patch('/match/:id/round', requireAdmin, async (req, res) => {
     const { round } = req.body;
     const { data, error } = await supabase
         .from('matches')
@@ -198,7 +207,7 @@ router.patch('/match/:id/round', async (req, res) => {
 
 // POST registrar descanso
 // POST registrar descanso
-router.post('/bye', async (req, res) => {
+router.post('/bye', requireAdmin, async (req, res) => {
     const { tournament_id, team_id, round } = req.body;
     const { data, error } = await supabase
         .from('bye_weeks')
@@ -209,7 +218,7 @@ router.post('/bye', async (req, res) => {
 });
 
 // EDITAR BYE EXISTENTE
-router.patch('/bye/:id', async (req, res) => {
+router.patch('/bye/:id', requireAdmin, async (req, res) => {
     const { team_id } = req.body;
     const { data, error } = await supabase
         .from('bye_weeks')
@@ -220,7 +229,7 @@ router.patch('/bye/:id', async (req, res) => {
     res.json(data[0]);
 });
 
-router.get('/tournament/:tournamentId/byes', async (req, res) => {
+router.get('/tournament/:tournamentId/byes', requireAdmin, async (req, res) => {
     const { data, error } = await supabase
         .from('bye_weeks')
         .select('id, tournament_id, team_id, round')
@@ -243,7 +252,7 @@ router.get('/tournament/:tournamentId/byes', async (req, res) => {
 
 // CAMBIAR ESTADO DE UN TORNEO (active / past / upcoming)
 // Se usa para finalizar un torneo manualmente desde el panel de admin.
-router.patch('/tournament/:id/status', async (req, res) => {
+router.patch('/tournament/:id/status', requireAdmin, async (req, res) => {
     const { status } = req.body;
     const allowed = ['active', 'past', 'upcoming'];
     if (!allowed.includes(status)) {
@@ -259,7 +268,7 @@ router.patch('/tournament/:id/status', async (req, res) => {
 });
 
 // EDITAR PARTIDO (equipos y fecha)
-router.patch('/match/:id', async (req, res) => {
+router.patch('/match/:id', requireAdmin, async (req, res) => {
     const { home_team_id, away_team_id, match_date } = req.body;
     const { data, error } = await supabase
         .from('matches')
