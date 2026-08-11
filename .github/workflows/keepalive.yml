@@ -1,0 +1,75 @@
+name: Keepalive
+
+# Mantiene despierta la base de datos de Supabase y avisa por mail si algo se cayó.
+#
+# Por qué: en el plan free, Supabase pausa el proyecto después de 7 días sin
+# actividad. Una consulta diaria basta para que nunca llegue a ese punto.
+#
+# También se puede correr a mano desde la pestaña "Actions" del repo.
+
+on:
+  schedule:
+    - cron: '17 13 * * *'   # todos los días 13:17 UTC (~09:17 en Chile)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SUPABASE_URL: https://opvnwbkyrnnejhmkiool.supabase.co
+  # Key publishable (la misma que ya está en client/.env y viaja al navegador).
+  SUPABASE_ANON_KEY: sb_publishable_CNCcnCNogaRnTLsmKUFDnQ_bDDy1obk
+  API_URL: https://las-galaxias-api.vercel.app
+  SITE_URL: https://www.lasgalaxias.cl
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Consultar Supabase (esto es lo que cuenta como actividad)
+        run: |
+          code=$(curl -sS -o /tmp/db.json -w '%{http_code}' \
+            --max-time 30 --retry 3 --retry-delay 10 --retry-all-errors \
+            "$SUPABASE_URL/rest/v1/tournaments?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY")
+          echo "Supabase -> HTTP $code"
+          cat /tmp/db.json; echo
+          [ "$code" = "200" ] || { echo "::error::Supabase no responde 200"; exit 1; }
+
+      - name: Health check de la API (API + base en una sola llamada)
+        run: |
+          code=$(curl -sS -o /tmp/api.json -w '%{http_code}' \
+            --max-time 30 --retry 3 --retry-delay 10 --retry-all-errors \
+            "$API_URL/api/health")
+          echo "API -> HTTP $code"
+          cat /tmp/api.json; echo
+          [ "$code" = "200" ] || { echo "::error::La API no responde 200"; exit 1; }
+
+      - name: Ping al sitio
+        run: |
+          code=$(curl -sS -o /dev/null -w '%{http_code}' \
+            --max-time 30 --retry 3 --retry-delay 10 --retry-all-errors \
+            "$SITE_URL/")
+          echo "Sitio -> HTTP $code"
+          [ "$code" = "200" ] || { echo "::error::El sitio no responde 200"; exit 1; }
+
+      # GitHub apaga los cron de un repo que lleva 60 días sin movimiento.
+      # Este commit semanal (que NO dispara deploy en Vercel por el [skip ci])
+      # mantiene el repo "vivo" para que el workflow no se desactive solo.
+      - name: Latido semanal
+        if: github.event_name == 'schedule'
+        continue-on-error: true   # si falla el push, el ping igual ya se hizo
+        run: |
+          if [ "$(date -u +%u)" != "7" ]; then
+            echo "Hoy no toca latido (solo domingos)."
+            exit 0
+          fi
+          mkdir -p .github
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .github/keepalive.txt
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive.txt
+          git commit -m "chore: latido de keepalive [skip ci]" || exit 0
+          git push

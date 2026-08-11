@@ -13,6 +13,7 @@ import matchesRoutes from './routes/matches.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import leagueAdminRoutes from './routes/league_admin.routes.js';
 import stagingRoutes from './routes/staging.routes.js';
+import healthRoutes from './routes/health.routes.js';
 
 dotenv.config();
 dotenv.config({ path: resolve(__dirname, '../.env') });
@@ -49,6 +50,7 @@ app.use('/api/matches', matchesRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/league-admin', leagueAdminRoutes);
 app.use('/api/staging', stagingRoutes);
+app.use('/api/health', healthRoutes);
 
 // --- ROOT (Para verificar que el server vive) ---
 app.get('/', (req, res) => {
