@@ -6,6 +6,11 @@
 -- del sitio (client/.env), cualquiera puede leer Y ESCRIBIR en la
 -- base apuntando directo a https://<proyecto>.supabase.co/rest/v1.
 --
+-- OJO: esta lista está escrita a mano y se armó adivinando nombres de
+-- tabla desde el código, así que se le escapó public.clubs. Para no
+-- depender de la lista usá enable_rls_faltantes.sql, que recorre el
+-- esquema entero y no necesita saber los nombres de antemano.
+--
 -- Solución: activar RLS sin crear ninguna política.
 -- Sin políticas, anon y authenticated no ven ni tocan nada.
 -- El backend (server/) usa la key service_role, que se salta RLS
