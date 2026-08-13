@@ -5,7 +5,7 @@ import { horaChile } from '../utils/fecha';
 
 // Resultados de una jornada en formato móvil para compartir por WhatsApp.
 // Botón compacto (solo ícono) pensado para el header de cada jornada.
-const ShareResults = ({ league, round, matches }) => {
+const ShareResults = ({ league, round, matches, bye }) => {
     const { cardRef, status, share } = useShareImage(`resultados-j${round}-${league?.name || 'liga'}`);
 
     if (!matches?.length) return null;
@@ -123,6 +123,23 @@ const ShareResults = ({ league, round, matches }) => {
                         </div>
                     );
                 })}
+
+                {/* Quién descansó esta jornada. Va abajo y apagado a propósito:
+                    es un dato de contexto, no tiene que competir con los
+                    resultados. */}
+                {bye && (
+                    <div style={{
+                        padding: '10px 20px 2px',
+                        textAlign: 'center',
+                        color: 'rgba(225, 60, 100, 0.75)',
+                        fontSize: 10,
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.12em',
+                    }}>
+                        Descansa {bye}
+                    </div>
+                )}
             </ShareCardShell>
         </>
     );

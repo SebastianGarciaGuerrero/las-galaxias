@@ -457,6 +457,7 @@ const Liga = () => {
                                     {Object.entries(rounds).map(([round, roundMatches]) => {
                                         const allFinished = roundMatches.every(m => m.status === 'finished');
                                         const isExpanded = expandedRound === round;
+                                        const byeTeam = byeWeeks.find(b => Number(b.round) === Number(round))?.team?.name;
 
                                         return (
                                             <div key={round} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
@@ -492,13 +493,12 @@ const Liga = () => {
                                                             expand_more
                                                         </span>
                                                     </button>
-                                                    <ShareResults league={selectedLeague} round={round} matches={roundMatches} />
+                                                    <ShareResults league={selectedLeague} round={round} matches={roundMatches} bye={byeTeam} />
                                                 </div>
 
                                                 {/* PARTIDOS */}
                                                 {isExpanded && (
                                                     <div className="divide-y divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800">
-                                                        {console.log('byeWeeks:', byeWeeks, 'round actual:', round)}
                                                         {roundMatches.map(match => (
                                                             <div key={match.id} className="p-4 flex items-center justify-between gap-4">
                                                                 <div className="text-xs text-slate-400 font-bold uppercase shrink-0 hidden sm:block">
@@ -526,6 +526,14 @@ const Liga = () => {
                                                                 </div>
                                                             </div>
                                                         ))}
+
+                                                        {/* Quién descansa. Apagado a propósito: es contexto,
+                                                            no tiene que competir con los resultados. */}
+                                                        {byeTeam && (
+                                                            <div className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-primary/70">
+                                                                Descansa {byeTeam}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
