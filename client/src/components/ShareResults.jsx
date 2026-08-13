@@ -3,10 +3,13 @@ import ShareButton from './share/ShareButton';
 import ShareCardShell from './share/ShareCardShell';
 import { horaChile } from '../utils/fecha';
 
-// Resultados de una jornada en formato móvil para compartir por WhatsApp.
+// Una jornada en formato móvil para compartir por WhatsApp.
 // Botón compacto (solo ícono) pensado para el header de cada jornada.
+//
+// La tarjeta dice "Jornada N" y no "Resultados": también se comparte antes
+// de que se juegue, para avisar la programación.
 const ShareResults = ({ league, round, matches, bye }) => {
-    const { cardRef, status, share } = useShareImage(`resultados-j${round}-${league?.name || 'liga'}`);
+    const { cardRef, status, share } = useShareImage(`jornada-${round}-${league?.name || 'liga'}`);
 
     if (!matches?.length) return null;
 
@@ -22,7 +25,7 @@ const ShareResults = ({ league, round, matches, bye }) => {
             <ShareButton
                 status={status}
                 onClick={share}
-                label={`Compartir resultados Jornada ${round}`}
+                label={`Compartir Jornada ${round}`}
                 compact
             />
 
@@ -38,7 +41,7 @@ const ShareResults = ({ league, round, matches, bye }) => {
                     letterSpacing: '0.1em',
                     textAlign: 'center',
                 }}>
-                    Resultados · Jornada {round}
+                    Jornada {round}
                 </div>
 
                 {/* Partidos */}
