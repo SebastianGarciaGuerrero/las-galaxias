@@ -15,8 +15,12 @@ const PALETTES = [
 ];
 
 // Colores personalizados para equipos específicos (match por substring del nombre).
+// El celeste lleva texto oscuro porque el blanco encima no se lee.
 const SPECIAL_PALETTES = [
-    { match: 'samba', bg: '#FFDF00', fg: '#009C3B' }, // Brasil: amarillo + verde
+    { match: 'samba', bg: '#FFDF00', fg: '#009C3B' },      // Brasil: amarillo + verde
+    { match: 'violeta', bg: '#6D28D9', fg: '#ffffff' },    // morado
+    { match: 'cochrane', bg: '#38BDF8', fg: '#0B3A5B' },   // celeste
+    { match: 'charchalax', bg: '#DC2626', fg: '#ffffff' }, // rojo
 ];
 
 const hashName = (name) => {
