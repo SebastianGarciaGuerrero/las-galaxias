@@ -15,13 +15,23 @@ const PALETTES = [
 ];
 
 // Colores personalizados para equipos específicos (match por substring del nombre).
-// El celeste lleva texto oscuro porque el blanco encima no se lee.
+// Con `bg2` el escudo sale partido al medio: `bg` a la izquierda y `bg2` a la
+// derecha. El celeste lleva texto oscuro porque el blanco encima no se lee.
 const SPECIAL_PALETTES = [
-    { match: 'samba', bg: '#FFDF00', fg: '#009C3B' },      // Brasil: amarillo + verde
-    { match: 'violeta', bg: '#6D28D9', fg: '#ffffff' },    // morado
-    { match: 'cochrane', bg: '#38BDF8', fg: '#0B3A5B' },   // celeste
-    { match: 'charchalax', bg: '#DC2626', fg: '#ffffff' }, // rojo
+    { match: 'samba', bg: '#FFDF00', fg: '#009C3B' },                       // Brasil: amarillo + verde
+    { match: 'violeta', bg: '#6D28D9', fg: '#ffffff' },                     // morado
+    { match: 'cochrane', bg: '#38BDF8', fg: '#0B3A5B' },                    // celeste
+    { match: 'charchalax', bg: '#DC2626', bg2: '#111827', fg: '#ffffff' },  // rojo y negro
+    { match: 'malajax', bg: '#DC2626', bg2: '#F8FAFC', fg: '#ffffff' },     // rojo y blanco
+    { match: 'motafogo', bg: '#047857', bg2: '#111827', fg: '#ffffff' },    // verde y negro
 ];
+
+// El escudo entero y sus dos mitades, partidas por el eje x=20. Se dibujan como
+// dos paths sólidos en vez de un degradado o un clipPath: html-to-image los
+// rasteriza sin problemas y no hace falta inventar ids únicos por instancia.
+const ESCUDO = 'M20 1 L37 6 V22 C37 33 29.5 40 20 43 C10.5 40 3 33 3 22 V6 Z';
+const MITAD_IZQ = 'M20 1 L3 6 V22 C3 33 10.5 40 20 43 Z';
+const MITAD_DER = 'M20 1 L37 6 V22 C37 33 29.5 40 20 43 Z';
 
 const hashName = (name) => {
     let hash = 0;
@@ -69,12 +79,15 @@ const TeamBadge = ({ name = '', shieldUrl = null, size = 28 }) => {
             aria-label={`Escudo ${name}`}
         >
             {/* Forma de escudo */}
-            <path
-                d="M20 1 L37 6 V22 C37 33 29.5 40 20 43 C10.5 40 3 33 3 22 V6 Z"
-                fill={palette.bg}
-                stroke="rgba(255,255,255,0.35)"
-                strokeWidth="1.5"
-            />
+            {palette.bg2 ? (
+                <>
+                    <path d={MITAD_IZQ} fill={palette.bg} />
+                    <path d={MITAD_DER} fill={palette.bg2} />
+                    <path d={ESCUDO} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+                </>
+            ) : (
+                <path d={ESCUDO} fill={palette.bg} stroke="rgba(255,255,255,0.35)" strokeWidth="1.5" />
+            )}
             <text
                 x="20"
                 y="25"
@@ -84,6 +97,15 @@ const TeamBadge = ({ name = '', shieldUrl = null, size = 28 }) => {
                 fontSize="15"
                 fontWeight="900"
                 fontFamily="Outfit, sans-serif"
+                // En los partidos las iniciales quedan encima de los dos colores, así
+                // que van con un contorno oscuro: sin él, la "MA" blanca de Malajax
+                // desaparece sobre la mitad blanca.
+                {...(palette.bg2 && {
+                    stroke: '#0F172A',
+                    strokeWidth: 2.4,
+                    paintOrder: 'stroke',
+                    strokeLinejoin: 'round',
+                })}
             >
                 {initials}
             </text>
