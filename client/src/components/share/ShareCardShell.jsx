@@ -3,14 +3,15 @@
 // Se renderiza fuera de pantalla; el ref apunta al nodo que se captura.
 
 import shieldRed from '../../assets/shieldRed.svg';
+import { fechaChile } from '../../utils/fecha';
 const SHIELD_LOGO = shieldRed;
 
-const ShareCardShell = ({ cardRef, league, children }) => {
-    const today = new Date().toLocaleDateString('es-CL', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-    });
+// `date` es la fecha que va en el encabezado. Los resultados de una jornada
+// mandan la fecha en que se jugó; el resto (tabla, goleadores) es una foto
+// del momento, así que cae al día de hoy. Siempre en hora de Chile: antes
+// usaba la zona del dispositivo y la tarjeta salía con el día cambiado.
+const ShareCardShell = ({ cardRef, league, date, children }) => {
+    const today = fechaChile(date || new Date());
 
     return (
         <div style={{ position: 'fixed', left: '-9999px', top: 0, pointerEvents: 'none' }} aria-hidden="true">

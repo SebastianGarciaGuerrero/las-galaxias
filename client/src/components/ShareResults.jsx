@@ -1,14 +1,7 @@
 import { useShareImage } from './share/useShareImage';
 import ShareButton from './share/ShareButton';
 import ShareCardShell from './share/ShareCardShell';
-
-const formatTime = (dateStr) =>
-    new Date(dateStr).toLocaleTimeString('es-CL', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'America/Santiago',
-        hour12: false,
-    });
+import { horaChile } from '../utils/fecha';
 
 // Resultados de una jornada en formato móvil para compartir por WhatsApp.
 // Botón compacto (solo ícono) pensado para el header de cada jornada.
@@ -16,6 +9,13 @@ const ShareResults = ({ league, round, matches }) => {
     const { cardRef, status, share } = useShareImage(`resultados-j${round}-${league?.name || 'liga'}`);
 
     if (!matches?.length) return null;
+
+    // El encabezado lleva el día en que se jugó la jornada, no el día en que
+    // uno la comparte.
+    const fechaJornada = matches.reduce(
+        (min, m) => (m.match_date && m.match_date < min ? m.match_date : min),
+        matches[0].match_date,
+    );
 
     return (
         <>
@@ -26,7 +26,7 @@ const ShareResults = ({ league, round, matches }) => {
                 compact
             />
 
-            <ShareCardShell cardRef={cardRef} league={league}>
+            <ShareCardShell cardRef={cardRef} league={league} date={fechaJornada}>
                 {/* Barra de título */}
                 <div style={{
                     padding: '10px 20px',
@@ -104,7 +104,7 @@ const ShareResults = ({ league, round, matches }) => {
                                     flexShrink: 0,
                                     whiteSpace: 'nowrap',
                                 }}>
-                                    {formatTime(match.match_date)}
+                                    {horaChile(match.match_date)}
                                 </span>
                             )}
 

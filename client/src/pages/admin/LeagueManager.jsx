@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../config/api';
+import { fechaChile, horaChile, isoDesdeChile } from '../../utils/fecha';
 
 const LeagueManager = () => {
     const [tournaments, setTournaments] = useState([]);
@@ -316,10 +317,7 @@ const LeagueManager = () => {
         const initialSlots = isEditing
             ? fixtureToEdit.matches.map(m => ({
                 matchId: m.id,
-                hour: new Date(m.match_date).toLocaleTimeString('es-CL', {
-                    hour: '2-digit', minute: '2-digit',
-                    timeZone: 'America/Santiago', hour12: false
-                }),
+                hour: horaChile(m.match_date),
                 home_team_id: String(m.home_team_id),
                 away_team_id: String(m.away_team_id),
             }))
@@ -372,7 +370,7 @@ const LeagueManager = () => {
                             body: JSON.stringify({
                                 home_team_id: slot.home_team_id,
                                 away_team_id: slot.away_team_id,
-                                match_date: new Date(`${matchDate}T${slot.hour}:00-04:00`).toISOString(),
+                                match_date: isoDesdeChile(matchDate, slot.hour),
                             })
                         });
                     } else {
@@ -384,7 +382,7 @@ const LeagueManager = () => {
                                 tournament_id: selectedTournament,
                                 home_team_id: slot.home_team_id,
                                 away_team_id: slot.away_team_id,
-                                match_date: new Date(`${matchDate}T${slot.hour}:00-04:00`).toISOString(),
+                                match_date: isoDesdeChile(matchDate, slot.hour),
                                 location: 'Cancha Principal'
                             })
                         });
@@ -796,14 +794,9 @@ const LeagueManager = () => {
                                                     {roundMatches.map(match => (
                                                         <li key={match.id} className="p-5 flex flex-col md:flex-row items-center justify-between gap-4">
                                                             <div className="text-center text-xs text-slate-500 font-bold uppercase bg-white dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-800 shrink-0">
-                                                                {new Date(match.match_date).toLocaleDateString()} <br />
+                                                                {fechaChile(match.match_date, { day: '2-digit', month: '2-digit', year: 'numeric' })} <br />
                                                                 <span className="text-primary text-sm mt-1 block">
-                                                                    {new Date(match.match_date).toLocaleTimeString('es-CL', {
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit',
-                                                                        timeZone: 'America/Santiago',
-                                                                        hour12: false
-                                                                    })}
+                                                                    {horaChile(match.match_date)}
                                                                 </span>
                                                             </div>
 

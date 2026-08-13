@@ -7,6 +7,7 @@ import ShareScorers from '../components/ShareScorers';
 import ShareResults from '../components/ShareResults';
 import ChampionCelebration from '../components/ChampionCelebration';
 import SEO from '../components/SEO';
+import { horaChile } from '../utils/fecha';
 
 const LIGA_SEO = (
     <SEO
@@ -501,12 +502,7 @@ const Liga = () => {
                                                         {roundMatches.map(match => (
                                                             <div key={match.id} className="p-4 flex items-center justify-between gap-4">
                                                                 <div className="text-xs text-slate-400 font-bold uppercase shrink-0 hidden sm:block">
-                                                                    {new Date(match.match_date).toLocaleTimeString('es-CL', {
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit',
-                                                                        timeZone: 'America/Santiago',
-                                                                        hour12: false
-                                                                    })}
+                                                                    {horaChile(match.match_date)}
                                                                 </div>
 
                                                                 <div className="flex-1 flex items-center justify-center gap-3 font-black">
@@ -520,12 +516,7 @@ const Liga = () => {
                                                                         </span>
                                                                     ) : (
                                                                         <span className="text-slate-300 dark:text-slate-600 px-3 shrink-0 text-sm">
-                                                                            {new Date(match.match_date).toLocaleTimeString('es-CL', {
-                                                                                hour: '2-digit',
-                                                                                minute: '2-digit',
-                                                                                timeZone: 'America/Santiago',
-                                                                                hour12: false
-                                                                            })}
+                                                                            {horaChile(match.match_date)}
                                                                         </span>
                                                                     )}
 

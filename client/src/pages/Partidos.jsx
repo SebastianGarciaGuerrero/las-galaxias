@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import FutbolLoader from '../components/FutbolLoader';
 import SEO from '../components/SEO';
+import { fechaChile, horaChile } from '../utils/fecha';
 
 // --- 1. COMPONENTE DE CUENTA REGRESIVA (Reloj) ---
 const Countdown = ({ targetDate }) => {
@@ -53,15 +54,13 @@ const Partidos = () => {
                 const data = await res.json();
 
                 const formattedData = data.map(m => {
-                    // CAMBIO: Ahora usamos match_date
-                    const dateObj = new Date(m.match_date);
                     return {
                         ...m,
                         home: m.is_local ? (m.category === 'seniors' ? 'Galaxias Sr' : 'Galaxias TC') : m.rival,
                         away: m.is_local ? m.rival : (m.category === 'seniors' ? 'Galaxias Sr' : 'Galaxias TC'),
-                        dayDisplay: dateObj.getDate(),
-                        monthDisplay: dateObj.toLocaleString('es-ES', { month: 'short' }).replace('.', ''),
-                        timeDisplay: dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                        dayDisplay: fechaChile(m.match_date, { day: 'numeric' }),
+                        monthDisplay: fechaChile(m.match_date, { month: 'short' }).replace('.', ''),
+                        timeDisplay: horaChile(m.match_date),
                         fullDate: m.match_date, // CAMBIO: match_date
                         competition: m.competition || (m.category === 'seniors' ? 'Liga Seniors' : 'Campeonato'),
                         // CAMBIO: Adaptamos el status en inglés de la base de datos al español para tu UI
