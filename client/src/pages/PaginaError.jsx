@@ -76,7 +76,9 @@ const PaginaError = ({
             <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
                 <div className="order-2 lg:order-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block mb-4">
+                    {/* Con este tamaño el tracking de 0.3em se abría demasiado,
+                        así que baja a 0.15em. */}
+                    <span className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-[0.15em] text-primary block mb-3">
                         Error {codigo}
                     </span>
                     <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 dark:text-white leading-[1.05] mb-5">
