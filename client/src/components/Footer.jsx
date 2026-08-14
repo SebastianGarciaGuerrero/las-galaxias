@@ -74,6 +74,34 @@ const Footer = () => {
                 </div>
             </div>
 
+            {/* ── Créditos de fotos ──
+                La portada de la Liga Bosque Esclerófilo es CC BY 2.0 y esa
+                licencia exige crédito visible con enlace a la licencia. */}
+            <div className="bg-white dark:bg-zinc-900 px-8 md:px-14 lg:px-20 pt-4 text-center sm:text-left">
+                <p className="text-slate-400 dark:text-slate-500 text-[10px] leading-relaxed">
+                    Foto de la Liga Bosque Esclerófilo: bosque esclerófilo en Casablanca,
+                    Región de Valparaíso, por Fernando Córdova —{' '}
+                    <a
+                        href="https://creativecommons.org/licenses/by/2.0/deed.es"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-primary transition-colors"
+                    >
+                        CC BY 2.0
+                    </a>
+                    , vía{' '}
+                    <a
+                        href="https://commons.wikimedia.org/wiki/File:Bosque_escler%C3%B3filo_en_Casablanca_(11413873535).jpg"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-primary transition-colors"
+                    >
+                        Wikimedia Commons
+                    </a>
+                    . Redimensionada.
+                </p>
+            </div>
+
             {/* ── Barra inferior ── */}
             <div className="bg-white dark:bg-zinc-900 px-8 md:px-14 lg:px-20 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
                 <p className="text-black dark:text-white text-[10px] font-bold uppercase tracking-[0.2em]">
