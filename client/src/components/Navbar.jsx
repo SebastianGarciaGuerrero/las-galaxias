@@ -10,14 +10,9 @@ const NAV_LINKS = [
     { label: 'Colabora', to: '/sobre-nosotros' },
 ];
 
-// Páginas que abren con una foto a sangre completa. Ahí el navbar arranca
-// transparente y se vuelve sólido al hacer scroll, como en el home; si no,
-// les tapa la parte de arriba de la imagen con una barra blanca.
-const CON_HERO = ['/', '/sobre-nosotros', '/academia'];
-
 const Navbar = () => {
     const { pathname } = useLocation();
-    const tieneHero = CON_HERO.includes(pathname);
+    const isHome = pathname === '/';
 
     const [theme, setTheme] = useState(() =>
         window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -52,7 +47,7 @@ const Navbar = () => {
         <>
         <header
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-                scrolled || !tieneHero
+                scrolled || !isHome
                     ? 'bg-white/95 dark:bg-black/95 backdrop-blur-md'
                     : 'bg-transparent'
             }`}
@@ -80,7 +75,7 @@ const Navbar = () => {
                             key={label}
                             to={to}
                             className={`text-[11px] font-bold uppercase tracking-[0.18em] transition-colors hover:text-primary ${
-                                scrolled || !tieneHero
+                                scrolled || !isHome
                                     ? 'text-black dark:text-white'
                                     : 'text-white'
                             }`}
@@ -110,7 +105,7 @@ const Navbar = () => {
                         <button
                             onClick={openMenu}
                             className={`md:hidden flex flex-col items-center justify-center w-8 h-8 ${
-                                scrolled || !tieneHero
+                                scrolled || !isHome
                                     ? 'text-black dark:text-white'
                                     : 'text-white'
                             }`}
