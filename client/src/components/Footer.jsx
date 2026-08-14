@@ -3,13 +3,7 @@ import logoColor from '../assets/logoLGColor.svg';
 import logoClaro from '../assets/logo.svg';
 import Instagram from './icons/Instagram';
 import Youtube from './icons/Youtube';
-
-const NAV_LINKS = [
-    { label: 'Nosotros', to: '/sobre-nosotros' },
-    { label: 'Ligas',    to: '/liga' },
-    { label: 'Academia', to: '/academia' },
-    { label: 'Colabora', to: '/sobre-nosotros' },
-];
+import { NAV_LINKS } from '../config/nav';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();

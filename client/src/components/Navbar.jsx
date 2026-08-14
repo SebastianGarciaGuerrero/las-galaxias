@@ -2,13 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import logoColor from '../assets/logoLGColor.svg';
 import logoClaro from '../assets/logo.svg';
-
-const NAV_LINKS = [
-    { label: 'Nosotros', to: '/sobre-nosotros' },
-    { label: 'Ligas',    to: '/liga' },
-    { label: 'Academia', to: '/academia' },
-    { label: 'Colabora', to: '/sobre-nosotros' },
-];
+import { NAV_LINKS } from '../config/nav';
 
 const Navbar = () => {
     const { pathname } = useLocation();
