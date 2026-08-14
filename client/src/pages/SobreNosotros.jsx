@@ -99,7 +99,7 @@ const SobreNosotros = () => {
                         />
                         <div className="absolute bottom-6 left-6 z-20">
                             <span className="bg-black/70 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-widest backdrop-blur-sm">
-                                Estadio Bellavista
+                                Mural Las Galaxias
                             </span>
                         </div>
                     </div>
