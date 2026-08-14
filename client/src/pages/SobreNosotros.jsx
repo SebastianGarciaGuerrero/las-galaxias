@@ -118,20 +118,23 @@ const SobreNosotros = () => {
 
                     <div className="grid md:grid-cols-2 gap-8">
                         {/* LIGA MARTES - CONCIENCIA */}
-                        <div className="bg-white dark:bg-black p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl hover:border-primary/50 transition-colors group relative overflow-hidden">
+                        <div className="bg-white dark:bg-black p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl hover:border-primary/50 transition-colors group relative overflow-hidden flex flex-col">
                             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                             </div>
-                            <div className="relative z-10">
+                            <div className="relative z-10 flex flex-col flex-1">
                                 <span className="text-primary font-black uppercase text-xs tracking-widest mb-2 block">Temática y Educativa</span>
                                 <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-4">Liga de los Martes</h3>
-                                <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+                                <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed md:min-h-[84px]">
                                     Más que jugar, buscamos <strong>generar conciencia</strong>. Cada temporada la liga cambia su temática para educar sobre una causa particular.
                                 </p>
-                                <div className="bg-green-100 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 mb-4">
+                                {/* Mismo alto y mismo margen que el bloque de la otra
+                                    tarjeta, para que las dos listas de abajo queden
+                                    a la misma altura. */}
+                                <div className="bg-green-100 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 mb-6 min-h-[92px] flex flex-col justify-center">
                                     <span className="block text-xs font-bold text-green-700 dark:text-green-400 uppercase mb-1">Temática Actual</span>
                                     <span className="font-black text-slate-900 dark:text-white uppercase">Bailes Latinos</span>
                                 </div>
-                                <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mt-auto">
                                     <li className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-base">check</span> Equipos con identidad educativa</li>
                                     <li className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-base">check</span> Ambiente formativo</li>
                                 </ul>
@@ -139,27 +142,30 @@ const SobreNosotros = () => {
                         </div>
 
                         {/* LIGA VIERNES - COMPETENCIA */}
-                        <div className="bg-white dark:bg-black p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl hover:border-primary/50 transition-colors group relative overflow-hidden">
+                        <div className="bg-white dark:bg-black p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl hover:border-primary/50 transition-colors group relative overflow-hidden flex flex-col">
                             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                                 <span className="material-symbols-outlined text-[150px]">emoji_events</span>
                             </div>
-                            <div className="relative z-10">
+                            <div className="relative z-10 flex flex-col flex-1">
                                 <span className="text-slate-900 dark:text-white font-black uppercase text-xs tracking-widest mb-2 block">Alta Competencia</span>
                                 <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-4">SuperLiga Viernes</h3>
-                                <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+                                <p className="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed md:min-h-[84px]">
                                     Donde los capitanes arman su propia historia. Una liga competitiva diseñada para el desafío puro.
                                 </p>
-                                <div className="grid grid-cols-2 gap-4 mb-6">
-                                    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded text-center">
+                                {/* "Descenso Directo" ocupa dos líneas y "Repechaje" una,
+                                    así que el contenido va centrado: si no, la de la
+                                    derecha queda pegada arriba con un hueco abajo. */}
+                                <div className="grid grid-cols-2 gap-4 mb-6 min-h-[92px]">
+                                    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded text-center flex flex-col items-center justify-center">
                                         <span className="material-symbols-outlined text-red-500 block mb-1">arrow_downward</span>
-                                        <span className="text-[10px] font-black uppercase text-slate-500">Descenso Directo</span>
+                                        <span className="text-[10px] font-black uppercase text-slate-500 leading-tight">Descenso Directo</span>
                                     </div>
-                                    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded text-center">
+                                    <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded text-center flex flex-col items-center justify-center">
                                         <span className="material-symbols-outlined text-orange-500 block mb-1">warning</span>
-                                        <span className="text-[10px] font-black uppercase text-slate-500">Repechaje</span>
+                                        <span className="text-[10px] font-black uppercase text-slate-500 leading-tight">Repechaje</span>
                                     </div>
                                 </div>
-                                <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
+                                <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mt-auto">
                                     <li className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-base">check</span> Gestión de capitanes</li>
                                     <li className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-base">check</span> Premios y estadísticas</li>
                                 </ul>
