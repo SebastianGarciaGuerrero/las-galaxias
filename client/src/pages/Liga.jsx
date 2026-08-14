@@ -191,30 +191,59 @@ const Liga = () => {
     const allRestScorers = scorers.slice(3);
     const visibleScorers = showAllScorers ? allRestScorers : allRestScorers.slice(0, 7);
 
+    // Puntito verde latiendo, el de "esto está pasando ahora".
+    const PuntoEnVivo = ({ className = '' }) => (
+        <span className={`relative flex size-2 shrink-0 ${className}`}>
+            <span className="absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75 animate-ping" />
+            <span className="relative inline-flex size-2 rounded-full bg-green-500" />
+        </span>
+    );
+
     // --- COMPONENTE DE TARJETA ---
     const LeagueCard = ({ league }) => {
         const isUpcoming = league.status === 'upcoming';
         const isPast = league.status === 'past';
+        const enJuego = league.status === 'active';
 
         return (
             <button
                 onClick={() => setSelectedLeague(league)}
                 className="group relative h-80 w-full overflow-hidden rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-primary transition-all duration-300 text-left shadow-lg"
             >
+                {/* Las pasadas ya no van en blanco y negro: quedaban apagadas y
+                    feas. La distinción la hace la sección donde están y el
+                    sello de abajo. */}
                 <div
-                    className={`absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 ${isPast ? 'grayscale group-hover:grayscale-0' : ''}`}
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                     style={{ backgroundImage: `url(${league.image_url || 'https://images.unsplash.com/photo-1518605348400-437731db680b?q=80&w=2070&auto=format&fit=crop'})` }}
                 ></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>
 
                 <div className="relative z-10 flex h-full flex-col justify-end p-8">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className={`inline-block rounded px-3 py-1 text-xs font-black uppercase tracking-widest ${!isPast ? 'bg-primary text-white' : 'bg-white text-slate-900'}`}>
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <span className={`inline-block rounded px-3 py-1 text-xs font-black uppercase tracking-widest ${
+                            isPast ? 'bg-white/15 text-white/80 backdrop-blur-sm' : 'bg-primary text-white'
+                        }`}>
                             {league.day_label || 'Competición'}
                         </span>
+
+                        {enJuego && (
+                            <span className="inline-flex items-center gap-1.5 rounded border border-green-400/40 bg-black/50 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-green-400 backdrop-blur-sm">
+                                <PuntoEnVivo />
+                                En juego
+                            </span>
+                        )}
+
                         {isUpcoming && (
                             <span className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded text-[10px] font-black uppercase animate-pulse">
                                 Próximamente
+                            </span>
+                        )}
+
+                        {isPast && (
+                            <span className="inline-flex items-center gap-1.5 rounded border border-white/20 bg-black/40 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white/60 backdrop-blur-sm">
+                                <span className="size-2 shrink-0 rounded-full bg-slate-400" />
+                                Finalizada
                             </span>
                         )}
                     </div>
@@ -265,7 +294,12 @@ const Liga = () => {
                 {activeLeagues.length > 0 && (
                     <div className="mb-20">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="size-3 bg-primary rounded-full animate-pulse"></div>
+                            {/* Verde latiendo solo si de verdad hay una liga en
+                                juego. Si están todas por empezar, el punto del
+                                club sin animación. */}
+                            {activeLeagues.some(l => l.status === 'active')
+                                ? <PuntoEnVivo />
+                                : <div className="size-2 bg-primary rounded-full" />}
                             <h2 className="text-2xl font-black uppercase tracking-widest text-slate-800 dark:text-white">En Juego / Próximas</h2>
                             <div className="h-[1px] bg-slate-200 dark:bg-slate-800 flex-1"></div>
                         </div>
@@ -278,7 +312,7 @@ const Liga = () => {
                 {pastLeagues.length > 0 && (
                     <div>
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="size-3 bg-slate-400 rounded-full"></div>
+                            <div className="size-2 bg-slate-400 rounded-full"></div>
                             <h2 className="text-2xl font-black uppercase tracking-widest text-slate-800 dark:text-white">Torneos Anteriores</h2>
                             <div className="h-[1px] bg-slate-200 dark:bg-slate-800 flex-1"></div>
                         </div>
