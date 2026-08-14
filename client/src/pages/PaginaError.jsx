@@ -44,7 +44,9 @@ const ArcoYPelota = () => (
         <div className="absolute left-0 right-0 bottom-[22%] h-px bg-slate-200 dark:bg-slate-800" />
 
         {/* Pelota */}
-        <div className="absolute size-[7%] -translate-x-1/2 -translate-y-1/2 animate-tiroFallado motion-reduce:animate-none motion-reduce:left-[4%] motion-reduce:top-[80%] motion-reduce:opacity-100">
+        {/* La posición base es el punto de partida: si el usuario pidió menos
+            movimiento, la animación se apaga y la pelota queda ahí quieta. */}
+        <div className="absolute size-[7%] left-[4%] top-[80%] -translate-x-1/2 -translate-y-1/2 animate-tiroFallado motion-reduce:animate-none">
             <svg viewBox="0 0 32 32" className="w-full h-full drop-shadow-md" aria-hidden="true">
                 <circle cx="16" cy="16" r="15" className="fill-white" />
                 <circle cx="16" cy="16" r="15" className="fill-none stroke-slate-900" strokeWidth="1.5" />

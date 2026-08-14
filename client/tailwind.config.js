@@ -39,13 +39,17 @@ export default {
                 // Tiro que se va por arriba del travesaño, para la página de error.
                 // Va en left/top en porcentaje para que la trayectoria escale con
                 // el contenedor en vez de quedar clavada a unos píxeles.
+                // El translate va dentro del keyframe porque transform es una sola
+                // propiedad: si la animación solo pusiera el rotate, pisaría las
+                // clases -translate-x-1/2 -translate-y-1/2 y la pelota quedaría
+                // colgada de su esquina en vez de centrada en la trayectoria.
                 tiroFallado: {
-                    '0%':   { left: '4%',   top: '80%', transform: 'rotate(0deg)',    opacity: '0' },
-                    '6%':   { left: '4%',   top: '80%', transform: 'rotate(0deg)',    opacity: '1' },
-                    '40%':  { left: '38%',  top: '22%', transform: 'rotate(420deg)',  opacity: '1' },
-                    '62%':  { left: '70%',  top: '6%',  transform: 'rotate(760deg)',  opacity: '1' },
-                    '85%':  { left: '96%',  top: '14%', transform: 'rotate(1080deg)', opacity: '1' },
-                    '100%': { left: '112%', top: '34%', transform: 'rotate(1300deg)', opacity: '0' },
+                    '0%':   { left: '4%',   top: '80%', transform: 'translate(-50%, -50%) rotate(0deg)',    opacity: '0' },
+                    '6%':   { left: '4%',   top: '80%', transform: 'translate(-50%, -50%) rotate(0deg)',    opacity: '1' },
+                    '40%':  { left: '38%',  top: '22%', transform: 'translate(-50%, -50%) rotate(420deg)',  opacity: '1' },
+                    '62%':  { left: '70%',  top: '6%',  transform: 'translate(-50%, -50%) rotate(760deg)',  opacity: '1' },
+                    '85%':  { left: '96%',  top: '14%', transform: 'translate(-50%, -50%) rotate(1080deg)', opacity: '1' },
+                    '100%': { left: '112%', top: '34%', transform: 'translate(-50%, -50%) rotate(1300deg)', opacity: '0' },
                 },
             },
             animation: {
