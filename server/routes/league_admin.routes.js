@@ -267,6 +267,27 @@ router.patch('/tournament/:id/status', requireAdmin, async (req, res) => {
     res.json(data[0]);
 });
 
+// CAMBIAR LA PORTADA DE UN TORNEO
+// Es la foto que se ve en la tarjeta de /liga. Hasta ahora había que
+// cambiarla a mano en el SQL Editor porque no existía esta ruta.
+router.patch('/tournament/:id/image', requireAdmin, async (req, res) => {
+    const { image_url } = req.body;
+
+    if (typeof image_url !== 'string' || !/^https?:\/\//i.test(image_url.trim())) {
+        return res.status(400).json({ error: 'Tiene que ser una URL que empiece con http:// o https://' });
+    }
+
+    const { data, error } = await supabase
+        .from('tournaments')
+        .update({ image_url: image_url.trim() })
+        .eq('id', req.params.id)
+        .select();
+
+    if (error) return res.status(500).json({ error: error.message });
+    if (!data.length) return res.status(404).json({ error: 'No existe ese torneo' });
+    res.json(data[0]);
+});
+
 // EDITAR PARTIDO (equipos y fecha)
 router.patch('/match/:id', requireAdmin, async (req, res) => {
     const { home_team_id, away_team_id, match_date } = req.body;

@@ -9,6 +9,7 @@ import SobreNosotros from './pages/SobreNosotros';
 import Academia from './pages/Academia';
 import Noticias from './pages/Noticias';
 import NoticiaDetalle from './pages/NoticiaDetalle';
+import PaginaError from './pages/PaginaError';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -68,6 +69,9 @@ function App() {
           <Route path="/noticias/:id" element={<NoticiaDetalle />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
           <Route path="/academia" element={<Academia />} />
+
+          {/* Cualquier ruta que no exista cae acá, con navbar y footer. */}
+          <Route path="*" element={<PaginaError />} />
         </Route>
 
         {/* GRUPO 2: Rutas Admin (NO tienen Navbar ni Footer públicos) */}

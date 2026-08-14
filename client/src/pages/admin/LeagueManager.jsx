@@ -84,6 +84,55 @@ const LeagueManager = () => {
         }
     };
 
+    // Portada del torneo: la foto que se ve en su tarjeta en /liga.
+    const [portadaUrl, setPortadaUrl] = useState('');
+    const [portadaEstado, setPortadaEstado] = useState('idle'); // idle | subiendo | guardando | ok | error
+
+    // Al cambiar de torneo, el campo muestra la portada que ya tiene.
+    useEffect(() => {
+        setPortadaUrl(selectedTournamentObj?.image_url || '');
+        setPortadaEstado('idle');
+    }, [selectedTournamentObj?.id, selectedTournamentObj?.image_url]);
+
+    const subirPortada = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setPortadaEstado('subiendo');
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const res = await apiFetch(`${API_URL}/api/upload`, { method: 'POST', body: formData });
+            if (!res.ok) throw new Error('No se pudo subir la imagen');
+            const data = await res.json();
+            setPortadaUrl(data.url);
+            setPortadaEstado('idle');
+        } catch (error) {
+            console.error(error);
+            setPortadaEstado('error');
+        }
+    };
+
+    const guardarPortada = async () => {
+        setPortadaEstado('guardando');
+        try {
+            const res = await apiFetch(`${API_URL}/api/league-admin/tournament/${selectedTournament}/image`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image_url: portadaUrl }),
+            });
+            if (!res.ok) {
+                const { error } = await res.json().catch(() => ({}));
+                throw new Error(error || 'Error del servidor');
+            }
+            await fetchInitialData();
+            setPortadaEstado('ok');
+            setTimeout(() => setPortadaEstado('idle'), 2500);
+        } catch (error) {
+            console.error('Error guardando la portada:', error);
+            setPortadaEstado('error');
+        }
+    };
+
     // ==========================================
     // MODAL: NUEVO EQUIPO
     // ==========================================
@@ -671,6 +720,70 @@ const LeagueManager = () => {
                     </div>
                 )}
             </div>
+
+            {/* PORTADA DE LA LIGA */}
+            {selectedTournament && (
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <label className="block text-xs font-black text-slate-400 mb-3 uppercase tracking-widest">
+                        Portada de la liga
+                    </label>
+
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="w-full sm:w-48 h-28 shrink-0 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                            {portadaUrl ? (
+                                <img src={portadaUrl} alt="Vista previa de la portada" className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-700">
+                                    <span className="material-symbols-outlined text-4xl">image</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex-1 flex flex-col gap-3">
+                            <input
+                                type="url"
+                                value={portadaUrl}
+                                onChange={(e) => setPortadaUrl(e.target.value)}
+                                placeholder="https://..."
+                                className="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:border-primary focus:outline-none transition-colors"
+                            />
+
+                            <div className="flex flex-wrap items-center gap-3">
+                                <label className="cursor-pointer px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-white text-xs font-black uppercase tracking-widest hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-lg">upload</span>
+                                    {portadaEstado === 'subiendo' ? 'Subiendo...' : 'Subir foto'}
+                                    <input type="file" accept="image/*" onChange={subirPortada} className="hidden" />
+                                </label>
+
+                                <button
+                                    onClick={guardarPortada}
+                                    disabled={!portadaUrl || portadaEstado === 'guardando' || portadaEstado === 'subiendo'}
+                                    className="px-5 py-2 rounded-lg bg-primary text-white text-xs font-black uppercase tracking-widest hover:-translate-y-0.5 transition-all disabled:opacity-40 disabled:hover:translate-y-0 flex items-center gap-2"
+                                >
+                                    <span className="material-symbols-outlined text-lg">save</span>
+                                    {portadaEstado === 'guardando' ? 'Guardando...' : 'Guardar'}
+                                </button>
+
+                                {portadaEstado === 'ok' && (
+                                    <span className="text-xs font-bold text-green-500 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-base">check_circle</span> Guardada
+                                    </span>
+                                )}
+                                {portadaEstado === 'error' && (
+                                    <span className="text-xs font-bold text-red-500 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-base">error</span> No se pudo guardar
+                                    </span>
+                                )}
+                            </div>
+
+                            <p className="text-[11px] text-slate-400 leading-relaxed">
+                                Podés subir una foto o pegar una URL. Si subís, se guarda en Cloudinary y la URL se
+                                rellena sola; después hay que apretar Guardar.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {selectedTournament && (
                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
