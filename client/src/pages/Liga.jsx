@@ -7,7 +7,34 @@ import ShareScorers from '../components/ShareScorers';
 import ShareResults from '../components/ShareResults';
 import ChampionCelebration from '../components/ChampionCelebration';
 import SEO from '../components/SEO';
-import { horaChile } from '../utils/fecha';
+import { horaChile, fechaChile } from '../utils/fecha';
+
+// Agrupa los partidos por jornada. Se usa tanto para elegir qué jornada
+// mostrar al entrar como para pintarla.
+const agruparPorJornada = (partidos) => {
+    const porJornada = {};
+    for (const m of partidos) {
+        const r = m.round || 1;
+        if (!porJornada[r]) porJornada[r] = [];
+        porJornada[r].push(m);
+    }
+    return porJornada;
+};
+
+// La jornada que viene: la primera que tenga algún partido sin jugar. Si ya
+// se jugaron todas, la última.
+const proximaJornada = (porJornada, numeros) =>
+    numeros.find(n => porJornada[n].some(m => m.status !== 'finished')) ?? numeros[numeros.length - 1];
+
+// Los tres partidos de una fecha son el mismo día, así que alcanza con el
+// más temprano para fechar la jornada entera.
+const fechaDeJornada = (partidos) => {
+    const inicio = partidos.reduce(
+        (min, m) => (m.match_date && m.match_date < min ? m.match_date : min),
+        partidos[0]?.match_date,
+    );
+    return inicio ? fechaChile(inicio, { weekday: 'short', day: 'numeric', month: 'short' }) : null;
+};
 
 const LIGA_SEO = (
     <SEO
@@ -27,7 +54,7 @@ const Liga = () => {
     const [loadingDetails, setLoadingDetails] = useState(false);
     const [showAllScorers, setShowAllScorers] = useState(false);
     const [leagueMatches, setLeagueMatches] = useState([]);
-    const [expandedRound, setExpandedRound] = useState(null);
+    const [jornadaVista, setJornadaVista] = useState(null);
     const [byeWeeks, setByeWeeks] = useState([]);
     const [celebration, setCelebration] = useState(null); // { champion, key } al entrar a una liga finalizada
     const [searchParams] = useSearchParams();
@@ -95,6 +122,18 @@ const Liga = () => {
             fetchLeagueData(selectedLeague);
         }
     }, [selectedLeague]);
+
+    // El fixture arranca parado en la jornada que viene, no en la primera:
+    // lo que casi siempre se busca es cuándo se juega la próxima.
+    useEffect(() => {
+        if (leagueMatches.length === 0) {
+            setJornadaVista(null);
+            return;
+        }
+        const porJornada = agruparPorJornada(leagueMatches);
+        const numeros = Object.keys(porJornada).map(Number).sort((a, b) => a - b);
+        setJornadaVista(proximaJornada(porJornada, numeros));
+    }, [leagueMatches]);
 
     // Celebración del campeón al entrar a una liga ya finalizada.
     useEffect(() => {
@@ -438,108 +477,156 @@ const Liga = () => {
                         </div>
                     )}
 
-                    {/* SECCIÓN RESULTADOS POR JORNADA */}
-                    {leagueMatches.length > 0 && (() => {
-                        const rounds = leagueMatches.reduce((acc, match) => {
-                            const round = match.round || 1;
-                            if (!acc[round]) acc[round] = [];
-                            acc[round].push(match);
-                            return acc;
-                        }, {});
+                    {/* SECCIÓN FIXTURE ── una jornada a la vez, con selector.
+                        Antes eran 14 acordeones cerrados que solo decían
+                        "Jornada N": había que abrirlos a ciegas para saber
+                        cuándo se jugaba cada uno. */}
+                    {leagueMatches.length > 0 && jornadaVista !== null && (() => {
+                        const porJornada = agruparPorJornada(leagueMatches);
+                        const numeros = Object.keys(porJornada).map(Number).sort((a, b) => a - b);
+                        const proxima = proximaJornada(porJornada, numeros);
+
+                        const actual = porJornada[jornadaVista] || [];
+                        const idx = numeros.indexOf(jornadaVista);
+                        const anterior = idx > 0 ? numeros[idx - 1] : null;
+                        const siguiente = idx < numeros.length - 1 ? numeros[idx + 1] : null;
+
+                        const fecha = fechaDeJornada(actual);
+                        const jugada = actual.every(m => m.status === 'finished');
+                        const sinJugar = actual.every(m => m.status === 'scheduled');
+                        const descansa = byeWeeks.find(b => Number(b.round) === Number(jornadaVista))?.team?.name;
+                        const algoJugado = leagueMatches.some(m => m.status === 'finished');
 
                         return (
                             <div className="mb-16">
                                 <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary">format_list_numbered</span> Resultados
+                                    <span className="material-symbols-outlined text-primary">format_list_numbered</span>
+                                    {algoJugado ? 'Resultados' : 'Fixture'}
                                 </h3>
 
-                                <div className="flex flex-col gap-3">
-                                    {Object.entries(rounds).map(([round, roundMatches]) => {
-                                        const allFinished = roundMatches.every(m => m.status === 'finished');
-                                        const isExpanded = expandedRound === round;
-                                        const byeTeam = byeWeeks.find(b => Number(b.round) === Number(round))?.team?.name;
-
+                                {/* Tira de jornadas: acceso directo a cualquiera.
+                                    Las jugadas van apagadas. */}
+                                <div className="flex gap-1.5 overflow-x-auto pb-3 mb-3 -mx-1 px-1">
+                                    {numeros.map(n => {
+                                        const esta = n === jornadaVista;
+                                        const lista = porJornada[n].every(m => m.status === 'finished');
                                         return (
-                                            <div key={round} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-
-                                                {/* HEADER JORNADA */}
-                                                <div className="w-full p-4 flex items-center justify-between gap-3">
-                                                    <button
-                                                        onClick={() => setExpandedRound(isExpanded ? null : round)}
-                                                        className="flex-1 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors rounded-lg -m-2 p-2"
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="text-sm font-black uppercase tracking-widest text-white bg-primary px-4 py-1.5 rounded-lg">
-                                                                Jornada {round}
-                                                            </span>
-                                                            {allFinished ? (
-                                                                <span className="text-xs font-bold text-green-500 flex items-center gap-1">
-                                                                    <span className="material-symbols-outlined text-sm">check_circle</span> Completada
-                                                                </span>
-                                                            ) : roundMatches.every(m => m.status === 'scheduled') ? (
-                                                                <span className="text-xs font-bold text-slate-400 flex items-center gap-1">
-                                                                    <span className="material-symbols-outlined text-sm">schedule</span> Próximamente
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
-                                                                    <span className="material-symbols-outlined text-sm">pending</span> En curso
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                        <span
-                                                            className="material-symbols-outlined text-slate-400 transition-transform duration-200"
-                                                            style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                                                        >
-                                                            expand_more
-                                                        </span>
-                                                    </button>
-                                                    <ShareResults league={selectedLeague} round={round} matches={roundMatches} bye={byeTeam} />
-                                                </div>
-
-                                                {/* PARTIDOS */}
-                                                {isExpanded && (
-                                                    <div className="divide-y divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800">
-                                                        {roundMatches.map(match => (
-                                                            <div key={match.id} className="p-4 flex items-center justify-between gap-4">
-                                                                <div className="text-xs text-slate-400 font-bold uppercase shrink-0 hidden sm:block">
-                                                                    {horaChile(match.match_date)}
-                                                                </div>
-
-                                                                <div className="flex-1 flex items-center justify-center gap-3 font-black">
-                                                                    <span className="flex-1 text-right text-slate-900 dark:text-white truncate text-sm md:text-base">
-                                                                        {match.home?.name}
-                                                                    </span>
-
-                                                                    {match.status === 'finished' ? (
-                                                                        <span className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-1.5 rounded-lg text-sm shrink-0 min-w-[70px] text-center">
-                                                                            {match.home_score} - {match.away_score}
-                                                                        </span>
-                                                                    ) : (
-                                                                        <span className="text-slate-300 dark:text-slate-600 px-3 shrink-0 text-sm">
-                                                                            {horaChile(match.match_date)}
-                                                                        </span>
-                                                                    )}
-
-                                                                    <span className="flex-1 text-left text-slate-900 dark:text-white truncate text-sm md:text-base">
-                                                                        {match.away?.name}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-
-                                                        {/* Quién descansa. Apagado a propósito: es contexto,
-                                                            no tiene que competir con los resultados. */}
-                                                        {byeTeam && (
-                                                            <div className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-primary/70">
-                                                                Descansa {byeTeam}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
+                                            <button
+                                                key={n}
+                                                onClick={() => setJornadaVista(n)}
+                                                aria-current={esta ? 'true' : undefined}
+                                                className={`shrink-0 w-9 h-9 rounded-lg text-xs font-black transition-colors ${
+                                                    esta
+                                                        ? 'bg-primary text-white'
+                                                        : lista
+                                                            ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700'
+                                                }`}
+                                            >
+                                                {n}
+                                            </button>
                                         );
                                     })}
                                 </div>
+
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+
+                                    {/* CABECERA: flechas, jornada y fecha */}
+                                    <div className="flex items-center gap-2 p-4 border-b border-slate-100 dark:border-slate-800">
+                                        <button
+                                            onClick={() => anterior !== null && setJornadaVista(anterior)}
+                                            disabled={anterior === null}
+                                            aria-label="Jornada anterior"
+                                            className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-25 disabled:hover:bg-transparent transition-colors"
+                                        >
+                                            <span className="material-symbols-outlined text-xl">chevron_left</span>
+                                        </button>
+
+                                        <div className="flex-1 min-w-0 text-center">
+                                            <div className="flex items-center justify-center gap-2 flex-wrap">
+                                                <span className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">
+                                                    Jornada {jornadaVista}
+                                                </span>
+                                                {jornadaVista === proxima && !jugada && (
+                                                    <span className="text-[10px] font-black uppercase tracking-wider text-white bg-primary px-2 py-0.5 rounded">
+                                                        Próxima
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {fecha && (
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">
+                                                    {fecha}
+                                                    {jugada && ' · Completada'}
+                                                    {!jugada && !sinJugar && ' · En curso'}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <button
+                                            onClick={() => siguiente !== null && setJornadaVista(siguiente)}
+                                            disabled={siguiente === null}
+                                            aria-label="Jornada siguiente"
+                                            className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-25 disabled:hover:bg-transparent transition-colors"
+                                        >
+                                            <span className="material-symbols-outlined text-xl">chevron_right</span>
+                                        </button>
+
+                                        <ShareResults league={selectedLeague} round={jornadaVista} matches={actual} bye={descansa} />
+                                    </div>
+
+                                    {/* PARTIDOS: local y visita apilados, como en la
+                                        app del marcador. Entra mejor en celular que
+                                        ponerlos enfrentados. */}
+                                    <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                                        {actual.map(match => {
+                                            const listo = match.status === 'finished';
+                                            const ganaLocal = listo && match.home_score > match.away_score;
+                                            const ganaVisita = listo && match.away_score > match.home_score;
+
+                                            return (
+                                                <div key={match.id} className="p-4">
+                                                    <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-2">
+                                                        {horaChile(match.match_date)}
+                                                        {!listo && <span className="ml-2 text-slate-300 dark:text-slate-600">Sin jugar</span>}
+                                                    </div>
+
+                                                    {[
+                                                        { equipo: match.home, goles: match.home_score, gana: ganaLocal },
+                                                        { equipo: match.away, goles: match.away_score, gana: ganaVisita },
+                                                    ].map(({ equipo, goles, gana }, i) => (
+                                                        <div key={i} className="flex items-center gap-3 py-1">
+                                                            <TeamBadge name={equipo?.name || ''} shieldUrl={equipo?.logo_url} size={24} />
+                                                            <span className={`flex-1 truncate text-sm md:text-base ${
+                                                                gana ? 'font-black text-slate-900 dark:text-white' : 'font-bold text-slate-600 dark:text-slate-300'
+                                                            }`}>
+                                                                {equipo?.name}
+                                                            </span>
+                                                            <span className={`shrink-0 tabular-nums text-base ${
+                                                                listo
+                                                                    ? gana ? 'font-black text-slate-900 dark:text-white' : 'font-bold text-slate-500'
+                                                                    : 'text-slate-300 dark:text-slate-700'
+                                                            }`}>
+                                                                {listo ? goles : '–'}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            );
+                                        })}
+
+                                        {/* Quién descansa. Apagado a propósito: es contexto,
+                                            no tiene que competir con los resultados. */}
+                                        {descansa && (
+                                            <div className="px-4 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-primary/70">
+                                                Descansa {descansa}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <p className="text-center text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-3">
+                                    Jornada {jornadaVista} de {numeros.length}
+                                </p>
                             </div>
                         );
                     })()}
