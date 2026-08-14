@@ -132,7 +132,7 @@ const SobreNosotros = () => {
                                     a la misma altura. */}
                                 <div className="bg-green-100 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800 mb-6 min-h-[92px] flex flex-col justify-center">
                                     <span className="block text-xs font-bold text-green-700 dark:text-green-400 uppercase mb-1">Temática Actual</span>
-                                    <span className="font-black text-slate-900 dark:text-white uppercase">Bailes Latinos</span>
+                                    <span className="font-black text-slate-900 dark:text-white uppercase">Locales de la Bohemia Porteña</span>
                                 </div>
                                 <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mt-auto">
                                     <li className="flex items-center gap-2"><span className="material-symbols-outlined text-primary text-base">check</span> Equipos con identidad educativa</li>

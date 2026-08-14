@@ -191,7 +191,7 @@ const Home = () => {
                     <div className="inline-flex items-center gap-2 border border-slate-300 dark:border-slate-700 rounded-full px-4 py-2 mb-3">
                         <span className="text-base">🎵</span>
                         <span className="font-black text-slate-800 dark:text-slate-200 text-xs sm:text-sm tracking-wider uppercase">
-                            Bailes Latinos
+                            Locales de la Bohemia Porteña
                         </span>
                     </div>
 
