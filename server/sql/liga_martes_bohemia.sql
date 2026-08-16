@@ -8,7 +8,8 @@
 -- EL FORMATO
 --   Etapa 1 — Primera fase: los 8 equipos, todos contra todos,
 --             solo ida. 7 fechas de 4 partidos (19, 20, 21 y 22).
---             Jornadas 1 a 7.
+--             Jornadas 1 a 7. Ganar paga 2 puntos y empatar 1: en
+--             esta liga la victoria vale 2, no 3 como en el resto.
 --   Etapa 2 — Segunda fase: la tabla se parte al medio. Los del
 --             1° al 4° forman el Grupo A y los del 5° al 8° el
 --             Grupo B. Cada grupo juega todos contra todos
@@ -122,6 +123,26 @@ create index if not exists idx_matches_tournament_stage
     on public.matches(tournament_id, stage);
 
 
+-- ---------- 0 bis. Cuánto vale ganar ----------
+-- En la Liga de los Martes una victoria son 2 puntos, no 3. El resto de los
+-- torneos sigue pagando 3, así que el valor va por torneo y la columna nace
+-- con 3 para no tocar nada de lo que ya existe.
+alter table public.tournaments
+    add column if not exists points_per_win int not null default 3;
+
+do $$
+begin
+    if not exists (select 1 from pg_constraint where conname = 'tournaments_points_per_win_check') then
+        alter table public.tournaments
+            add constraint tournaments_points_per_win_check
+            check (points_per_win between 1 and 5);
+    end if;
+end $$;
+
+comment on column public.tournaments.points_per_win is
+    'Puntos que paga una victoria. 3 en casi todos los torneos, 2 en la Liga de los Martes. El empate siempre vale 1.';
+
+
 -- ---------- 1. Los ocho equipos ----------
 -- bio_title es el local que representa cada equipo y alimenta la
 -- sección "Conoce tu Liga" del sitio. Las descripciones son un texto
@@ -153,10 +174,17 @@ select v.name, v.short_name, v.bio_title, v.bio_description
 -- image_url va en null a propósito: la portada se sube después
 -- desde /admin > Liga (botón de portada). Mientras tanto la
 -- tarjeta usa la foto de reserva del sitio.
-insert into public.tournaments (name, season, status, day_label, start_date, is_active, category)
+insert into public.tournaments (name, season, status, day_label, start_date, is_active, category, points_per_win)
 select 'Locales de la Bohemia Porteña', 'Edición 2026', 'active', 'Liga Martes',
-       '2026-08-04', true, 'martes'
+       '2026-08-04', true, 'martes', 2
  where not exists (select 1 from public.tournaments where name = 'Locales de la Bohemia Porteña');
+
+-- Va aparte del insert porque el torneo puede haberse creado antes de que
+-- existiera la columna: el insert de arriba no corre si la fila ya está.
+update public.tournaments
+   set points_per_win = 2
+ where name = 'Locales de la Bohemia Porteña'
+   and points_per_win <> 2;
 
 
 -- ---------- 3. Equipos participantes ----------

@@ -146,7 +146,7 @@ const Liga = () => {
             return;
         }
         const campeon = tieneFases(leagueMatches)
-            ? leerFases(leagueMatches).superCampeon
+            ? leerFases(leagueMatches, selectedLeague.points_per_win).superCampeon
             : leagueData?.standings?.[0];
         setCelebration(campeon ? { champion: campeon, key: Date.now() } : null);
     }, [leagueData, leagueMatches, selectedLeague]);
@@ -189,7 +189,12 @@ const Liga = () => {
     // Solo lo usan los torneos cuyos partidos declaran etapa (Liga de los
     // Martes 2026). En el resto queda en null y la página muestra la tabla
     // general de siempre.
-    const fases = tieneFases(leagueMatches) ? leerFases(leagueMatches) : null;
+    //
+    // Cuánto vale ganar sale del torneo: los martes pagan 2 puntos y el resto
+    // 3. Si la columna todavía no existe en la base, leerFases cae en 3.
+    const fases = tieneFases(leagueMatches)
+        ? leerFases(leagueMatches, selectedLeague?.points_per_win)
+        : null;
 
     // --- LÓGICA DE GOLEADORES ---
     const scorers = leagueData?.scorers || [];

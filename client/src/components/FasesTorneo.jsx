@@ -30,13 +30,13 @@ const COLORES = {
 // ---------------------------------------------------------------
 // Tira de etapas: los tres pasos del torneo, con el actual encendido.
 // ---------------------------------------------------------------
-const TiraDeEtapas = ({ actual }) => {
+const TiraDeEtapas = ({ actual, puntosPorVictoria }) => {
     const pasos = [
         {
             n: 1,
             titulo: 'Primera Fase',
             detalle: 'Todos contra todos',
-            texto: 'Los ocho equipos se enfrentan una vez cada uno: siete fechas de cuatro partidos, a las 19, 20, 21 y 22 horas. Tres puntos por victoria, uno por empate.',
+            texto: `Los ocho equipos se enfrentan una vez cada uno: siete fechas de cuatro partidos, a las 19, 20, 21 y 22 horas. ${puntosPorVictoria === 2 ? 'Dos' : 'Tres'} puntos por victoria, uno por empate.`,
         },
         {
             n: 2,
@@ -401,7 +401,7 @@ const FasesTorneo = ({ league, fases }) => {
                 final se enfrentan los dos campeones para que salga uno solo.
             </p>
 
-            <TiraDeEtapas actual={actual} />
+            <TiraDeEtapas actual={actual} puntosPorVictoria={fases.puntosPorVictoria} />
 
             {/* ETAPA 1 */}
             <section className="mb-12">
@@ -411,7 +411,7 @@ const FasesTorneo = ({ league, fases }) => {
                             Primera Fase
                         </h4>
                         <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-                            Todos contra todos · 3 puntos por victoria, 1 por empate
+                            Todos contra todos · {fases.puntosPorVictoria} puntos por victoria, 1 por empate
                         </p>
                     </div>
                     <ShareStandings league={league} standings={fases.tablaFase1} />

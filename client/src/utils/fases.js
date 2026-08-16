@@ -25,6 +25,15 @@ export const ETAPAS = {
 // Cuántos clasifican al Grupo A. Los que sobran van al B.
 export const CUPOS_GRUPO_A = 4;
 
+// Cuánto vale ganar. La Liga de los Martes paga 2 puntos por victoria y el
+// resto de los torneos 3, así que el valor viaja en tournaments.points_per_win
+// y este es el que se usa cuando el torneo no lo declara.
+export const PUNTOS_POR_VICTORIA = 3;
+
+// La base puede mandar el valor como texto, null o no mandarlo (si la columna
+// todavía no existe). En cualquiera de esos casos vale la regla de siempre.
+const normalizarPuntos = (valor) => Number(valor) || PUNTOS_POR_VICTORIA;
+
 // Un torneo usa este formato si alguno de sus partidos declara etapa.
 export const tieneFases = (partidos = []) => partidos.some(m => m.stage);
 
@@ -62,7 +71,8 @@ const filaVacia = (equipo) => ({
 // Entran todos los equipos que aparezcan en el fixture, hayan jugado o no: así
 // los ocho se ven desde la primera fecha en vez de ir apareciendo de a poco.
 // Solo suman los partidos terminados.
-export const calcularTabla = (partidos = []) => {
+export const calcularTabla = (partidos = [], puntosPorVictoria = PUNTOS_POR_VICTORIA) => {
+    const puntosGanador = normalizarPuntos(puntosPorVictoria);
     const filas = new Map();
 
     const registrar = (equipo) => {
@@ -87,9 +97,9 @@ export const calcularTabla = (partidos = []) => {
         visita.goals_against += golesLocal;
 
         if (golesLocal > golesVisita) {
-            local.won++; local.points += 3; visita.lost++;
+            local.won++; local.points += puntosGanador; visita.lost++;
         } else if (golesVisita > golesLocal) {
-            visita.won++; visita.points += 3; local.lost++;
+            visita.won++; visita.points += puntosGanador; local.lost++;
         } else {
             local.drawn++; visita.drawn++; local.points++; visita.points++;
         }
@@ -132,9 +142,9 @@ const rondaCompleta = (partidos) => {
 
 // Campeón de un grupo: el primero de su tabla, pero solo cuando se jugaron
 // todos los partidos del grupo. Antes de eso no hay campeón, hay puntero.
-export const campeonDeGrupo = (partidosDelGrupo = []) => {
+export const campeonDeGrupo = (partidosDelGrupo = [], puntosPorVictoria = PUNTOS_POR_VICTORIA) => {
     if (!rondaCompleta(partidosDelGrupo)) return null;
-    return calcularTabla(partidosDelGrupo)[0] || null;
+    return calcularTabla(partidosDelGrupo, puntosPorVictoria)[0] || null;
 };
 
 // Ganador de la final. Un empate no define campeón: si terminó igualado se
@@ -150,14 +160,15 @@ export const ganadorDeFinal = (partidoFinal) => {
 
 // Radiografía completa del torneo: lo que necesitan la página y la celebración
 // del campeón, calculado de una sola pasada.
-export const leerFases = (partidos = []) => {
+export const leerFases = (partidos = [], valorVictoria = PUNTOS_POR_VICTORIA) => {
+    const puntosPorVictoria = normalizarPuntos(valorVictoria);
     const fase1 = partidosDeEtapa(partidos, ETAPAS.FASE1);
     const grupoA = partidosDeEtapa(partidos, ETAPAS.GRUPO_A);
     const grupoB = partidosDeEtapa(partidos, ETAPAS.GRUPO_B);
     const finales = partidosDeEtapa(partidos, ETAPAS.FINAL);
     const final = finales[0] || null;
 
-    const tablaFase1 = calcularTabla(fase1);
+    const tablaFase1 = calcularTabla(fase1, puntosPorVictoria);
     const division = dividirTabla(tablaFase1);
     const fase1Terminada = rondaCompleta(fase1);
 
@@ -171,13 +182,14 @@ export const leerFases = (partidos = []) => {
     //   3. El grupo ya juega -> su propia tabla, desde cero.
     const armarGrupo = (partidosDelGrupo, clasificados) => ({
         partidos: partidosDelGrupo,
-        tabla: partidosDelGrupo.length ? calcularTabla(partidosDelGrupo) : [],
+        tabla: partidosDelGrupo.length ? calcularTabla(partidosDelGrupo, puntosPorVictoria) : [],
         clasificados: fase1Terminada ? clasificados : [],
         definido: fase1Terminada,
-        campeon: campeonDeGrupo(partidosDelGrupo),
+        campeon: campeonDeGrupo(partidosDelGrupo, puntosPorVictoria),
     });
 
     return {
+        puntosPorVictoria,
         fase1,
         tablaFase1,
         fase1Terminada,
