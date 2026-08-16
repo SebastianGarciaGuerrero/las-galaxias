@@ -190,8 +190,13 @@ export const leerFases = (partidos = []) => {
 
 // En qué etapa está parado el torneo hoy: 1, 2 o 3. Sirve para encender el
 // paso que corresponde en la tira de etapas.
+//
+// La segunda etapa arranca en cuanto termina la primera, aunque todavía no
+// estén programados los partidos de los grupos: en ese rato el torneo ya no
+// está en la primera fase, está esperando el fixture de la segunda.
 export const etapaActual = (fases) => {
     if (fases.final) return 3;
     if (fases.grupoA.partidos.length || fases.grupoB.partidos.length) return 2;
+    if (fases.fase1Terminada) return 2;
     return 1;
 };
