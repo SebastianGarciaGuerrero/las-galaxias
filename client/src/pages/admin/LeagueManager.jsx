@@ -362,6 +362,16 @@ const LeagueManager = () => {
         const isMartes = currentTournament?.category === 'martes';
         const isEditing = !!fixtureToEdit;
 
+        // Torneos con formato de tres etapas: cada partido guarda a cuál
+        // pertenece. Se reconoce porque el fixture ya cargado la trae.
+        const usaEtapas = matches.some(m => m.stage);
+
+        // La etapa que se propone por defecto: la del último partido cargado.
+        // Mientras el torneo siga en la misma fase no hay que tocar nada.
+        const etapaSugerida = isEditing
+            ? (fixtureToEdit.matches.find(m => m.stage)?.stage || 'fase1')
+            : ([...matches].sort((a, b) => (b.round || 0) - (a.round || 0))[0]?.stage || 'fase1');
+
         // Si estamos editando, pre-poblar slots con datos existentes
         const initialSlots = isEditing
             ? fixtureToEdit.matches.map(m => ({
@@ -369,18 +379,19 @@ const LeagueManager = () => {
                 hour: horaChile(m.match_date),
                 home_team_id: String(m.home_team_id),
                 away_team_id: String(m.away_team_id),
+                stage: m.stage || etapaSugerida,
             }))
             : isMartes
                 ? [
-                    { hour: '19:00', home_team_id: '', away_team_id: '' },
-                    { hour: '20:00', home_team_id: '', away_team_id: '' },
-                    { hour: '21:00', home_team_id: '', away_team_id: '' },
-                    { hour: '22:00', home_team_id: '', away_team_id: '' },
+                    { hour: '19:00', home_team_id: '', away_team_id: '', stage: etapaSugerida },
+                    { hour: '20:00', home_team_id: '', away_team_id: '', stage: etapaSugerida },
+                    { hour: '21:00', home_team_id: '', away_team_id: '', stage: etapaSugerida },
+                    { hour: '22:00', home_team_id: '', away_team_id: '', stage: etapaSugerida },
                 ]
                 : [
-                    { hour: '19:00', home_team_id: '', away_team_id: '' },
-                    { hour: '20:00', home_team_id: '', away_team_id: '' },
-                    { hour: '22:00', home_team_id: '', away_team_id: '' },
+                    { hour: '19:00', home_team_id: '', away_team_id: '', stage: etapaSugerida },
+                    { hour: '20:00', home_team_id: '', away_team_id: '', stage: etapaSugerida },
+                    { hour: '22:00', home_team_id: '', away_team_id: '', stage: etapaSugerida },
                 ];
 
         const [slots, setSlots] = useState(initialSlots);
@@ -420,6 +431,7 @@ const LeagueManager = () => {
                                 home_team_id: slot.home_team_id,
                                 away_team_id: slot.away_team_id,
                                 match_date: isoDesdeChile(matchDate, slot.hour),
+                                ...(usaEtapas && { stage: slot.stage }),
                             })
                         });
                     } else {
@@ -432,7 +444,8 @@ const LeagueManager = () => {
                                 home_team_id: slot.home_team_id,
                                 away_team_id: slot.away_team_id,
                                 match_date: isoDesdeChile(matchDate, slot.hour),
-                                location: 'Cancha Principal'
+                                location: 'Cancha Principal',
+                                ...(usaEtapas && { stage: slot.stage }),
                             })
                         });
                     }
@@ -494,6 +507,21 @@ const LeagueManager = () => {
                             <div key={index} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
                                 <div className="flex items-center gap-2 mb-3">
                                     <span className="bg-primary text-white text-xs font-black px-3 py-1 rounded-lg">{slot.hour} hrs</span>
+                                    {/* Etapa del partido: solo en los torneos de tres fases.
+                                        Va por partido y no por fecha porque en la segunda
+                                        fase la misma noche tiene los dos grupos. */}
+                                    {usaEtapas && (
+                                        <select
+                                            value={slot.stage}
+                                            className="ml-auto rounded bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600 px-2 py-1 text-xs font-bold focus:border-primary focus:outline-none"
+                                            onChange={e => updateSlot(index, 'stage', e.target.value)}
+                                        >
+                                            <option value="fase1">Primera Fase</option>
+                                            <option value="grupo_a">Grupo A</option>
+                                            <option value="grupo_b">Grupo B</option>
+                                            <option value="final">Final</option>
+                                        </select>
+                                    )}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div>

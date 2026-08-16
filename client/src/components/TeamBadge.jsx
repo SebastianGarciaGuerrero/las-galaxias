@@ -24,6 +24,18 @@ const SPECIAL_PALETTES = [
     { match: 'charchalax', bg: '#DC2626', bg2: '#111827', fg: '#ffffff' },  // rojo y negro
     { match: 'malajax', bg: '#DC2626', bg2: '#F8FAFC', fg: '#ffffff' },     // rojo y blanco
     { match: 'motafogo', bg: '#047857', bg2: '#111827', fg: '#ffffff' },    // verde y negro
+
+    // Liga de los Martes 2026 — locales de la bohemia porteña. Cada escudo
+    // toma los colores del bar que representa.
+    { match: 'roma', bg: '#8B1A1A', fg: '#F5E6C8' },                        // Bar Roma: rojo vino
+    { match: 'canario', bg: '#F5C518', fg: '#1C1917' },                     // Bar Canario: amarillo
+    { match: 'liberty', bg: '#111827', fg: '#E5C158' },                     // Liberty Bar: negro y dorado
+    // A "D. El Huevo" las iniciales automáticas le dan "DE", que no dice nada.
+    { match: 'huevo', bg: '#F8FAFC', bg2: '#111827', fg: '#ffffff', initials: 'EH' },
+    { match: 'isla', bg: '#1E3A8A', fg: '#ffffff' },                        // La Isla de la Fantasía: azul
+    { match: 'morada', bg: '#831843', fg: '#ffffff' },                      // La Morada: magenta oscuro
+    { match: 'proa', bg: '#0C4A6E', fg: '#ffffff' },                        // El Proa: azul marino
+    { match: 'cinzano', bg: '#B91C1C', fg: '#F5C518' },                     // Bar Cinzano: rojo y dorado
 ];
 
 // El escudo entero y sus dos mitades, partidas por el eje x=20. Se dibujan como
@@ -66,7 +78,9 @@ const TeamBadge = ({ name = '', shieldUrl = null, size = 28 }) => {
     const lower = name.toLowerCase();
     const special = SPECIAL_PALETTES.find(s => lower.includes(s.match));
     const palette = special || PALETTES[hashName(name) % PALETTES.length];
-    const initials = getInitials(name);
+    // Con `initials` el escudo usa esas letras en vez de las que salen del
+    // nombre. Es para los casos en que la inicial automática no se entiende.
+    const initials = special?.initials || getInitials(name);
 
     return (
         <svg

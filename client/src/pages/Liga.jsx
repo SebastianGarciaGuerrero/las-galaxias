@@ -6,8 +6,10 @@ import ShareStandings from '../components/ShareStandings';
 import ShareScorers from '../components/ShareScorers';
 import ShareResults from '../components/ShareResults';
 import ChampionCelebration from '../components/ChampionCelebration';
+import FasesTorneo from '../components/FasesTorneo';
 import SEO from '../components/SEO';
 import { horaChile, fechaChile } from '../utils/fecha';
+import { tieneFases, leerFases, nombreDeEtapa, ETAPAS } from '../utils/fases';
 
 // Agrupa los partidos por jornada. Se usa tanto para elegir qué jornada
 // mostrar al entrar como para pintarla.
@@ -135,14 +137,19 @@ const Liga = () => {
         setJornadaVista(proximaJornada(porJornada, numeros));
     }, [leagueMatches]);
 
-    // Celebración del campeón al entrar a una liga ya finalizada.
+    // Celebración del campeón al entrar a una liga ya finalizada. En las ligas
+    // por etapas el campeón no es el primero de la tabla sino el que ganó la
+    // final, así que hay que ir a buscarlo ahí.
     useEffect(() => {
-        if (selectedLeague?.status === 'past' && leagueData?.standings?.length) {
-            setCelebration({ champion: leagueData.standings[0], key: Date.now() });
-        } else {
+        if (selectedLeague?.status !== 'past') {
             setCelebration(null);
+            return;
         }
-    }, [leagueData, selectedLeague]);
+        const campeon = tieneFases(leagueMatches)
+            ? leerFases(leagueMatches).superCampeon
+            : leagueData?.standings?.[0];
+        setCelebration(campeon ? { champion: campeon, key: Date.now() } : null);
+    }, [leagueData, leagueMatches, selectedLeague]);
 
     const handleBack = () => {
         setSelectedLeague(null);
@@ -177,6 +184,12 @@ const Liga = () => {
     // --- FILTRADO ---
     const activeLeagues = leaguesList.filter(l => l.status === 'active' || l.status === 'upcoming');
     const pastLeagues = leaguesList.filter(l => l.status === 'past');
+
+    // --- FORMATO POR ETAPAS ---
+    // Solo lo usan los torneos cuyos partidos declaran etapa (Liga de los
+    // Martes 2026). En el resto queda en null y la página muestra la tabla
+    // general de siempre.
+    const fases = tieneFases(leagueMatches) ? leerFases(leagueMatches) : null;
 
     // --- LÓGICA DE GOLEADORES ---
     const scorers = leagueData?.scorers || [];
@@ -365,7 +378,7 @@ const Liga = () => {
                         Esta competición arranca pronto. Las tablas y estadísticas estarán habilitadas una vez que ruede el balón.
                     </p>
                 </div>
-            ) : !leagueData || (!leagueData.standings?.length && !leagueData.scorers?.length) ? (
+            ) : (!leagueData || (!leagueData.standings?.length && !leagueData.scorers?.length)) && leagueMatches.length === 0 ? (
                 <div className="py-20 p-4 bg-red-50 dark:bg-red-900/10 border-2 border-dashed border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 rounded-2xl text-center">
                     <span className="material-symbols-outlined text-5xl mb-2">warning</span>
                     <p className="font-bold text-xl uppercase mb-1">Datos no disponibles</p>
@@ -373,8 +386,13 @@ const Liga = () => {
                 </div>
             ) : (
                 <>
+                    {/* FORMATO POR ETAPAS ── reemplaza a la tabla general en las
+                        ligas de tres etapas: una sola tabla mezclaría la primera
+                        fase con los grupos, que arrancan de cero. */}
+                    {fases && <FasesTorneo league={selectedLeague} fases={fases} />}
+
                     {/* TABLA DE POSICIONES */}
-                    {leagueData.standings?.length > 0 && (
+                    {!fases && leagueData?.standings?.length > 0 && (
                         <div className="mb-16">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                                 <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white flex items-center gap-2">
@@ -531,6 +549,14 @@ const Liga = () => {
                         const descansa = byeWeeks.find(b => Number(b.round) === Number(jornadaVista))?.team?.name;
                         const algoJugado = leagueMatches.some(m => m.status === 'finished');
 
+                        // A qué etapa pertenece la jornada. En la segunda fase la
+                        // misma noche tiene partidos de los dos grupos, así que la
+                        // cabecera dice "Segunda Fase" y cada partido lleva el suyo.
+                        const etapas = [...new Set(actual.map(m => m.stage).filter(Boolean))];
+                        const etapaDeJornada = etapas.length === 1
+                            ? nombreDeEtapa(etapas[0])
+                            : etapas.length > 1 ? 'Segunda Fase' : null;
+
                         return (
                             <div className="mb-16">
                                 <h3 className="text-2xl font-black uppercase text-slate-900 dark:text-white mb-6 flex items-center gap-2">
@@ -581,6 +607,11 @@ const Liga = () => {
                                                 <span className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">
                                                     Jornada {jornadaVista}
                                                 </span>
+                                                {etapaDeJornada && (
+                                                    <span className="rounded border border-slate-200 dark:border-slate-700 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                                                        {etapaDeJornada}
+                                                    </span>
+                                                )}
                                                 {jornadaVista === proxima && !jugada && (
                                                     <span className="text-[10px] font-black uppercase tracking-wider text-white bg-primary px-2 py-0.5 rounded">
                                                         Próxima
@@ -621,6 +652,9 @@ const Liga = () => {
                                                 <div key={match.id} className="p-4">
                                                     <div className="text-[11px] text-slate-400 font-bold uppercase tracking-wider mb-2">
                                                         {horaChile(match.match_date)}
+                                                        {match.stage && match.stage !== ETAPAS.FASE1 && (
+                                                            <span className="ml-2 text-primary">{nombreDeEtapa(match.stage)}</span>
+                                                        )}
                                                         {!listo && <span className="ml-2 text-slate-300 dark:text-slate-600">Sin jugar</span>}
                                                     </div>
 
@@ -666,7 +700,7 @@ const Liga = () => {
                     })()}
 
                     {/* SECCIÓN EDUCATIVA */}
-                    {leagueData.standings?.some(t => t.bio_title) && (
+                    {leagueData?.standings?.some(t => t.bio_title) && (
                         <div className="bg-slate-900 dark:bg-black rounded-2xl p-8 md:p-12 relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-12 opacity-5">
                                 <span className="material-symbols-outlined text-[300px]">forest</span>
