@@ -124,9 +124,8 @@ create index if not exists idx_matches_tournament_stage
 
 
 -- ---------- 0 bis. Cuánto vale ganar ----------
--- En la Liga de los Martes una victoria son 2 puntos, no 3. El resto de los
--- torneos sigue pagando 3, así que el valor va por torneo y la columna nace
--- con 3 para no tocar nada de lo que ya existe.
+-- En la Liga de los Martes una victoria son 2 puntos y no 3. Las ligas de los
+-- viernes pagan 3. El valor va por torneo, en tournaments.points_per_win.
 alter table public.tournaments
     add column if not exists points_per_win int not null default 3;
 
@@ -141,6 +140,14 @@ end $$;
 
 comment on column public.tournaments.points_per_win is
     'Puntos que paga una victoria. 3 en casi todos los torneos, 2 en la Liga de los Martes. El empate siempre vale 1.';
+
+-- Solo esta liga: acá no se toca ningún otro torneo. La normalización del
+-- resto —viernes 3, el resto 2— es de una sola vez y va en
+-- standings_points_per_win.sql, que además saca los puntos de la vista.
+update public.tournaments
+   set points_per_win = 2
+ where name = 'Locales de la Bohemia Porteña'
+   and points_per_win <> 2;
 
 
 -- ---------- 1. Los ocho equipos ----------
