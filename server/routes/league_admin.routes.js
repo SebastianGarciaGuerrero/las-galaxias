@@ -105,11 +105,16 @@ router.get('/tournament/:tournamentId', requireAdmin, async (req, res) => {
 
 // 5. PROGRAMAR UN PARTIDO DE LIGA
 router.post('/match', requireAdmin, async (req, res) => {
-    const { tournament_id, home_team_id, away_team_id, match_date, location } = req.body;
+    const { tournament_id, home_team_id, away_team_id, match_date, location, stage } = req.body;
+
+    const etapasValidas = ['fase1', 'grupo_a', 'grupo_b', 'final'];
+    if (stage && !etapasValidas.includes(stage)) {
+        return res.status(400).json({ error: 'Etapa inválida' });
+    }
 
     const { data: existing } = await supabase
         .from('matches')
-        .select('round')
+        .select('round, stage')
         .eq('tournament_id', tournament_id)
         .order('round', { ascending: false });
 
@@ -141,9 +146,15 @@ router.post('/match', requireAdmin, async (req, res) => {
         nextRound = totalInLastRound >= matchesPerRound ? lastRound + 1 : lastRound;
     }
 
+    // Etapa del torneo (formato de tres fases). Si no la mandan, se hereda la
+    // del último partido cargado: mientras el torneo siga en la misma fase no
+    // hay que elegirla en cada fecha. En los torneos de tabla única queda null
+    // y nada cambia.
+    const etapa = stage || existing?.[0]?.stage || null;
+
     const { data, error } = await supabase
         .from('matches')
-        .insert([{ tournament_id, home_team_id, away_team_id, match_date, location, status: 'scheduled', round: nextRound }])
+        .insert([{ tournament_id, home_team_id, away_team_id, match_date, location, status: 'scheduled', round: nextRound, stage: etapa }])
         .select();
 
     if (error) return res.status(500).json({ error: error.message });
@@ -290,10 +301,19 @@ router.patch('/tournament/:id/image', requireAdmin, async (req, res) => {
 
 // EDITAR PARTIDO (equipos y fecha)
 router.patch('/match/:id', requireAdmin, async (req, res) => {
-    const { home_team_id, away_team_id, match_date } = req.body;
+    const { home_team_id, away_team_id, match_date, stage } = req.body;
+
+    const etapasValidas = ['fase1', 'grupo_a', 'grupo_b', 'final'];
+    if (stage && !etapasValidas.includes(stage)) {
+        return res.status(400).json({ error: 'Etapa inválida' });
+    }
+
+    const cambios = { home_team_id, away_team_id, match_date };
+    if (stage) cambios.stage = stage;
+
     const { data, error } = await supabase
         .from('matches')
-        .update({ home_team_id, away_team_id, match_date })
+        .update(cambios)
         .eq('id', req.params.id)
         .select();
     if (error) return res.status(500).json({ error: error.message });
