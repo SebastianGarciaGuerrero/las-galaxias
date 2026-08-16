@@ -59,7 +59,7 @@ const Liga = () => {
     const [jornadaVista, setJornadaVista] = useState(null);
     const [byeWeeks, setByeWeeks] = useState([]);
     const [celebration, setCelebration] = useState(null); // { champion, key } al entrar a una liga finalizada
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
 
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -151,15 +151,23 @@ const Liga = () => {
         setCelebration(campeon ? { champion: campeon, key: Date.now() } : null);
     }, [leagueData, leagueMatches, selectedLeague]);
 
+    // Sacar el ?id de la URL alcanza para volver al listado: el efecto de abajo
+    // se encarga de deseleccionar. El resto es limpieza de lo que quedó cargado.
     const handleBack = () => {
-        setSelectedLeague(null);
+        setSearchParams({});
         setLeagueData(null);
         setLeagueMatches([]);
-        setByeWeeks([]);  // ← agrega esto
+        setByeWeeks([]);
         setShowAllScorers(false);
         setCelebration(null);
     };
 
+    // Qué liga se está viendo lo decide la URL, no el estado. Antes la elección
+    // vivía solo en memoria y por eso apretar "Ligas" en el menú estando dentro
+    // de una liga no hacía nada: la ruta ya era /liga y no cambiaba nada.
+    // Ahora entrar a una liga escribe ?id=N, así que volver a /liga sin
+    // parámetros muestra el listado. De paso, cada liga queda con su propio
+    // enlace para compartir.
     useEffect(() => {
         if (leaguesList.length === 0) return;
 
@@ -167,19 +175,22 @@ const Liga = () => {
         const categoryFromUrl = searchParams.get('category');
 
         if (idFromUrl) {
-            const league = leaguesList.find(l => String(l.id) === String(idFromUrl));
-            if (league) setSelectedLeague(league);
-        } else if (categoryFromUrl) {
-            // Busca la liga activa de esa categoría
+            setSelectedLeague(leaguesList.find(l => String(l.id) === String(idFromUrl)) || null);
+            return;
+        }
+
+        if (categoryFromUrl) {
+            // La liga en juego de esa categoría. Si no hay ninguna activa, cae
+            // en el listado.
             const activeLeague = leaguesList.find(l =>
                 l.status === 'active' && l.category === categoryFromUrl
             );
-            if (activeLeague) {
-                setSelectedLeague(activeLeague);
-            }
-            // Si no hay activa, no selecciona nada y muestra la página normal
+            setSelectedLeague(activeLeague || null);
+            return;
         }
-    }, [leaguesList]);
+
+        setSelectedLeague(null);
+    }, [leaguesList, searchParams]);
 
     // --- FILTRADO ---
     const activeLeagues = leaguesList.filter(l => l.status === 'active' || l.status === 'upcoming');
@@ -225,7 +236,7 @@ const Liga = () => {
 
         return (
             <button
-                onClick={() => setSelectedLeague(league)}
+                onClick={() => setSearchParams({ id: league.id })}
                 className="group relative h-80 w-full overflow-hidden rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-primary transition-all duration-300 text-left shadow-lg"
             >
                 {/* Las pasadas ya no van en blanco y negro: quedaban apagadas y
@@ -297,7 +308,7 @@ const Liga = () => {
         return (
             <>
             {LIGA_SEO}
-            <div className="w-full max-w-[1280px] mx-auto px-4 py-20 animate-fade-in min-h-screen">
+            <div className="w-full max-w-[1280px] mx-auto px-4 pt-28 pb-20 animate-fade-in min-h-screen">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl md:text-5xl font-black uppercase text-slate-900 dark:text-white mb-4">Competiciones</h1>
                     <p className="text-slate-500 dark:text-slate-400">Selecciona un torneo para ver las tablas, resultados y estadísticas.</p>
@@ -354,25 +365,33 @@ const Liga = () => {
     // ==========================================
     // 3. VISTA DE DETALLE
     // ==========================================
+    // pt-28 y no py-12: el navbar es fixed y mide 64-72px, así que con menos
+    // padding la cabecera de la liga quedaba tapada por el menú. Es el mismo
+    // margen que usa Academia.
     return (
-        <div className="w-full max-w-[1280px] mx-auto px-4 py-12 animate-fade-in min-h-screen">
+        <div className="w-full max-w-[1280px] mx-auto px-4 pt-28 pb-16 animate-fade-in min-h-screen">
             {LIGA_SEO}
             {celebration && (
                 <ChampionCelebration key={celebration.key} champion={celebration.champion} />
             )}
-            <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
-                <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="text-primary font-black uppercase tracking-widest text-xs">{selectedLeague.day_label || 'Competición'}</span>
-                        <span className="text-slate-400 text-xs font-bold">• {selectedLeague.season}</span>
-                    </div>
-                    <h1 className="text-4xl font-black uppercase text-slate-900 dark:text-white leading-none">
-                        {selectedLeague.name}
-                    </h1>
-                </div>
-                <button onClick={handleBack} className="flex items-center gap-2 text-sm font-bold uppercase text-slate-500 hover:text-primary transition-colors bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg">
-                    <span className="material-symbols-outlined">arrow_back</span> Volver
+            <div className="mb-8 border-b border-slate-200 dark:border-slate-800 pb-6">
+                {/* Volver arriba del título y alineado a la izquierda. Antes era
+                    un botón gris flotando a la derecha, a la altura del título:
+                    competía con el nombre de la liga y encima quedaba cortado. */}
+                <button
+                    onClick={handleBack}
+                    className="mb-5 inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-slate-500 hover:text-primary transition-colors"
+                >
+                    <span className="material-symbols-outlined text-base">arrow_back</span>
+                    Todas las competiciones
                 </button>
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="text-primary font-black uppercase tracking-widest text-xs">{selectedLeague.day_label || 'Competición'}</span>
+                    <span className="text-slate-400 text-xs font-bold">• {selectedLeague.season}</span>
+                </div>
+                <h1 className="text-4xl font-black uppercase text-slate-900 dark:text-white leading-none">
+                    {selectedLeague.name}
+                </h1>
             </div>
 
             {selectedLeague.status === 'upcoming' ? (
