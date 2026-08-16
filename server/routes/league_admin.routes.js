@@ -162,12 +162,24 @@ router.post('/match', requireAdmin, async (req, res) => {
 });
 
 // 6. GUARDAR RESULTADOS Y GOLEADORES DE LA LIGA
+//
+// Lo que llega es el resultado completo del partido, no un agregado: primero
+// se borran los goles que tenía y después se insertan los del formulario. Sin
+// ese borrado, corregir un marcador sumaba los goles de nuevo y el jugador
+// aparecía con el doble en la tabla de goleadores. Es el mismo criterio que
+// usa la aprobación de la app de marcador (staging.routes.js).
 router.post('/match/:id/result', requireAdmin, async (req, res) => {
     const matchId = req.params.id;
     const { home_score, away_score, goals } = req.body;
     try {
-        const { error: matchError } = await supabase.from('matches').update({ home_score, away_score, status: 'finished' }).eq('id', matchId);
+        const { error: matchError } = await supabase
+            .from('matches')
+            .update({ home_score, away_score, status: 'finished' })
+            .eq('id', matchId);
         if (matchError) throw matchError;
+
+        const { error: deleteError } = await supabase.from('goals').delete().eq('match_id', matchId);
+        if (deleteError) throw deleteError;
 
         if (goals && goals.length > 0) {
             const goalsToInsert = goals.map(g => ({ match_id: matchId, player_id: g.player_id, team_id: g.team_id }));
@@ -178,6 +190,28 @@ router.post('/match/:id/result', requireAdmin, async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// 6 bis. GOLES YA CARGADOS DE UN PARTIDO
+// Los devuelve agrupados por jugador para que el panel abra el formulario de
+// corrección con los números que ya están, en vez de en cero.
+router.get('/match/:id/goals', requireAdmin, async (req, res) => {
+    const { data, error } = await supabase
+        .from('goals')
+        .select('player_id, team_id')
+        .eq('match_id', req.params.id);
+
+    if (error) return res.status(500).json({ error: error.message });
+
+    const porJugador = new Map();
+    for (const gol of data || []) {
+        const clave = `${gol.player_id}-${gol.team_id}`;
+        const fila = porJugador.get(clave) || { player_id: gol.player_id, team_id: gol.team_id, count: 0 };
+        fila.count++;
+        porJugador.set(clave, fila);
+    }
+
+    res.json([...porJugador.values()]);
 });
 
 // 7. OBTENER JUGADORES DE UN TORNEO (por los equipos participantes)
