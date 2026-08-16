@@ -688,7 +688,10 @@ const Liga = () => {
                                                     ].map(({ equipo, goles, gana }, i) => (
                                                         <div key={i} className="flex items-center gap-3 py-1">
                                                             <TeamBadge name={equipo?.name || ''} shieldUrl={equipo?.logo_url} size={24} />
-                                                            <span className={`flex-1 truncate text-sm md:text-base ${
+                                                            {/* Sin truncate: en celular los nombres largos
+                                                                de los martes salían cortados con puntos
+                                                                suspensivos. Prefiere bajar de línea. */}
+                                                            <span className={`flex-1 text-sm md:text-base ${
                                                                 gana ? 'font-black text-slate-900 dark:text-white' : 'font-bold text-slate-600 dark:text-slate-300'
                                                             }`}>
                                                                 {equipo?.name}

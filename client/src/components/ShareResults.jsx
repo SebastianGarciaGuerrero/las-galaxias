@@ -64,9 +64,8 @@ const ShareResults = ({ league, round, matches, bye }) => {
                                 color: '#ffffff',
                                 fontSize: 13,
                                 fontWeight: 700,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
+                                lineHeight: 1.2,
+                                overflowWrap: 'anywhere',
                             }}>
                                 {match.home?.name}
                             </span>
@@ -117,9 +116,8 @@ const ShareResults = ({ league, round, matches, bye }) => {
                                 color: '#ffffff',
                                 fontSize: 13,
                                 fontWeight: 700,
-                                whiteSpace: 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
+                                lineHeight: 1.2,
+                                overflowWrap: 'anywhere',
                             }}>
                                 {match.away?.name}
                             </span>

@@ -221,7 +221,7 @@ const ClasificadosDelGrupo = ({ letra, equipos }) => {
                 <li key={team.id} className="flex items-center gap-3 px-5 py-3">
                     <span className="w-6 shrink-0 text-xs font-black text-slate-400">{desde + i}°</span>
                     <TeamBadge name={team.name} shieldUrl={team.shield_url} size={22} />
-                    <span className="flex-1 truncate font-bold text-slate-900 dark:text-white">{team.name}</span>
+                    <span className="flex-1 font-bold text-slate-900 dark:text-white">{team.name}</span>
                 </li>
             ))}
         </ul>
@@ -266,7 +266,7 @@ const TarjetaDeGrupo = ({ letra, grupo }) => {
                                     <div className="flex items-center gap-3 min-w-0">
                                         <span className="w-3 shrink-0 text-xs font-black text-slate-300">{index + 1}</span>
                                         <TeamBadge name={team.name} shieldUrl={team.shield_url} size={22} />
-                                        <span className="font-bold text-slate-900 dark:text-white truncate">{team.name}</span>
+                                        <span className="font-bold text-slate-900 dark:text-white">{team.name}</span>
                                     </div>
                                 </td>
                                 <td className="px-2 py-3 text-center text-slate-500">{team.played}</td>
@@ -290,7 +290,7 @@ const TarjetaDeGrupo = ({ letra, grupo }) => {
                     Campeón del grupo
                 </span>
                 {grupo.campeon ? (
-                    <span className="ml-auto truncate text-sm font-black uppercase text-slate-900 dark:text-white">
+                    <span className="ml-auto text-right text-sm font-black uppercase text-slate-900 dark:text-white">
                         {grupo.campeon.name}
                     </span>
                 ) : (
@@ -313,7 +313,7 @@ const LadoDeLaFinal = ({ letra, equipo, goles }) => {
             {equipo ? (
                 <>
                     <TeamBadge name={equipo.name} shieldUrl={equipo.shield_url} size={56} />
-                    <span className="font-black uppercase text-white text-center leading-tight truncate max-w-full">
+                    <span className="font-black uppercase text-white text-center leading-tight max-w-full">
                         {equipo.name}
                     </span>
                 </>

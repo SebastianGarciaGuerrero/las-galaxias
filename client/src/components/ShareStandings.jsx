@@ -58,13 +58,17 @@ const ShareStandings = ({ league, standings }) => {
                             </span>
                             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
                                 <TeamBadge name={team.name} shieldUrl={team.shield_url} size={26} />
+                                {/* Sin recorte: el nombre del equipo se lee entero
+                                    aunque tenga que bajar a dos líneas. La tarjeta
+                                    mide 420px fijos y los nombres largos —Atlético
+                                    Canario, Isla Fantasía FC— quedaban al filo y en
+                                    algunos teléfonos salían con puntos suspensivos. */}
                                 <span style={{
                                     color: '#ffffff',
                                     fontSize: 13,
                                     fontWeight: 700,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
+                                    lineHeight: 1.2,
+                                    overflowWrap: 'anywhere',
                                 }}>
                                     {team.name}
                                 </span>

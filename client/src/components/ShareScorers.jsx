@@ -61,9 +61,8 @@ const ShareScorers = ({ league, scorers }) => {
                                     color: '#ffffff',
                                     fontSize: isTop3 ? 15 : 13,
                                     fontWeight: isTop3 ? 900 : 700,
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
+                                    lineHeight: 1.2,
+                                    overflowWrap: 'anywhere',
                                 }}>
                                     {scorer.name}
                                 </div>
@@ -73,9 +72,8 @@ const ShareScorers = ({ league, scorers }) => {
                                     fontWeight: 600,
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.05em',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
+                                    lineHeight: 1.2,
+                                    overflowWrap: 'anywhere',
                                 }}>
                                     {scorer.team}
                                 </div>
