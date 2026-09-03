@@ -52,24 +52,59 @@ router.get('/players', async (req, res) => {
 router.post('/players', async (req, res) => {
     const { name, team_id, tournament_id } = req.body;
 
-    // Verificar si ya existe el jugador
-    let { data: existing } = await supabase
-        .from('players')
-        .select('id')
-        .eq('name', name);
+    // player_id llega cuando el nombre se eligió del buscador del panel: ahí no
+    // hay nada que adivinar, es ese jugador y no otro. El camino por nombre
+    // queda para la app de marcador y para el que escribe a alguien que
+    // todavía no está en la base.
+    const elegido = req.body.player_id ?? null;
+    const nombre = typeof name === 'string' ? name.trim() : '';
 
-    let playerId;
+    if (!elegido && !nombre) return res.status(400).json({ error: 'Falta el nombre del jugador' });
 
-    if (existing && existing.length > 0) {
-        playerId = existing[0].id;
-    } else {
-        // Crear jugador nuevo
-        const { data: newPlayer, error } = await supabase
+    let playerId = elegido;
+    let playerName = nombre;
+
+    if (elegido) {
+        const { data: jugador, error } = await supabase
             .from('players')
-            .insert([{ name }])
-            .select();
+            .select('id, name')
+            .eq('id', elegido)
+            .maybeSingle();
         if (error) return res.status(500).json({ error: error.message });
-        playerId = newPlayer[0].id;
+        if (!jugador) return res.status(404).json({ error: 'Ese jugador ya no está en la base' });
+        playerId = jugador.id;
+        playerName = jugador.name;
+    } else {
+        // Verificar si ya existe el jugador.
+        //
+        // El cruce ignora mayúsculas y espacios de más: escribir "cristobal"
+        // cuando en la base dice "Cristobal" tiene que encontrarlo, no crear un
+        // segundo jugador con el mismo nombre. Cuando eso pasaba, el historial
+        // de goles de la persona quedaba partido en dos.
+        //
+        // La comparación se hace acá y no con un filtro de Postgrest porque
+        // ilike trata % y _ como comodines y un apodo podría traerlos.
+        const { data: todos, error: errorTodos } = await supabase
+            .from('players')
+            .select('id, name');
+        if (errorTodos) return res.status(500).json({ error: errorTodos.message });
+
+        const buscado = nombre.toLowerCase();
+        const existente = (todos || []).find(p => (p.name || '').trim().toLowerCase() === buscado);
+
+        if (existente) {
+            playerId = existente.id;
+            playerName = existente.name;
+        } else {
+            // Crear jugador nuevo
+            const { data: newPlayer, error } = await supabase
+                .from('players')
+                .insert([{ name: nombre }])
+                .select();
+            if (error) return res.status(500).json({ error: error.message });
+            playerId = newPlayer[0].id;
+            playerName = newPlayer[0].name;
+        }
     }
 
     // Verificar si ya está en este torneo Y equipo (no solo torneo)
@@ -81,7 +116,7 @@ router.post('/players', async (req, res) => {
         .eq('team_id', team_id);
 
     if (existingTp && existingTp.length > 0)
-        return res.status(409).json({ error: `${name} ya está registrado en este equipo` });
+        return res.status(409).json({ error: `${playerName} ya está registrado en este equipo` });
 
     // Insertar en tournament_players
     const { error: tpError } = await supabase
@@ -89,7 +124,7 @@ router.post('/players', async (req, res) => {
         .insert([{ player_id: playerId, team_id, tournament_id }]);
 
     if (tpError) return res.status(500).json({ error: tpError.message });
-    res.status(201).json({ id: playerId, name, team_id, tournament_id });
+    res.status(201).json({ id: playerId, name: playerName, team_id, tournament_id });
 });
 
 // 4. OBTENER EL FIXTURE DE UNA LIGA

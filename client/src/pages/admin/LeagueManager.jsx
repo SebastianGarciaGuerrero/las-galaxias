@@ -56,6 +56,15 @@ const LeagueManager = () => {
         } catch (error) { console.error("Error:", error); }
     };
 
+    // Después de sumar a alguien desde el modal de resultados hay que refrescar
+    // las dos listas: la nómina del torneo, que es la que se ve en la columna, y
+    // la de todos los jugadores de la base, que es la que alimenta el buscador.
+    // Si solo se recargara la primera, al que se acaba de crear no lo
+    // encontrarían las sugerencias de la otra columna.
+    const recargarJugadores = async () => {
+        await Promise.all([fetchMatches(), fetchInitialData()]);
+    };
+
     useEffect(() => {
         // Al cambiar de liga se vuelve a la jornada pendiente de la nueva, no a
         // la que se estaba mirando en la anterior.
@@ -880,10 +889,11 @@ const LeagueManager = () => {
                         <ResultadoModal
                             partido={matchToResult}
                             jugadores={tournamentPlayers}
+                            todosLosJugadores={allPlayers}
                             tournamentId={selectedTournament}
                             onCerrar={() => setMatchToResult(null)}
                             onGuardado={() => { setMatchToResult(null); fetchMatches(); }}
-                            onRecargarJugadores={fetchMatches}
+                            onRecargarJugadores={recargarJugadores}
                         />
                     )}
                 </div>
