@@ -30,11 +30,17 @@ router.get('/:id/summary', async (req, res) => {
         .order('gd', { ascending: false }); // Desempate por diferencia de goles
 
     // B. Consultamos la VISTA de goleadores
+    //
+    // Se piden todas las filas del torneo, no las primeras 10: la vista puede
+    // devolver al mismo jugador más de una vez —una fila por cada equipo en el
+    // que esté inscrito— y un top 10 cortado en la base gastaría lugares en
+    // filas repetidas, dejando afuera goleadores de verdad. El corte va
+    // después de juntarlas.
     const { data: scorers, error: errorScorers } = await supabase
         .from('top_scorers')
         .select('*')
         .eq('tournament_id', id)
-        .limit(10); // Traemos el Top 10
+        .order('goals', { ascending: false });
 
     if (errorStandings || errorScorers) {
         console.error("❌ Error en Vistas:", errorStandings || errorScorers);
@@ -42,13 +48,41 @@ router.get('/:id/summary', async (req, res) => {
     }
 
     // Formateamos los goleadores para el Frontend
-    const formattedScorers = (scorers || []).map(p => ({
-        id: p.player_id,
-        name: p.name,
-        team: p.team_name,
-        goals: p.goals,
-        img: p.photo_url || "https://i.pravatar.cc/150?u=" + p.player_id // Avatar por defecto si no tiene foto
-    }));
+    //
+    // Antes de armar el top hay que juntar al jugador consigo mismo. En la
+    // Liga de los Martes las nóminas rotan y alguien puede estar inscrito en
+    // dos equipos a la vez (Cristóbal, en Unión Roma y en Isla Fantasía FC):
+    // la vista devuelve una fila por equipo y en la página salía dos veces,
+    // ocupando dos puestos del podio.
+    //
+    // Las filas repetidas traen TODAS el mismo número, que es el total del
+    // jugador en el torneo, no lo que hizo con cada camiseta. Por eso acá se
+    // queda el máximo y no la suma: sumarlas lo mostraría con el doble de
+    // goles. El equipo que se muestra es el de la primera fila.
+    //
+    // Esto es la red de contención. El arreglo de fondo es que la vista deje
+    // de repetir: server/sql/top_scorers_sin_duplicados.sql. Corrido ese, acá
+    // ya no queda nada que juntar y el equipo que llega es el correcto —aquel
+    // con el que hizo más goles— en vez de uno cualquiera de la nómina.
+    const porJugador = new Map();
+    for (const p of scorers || []) {
+        const yaEsta = porJugador.get(p.player_id);
+        if (!yaEsta) {
+            porJugador.set(p.player_id, {
+                id: p.player_id,
+                name: p.name,
+                team: p.team_name,
+                goals: p.goals || 0,
+                img: p.photo_url || "https://i.pravatar.cc/150?u=" + p.player_id // Avatar por defecto si no tiene foto
+            });
+        } else if ((p.goals || 0) > yaEsta.goals) {
+            yaEsta.goals = p.goals;
+        }
+    }
+
+    const formattedScorers = [...porJugador.values()]
+        .sort((a, b) => b.goals - a.goals)
+        .slice(0, 10); // El Top 10, ya sin repetidos
 
     res.json({ standings: standings || [], scorers: formattedScorers });
 });

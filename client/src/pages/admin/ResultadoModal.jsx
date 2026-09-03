@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { apiFetch } from '../../config/api';
 
 // Formulario para anotar el resultado de un partido y quién hizo los goles.
@@ -50,30 +50,180 @@ const FilaJugador = ({ jugador, goles, onCambiar }) => {
     );
 };
 
+// Para comparar nombres escritos a mano contra los de la base: sin tildes, sin
+// mayúsculas y sin espacios de sobra. "cristobal", "Cristóbal" y " CRISTOBAL "
+// tienen que ser la misma persona.
+const normalizar = (texto) => (texto || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+
 // Columna de un equipo: su lista de jugadores y el alta rápida del que no
 // estaba en la nómina. En los martes las nóminas rotan fecha a fecha, así que
 // que aparezca alguien nuevo en la cancha es lo normal, no la excepción.
-const ColumnaEquipo = ({ equipo, jugadores, goles, onCambiar, onJugadorNuevo, tournamentId }) => {
+//
+// El alta va con buscador y no con un campo de texto pelado. Escribir el
+// nombre a ciegas es lo que venía partiendo el historial de la gente: si en la
+// base decía "Cristobal" y en la cancha se anotaba "cristóbal", se creaba un
+// jugador nuevo y los goles quedaban repartidos entre dos personas que en
+// realidad eran una. Ahora, a medida que se escribe, van saliendo los que ya
+// están en la base y se elige de ahí; crear a alguien nuevo sigue siendo
+// posible, pero es una decisión explícita y no un accidente de tipeo.
+const ColumnaEquipo = ({ equipo, jugadores, goles, onCambiar, onJugadorNuevo, tournamentId, todosLosJugadores, jugadoresDelTorneo }) => {
     const [nombre, setNombre] = useState('');
+    // El jugador que se eligió de la lista. Mientras esté puesto, el alta viaja
+    // con su id y el nombre escrito deja de importar.
+    const [elegido, setElegido] = useState(null);
+    const [abierto, setAbierto] = useState(false);
+    const [resaltado, setResaltado] = useState(-1);
     const [guardando, setGuardando] = useState(false);
     const [error, setError] = useState('');
+
+    const buscado = normalizar(nombre);
+
+    // Los que ya están en la columna no se sugieren: están a la vista arriba.
+    const yaEnLaColumna = useMemo(() => new Set(jugadores.map(j => j.id)), [jugadores]);
+
+    // Con qué equipos de esta misma liga ya juega cada uno. Es el dato que
+    // sirve para distinguir dos apodos parecidos sin salir del formulario.
+    const equiposPorJugador = useMemo(() => {
+        const mapa = new Map();
+        for (const j of jugadoresDelTorneo || []) {
+            if (!j.teams?.name) continue;
+            const nombres = mapa.get(j.id) || [];
+            if (!nombres.includes(j.teams.name)) nombres.push(j.teams.name);
+            mapa.set(j.id, nombres);
+        }
+        return mapa;
+    }, [jugadoresDelTorneo]);
+
+    // Primero los que empiezan con lo escrito y después los que lo tienen en el
+    // medio, que es el orden en que uno los busca. Ocho alcanzan: si hay más,
+    // conviene escribir una letra más que ponerse a scrollear.
+    const sugerencias = useMemo(() => {
+        if (!buscado) return [];
+        const encontrados = [];
+        for (const p of todosLosJugadores || []) {
+            if (yaEnLaColumna.has(p.id)) continue;
+            const donde = normalizar(p.name).indexOf(buscado);
+            if (donde === -1) continue;
+            encontrados.push({ jugador: p, empiezaAsi: donde === 0 });
+        }
+        encontrados.sort((a, b) =>
+            (a.empiezaAsi === b.empiezaAsi ? 0 : a.empiezaAsi ? -1 : 1) ||
+            a.jugador.name.localeCompare(b.jugador.name, 'es')
+        );
+        return encontrados.slice(0, 8).map(e => e.jugador);
+    }, [buscado, todosLosJugadores, yaEnLaColumna]);
+
+    // Si lo escrito es tal cual el nombre de alguien de la base, se da por
+    // elegido aunque no lo hayan tocado en la lista. Es el caso de siempre:
+    // se escribe el nombre completo y se aprieta enter.
+    //
+    // Salvo que haya más de uno que dé lo mismo, que hoy pasa de verdad: en la
+    // base conviven "Cristobal" y "Cristóbal", y "Seba bob" y "Sebabob". Ahí
+    // el formulario no elige por su cuenta ni ofrece crear un tercero: pide
+    // que se diga cuál de los dos es.
+    const exactos = useMemo(
+        () => (buscado ? (todosLosJugadores || []).filter(p => normalizar(p.name) === buscado) : []),
+        [buscado, todosLosJugadores]
+    );
+    const exacto = exactos.length === 1 ? exactos[0] : null;
+    const ambiguo = !elegido && exactos.length > 1;
+
+    const jugadorAUsar = elegido || exacto || null;
+    const yaEstaEnLaColumna = jugadorAUsar ? yaEnLaColumna.has(jugadorAUsar.id) : false;
+    const seVaACrear = Boolean(buscado) && !jugadorAUsar && !ambiguo;
+
+    // Las opciones de la lista: los que ya existen y, al final, la de crearlo.
+    const opciones = useMemo(() => {
+        const filas = sugerencias.map(j => ({ tipo: 'existente', jugador: j }));
+        if (buscado && !exacto && !ambiguo) filas.push({ tipo: 'nuevo' });
+        return filas;
+    }, [sugerencias, buscado, exacto, ambiguo]);
+
+    const escribir = (valor) => {
+        setNombre(valor);
+        setElegido(null);
+        setResaltado(-1);
+        setAbierto(true);
+        setError('');
+    };
+
+    const elegirOpcion = (opcion) => {
+        if (!opcion) return;
+        if (opcion.tipo === 'existente') {
+            setElegido(opcion.jugador);
+            setNombre(opcion.jugador.name);
+        } else {
+            setElegido(null);
+        }
+        setResaltado(-1);
+        setAbierto(false);
+    };
+
+    const enTecla = (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            if (!opciones.length) return;
+            e.preventDefault();
+            setAbierto(true);
+            setResaltado(prev => {
+                const paso = e.key === 'ArrowDown' ? 1 : -1;
+                const siguiente = prev + paso;
+                if (siguiente < 0) return opciones.length - 1;
+                if (siguiente >= opciones.length) return 0;
+                return siguiente;
+            });
+            return;
+        }
+        if (e.key === 'Escape') {
+            setAbierto(false);
+            setResaltado(-1);
+            return;
+        }
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Enter con una opción marcada la elige; recién el siguiente enter
+            // la suma. Así nunca se agrega a alguien de un teclazo.
+            if (abierto && resaltado >= 0) elegirOpcion(opciones[resaltado]);
+            else agregar();
+        }
+    };
 
     const agregar = async () => {
         const limpio = nombre.trim();
         if (!limpio) return;
+        if (ambiguo) {
+            setError('Hay más de uno con ese nombre. Elegí cuál de la lista.');
+            return;
+        }
+        if (yaEstaEnLaColumna) {
+            setError(`${jugadorAUsar.name} ya está en la lista de arriba`);
+            return;
+        }
         setGuardando(true);
         setError('');
         try {
             const res = await apiFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/league-admin/players`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: limpio, team_id: equipo.id, tournament_id: tournamentId }),
+                body: JSON.stringify({
+                    // Con player_id el backend no tiene que adivinar por nombre.
+                    player_id: jugadorAUsar?.id ?? null,
+                    name: jugadorAUsar?.name ?? limpio,
+                    team_id: equipo.id,
+                    tournament_id: tournamentId,
+                }),
             });
             if (!res.ok) {
                 const cuerpo = await res.json().catch(() => ({}));
                 throw new Error(cuerpo.error || 'No se pudo agregar');
             }
             setNombre('');
+            setElegido(null);
+            setAbierto(false);
+            setResaltado(-1);
             await onJugadorNuevo();
         } catch (e) {
             setError(e.message);
@@ -81,6 +231,8 @@ const ColumnaEquipo = ({ equipo, jugadores, goles, onCambiar, onJugadorNuevo, to
             setGuardando(false);
         }
     };
+
+    const idLista = `sugerencias-${equipo?.id}`;
 
     return (
         <div className="flex min-h-0 flex-col rounded-2xl border border-slate-100 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50">
@@ -102,30 +254,124 @@ const ColumnaEquipo = ({ equipo, jugadores, goles, onCambiar, onJugadorNuevo, to
 
             <div className="shrink-0 border-t border-slate-200 p-3 dark:border-slate-700">
                 <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={nombre}
-                        placeholder="¿Jugó alguien más?"
-                        onChange={e => setNombre(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); agregar(); } }}
-                        className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                    />
+                    <div className="relative min-w-0 flex-1">
+                        <input
+                            type="text"
+                            value={nombre}
+                            placeholder="¿Jugó alguien más?"
+                            role="combobox"
+                            aria-expanded={abierto && opciones.length > 0}
+                            aria-controls={idLista}
+                            aria-autocomplete="list"
+                            aria-activedescendant={resaltado >= 0 ? `${idLista}-${resaltado}` : undefined}
+                            autoComplete="off"
+                            onChange={e => escribir(e.target.value)}
+                            onFocus={() => { if (nombre.trim()) setAbierto(true); }}
+                            onBlur={() => setAbierto(false)}
+                            onKeyDown={enTecla}
+                            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        />
+
+                        {/* La lista se abre hacia arriba: el campo vive abajo de
+                            todo y hacia abajo se saldría de la ventana.
+                            onMouseDown con preventDefault para que el clic no
+                            dispare el blur del input antes de tiempo. */}
+                        {abierto && opciones.length > 0 && (
+                            <ul
+                                id={idLista}
+                                role="listbox"
+                                onMouseDown={e => e.preventDefault()}
+                                className="absolute bottom-full left-0 z-20 mb-1 max-h-56 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-xl dark:border-slate-600 dark:bg-slate-800"
+                            >
+                                {opciones.map((opcion, i) => {
+                                    const marcada = i === resaltado;
+                                    const claseFila = `w-full cursor-pointer px-3 py-2 text-left text-sm ${
+                                        marcada ? 'bg-primary/10' : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                                    }`;
+
+                                    if (opcion.tipo === 'nuevo') {
+                                        return (
+                                            <li
+                                                key="nuevo"
+                                                id={`${idLista}-${i}`}
+                                                role="option"
+                                                aria-selected={marcada}
+                                                onClick={() => elegirOpcion(opcion)}
+                                                onMouseEnter={() => setResaltado(i)}
+                                                className={`${claseFila} border-t border-slate-100 dark:border-slate-700`}
+                                            >
+                                                <span className="font-bold text-slate-500 dark:text-slate-400">
+                                                    Crear a &laquo;{nombre.trim()}&raquo; como jugador nuevo
+                                                </span>
+                                            </li>
+                                        );
+                                    }
+
+                                    const equiposDelJugador = equiposPorJugador.get(opcion.jugador.id) || [];
+                                    return (
+                                        <li
+                                            key={opcion.jugador.id}
+                                            id={`${idLista}-${i}`}
+                                            role="option"
+                                            aria-selected={marcada}
+                                            onClick={() => elegirOpcion(opcion)}
+                                            onMouseEnter={() => setResaltado(i)}
+                                            className={claseFila}
+                                        >
+                                            <span className="block font-bold text-slate-900 dark:text-white">
+                                                {opcion.jugador.name}
+                                            </span>
+                                            <span className="block text-xs text-slate-400">
+                                                {equiposDelJugador.length > 0
+                                                    ? `En esta liga juega en ${equiposDelJugador.join(' y ')}`
+                                                    : 'Todavía no juega esta liga'}
+                                            </span>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                    </div>
+
                     <button
                         type="button"
                         onClick={agregar}
-                        disabled={guardando || !nombre.trim()}
+                        disabled={guardando || !nombre.trim() || ambiguo || yaEstaEnLaColumna}
                         className="shrink-0 rounded-lg bg-slate-800 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-colors hover:bg-primary disabled:opacity-30 dark:bg-slate-600"
                     >
-                        {guardando ? '...' : 'Sumar'}
+                        {guardando ? '...' : seVaACrear ? 'Crear' : 'Sumar'}
                     </button>
                 </div>
+
+                {/* Que quede dicho, antes de apretar, si esto suma a alguien que
+                    ya existe o si crea a una persona nueva en la base. */}
+                {!error && jugadorAUsar && !yaEstaEnLaColumna && (
+                    <p className="mt-2 text-xs font-bold text-slate-500 dark:text-slate-400">
+                        Se suma a {jugadorAUsar.name}, el que ya está en la base
+                    </p>
+                )}
+                {!error && jugadorAUsar && yaEstaEnLaColumna && (
+                    <p className="mt-2 text-xs font-bold text-slate-500 dark:text-slate-400">
+                        {jugadorAUsar.name} ya está en la lista de arriba
+                    </p>
+                )}
+                {!error && ambiguo && (
+                    <p className="mt-2 text-xs font-bold text-amber-600 dark:text-amber-500">
+                        Hay {exactos.length} jugadores con ese nombre: elegí de la lista cuál es
+                    </p>
+                )}
+                {!error && seVaACrear && (
+                    <p className="mt-2 text-xs font-bold text-amber-600 dark:text-amber-500">
+                        No hay nadie con ese nombre: se va a crear un jugador nuevo
+                    </p>
+                )}
                 {error && <p className="mt-2 text-xs font-bold text-red-500">{error}</p>}
             </div>
         </div>
     );
 };
 
-const ResultadoModal = ({ partido, jugadores, tournamentId, onCerrar, onGuardado, onRecargarJugadores }) => {
+const ResultadoModal = ({ partido, jugadores, todosLosJugadores, tournamentId, onCerrar, onGuardado, onRecargarJugadores }) => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     const [golesLocal, setGolesLocal] = useState({});
@@ -242,6 +488,8 @@ const ResultadoModal = ({ partido, jugadores, tournamentId, onCerrar, onGuardado
                             onCambiar={cambiarLocal}
                             onJugadorNuevo={onRecargarJugadores}
                             tournamentId={tournamentId}
+                            todosLosJugadores={todosLosJugadores}
+                            jugadoresDelTorneo={jugadores}
                         />
                         <ColumnaEquipo
                             equipo={partido.away}
@@ -250,6 +498,8 @@ const ResultadoModal = ({ partido, jugadores, tournamentId, onCerrar, onGuardado
                             onCambiar={cambiarVisita}
                             onJugadorNuevo={onRecargarJugadores}
                             tournamentId={tournamentId}
+                            todosLosJugadores={todosLosJugadores}
+                            jugadoresDelTorneo={jugadores}
                         />
                     </div>
                 )}
