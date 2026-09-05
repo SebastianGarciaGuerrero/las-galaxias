@@ -58,6 +58,9 @@ const ShareResults = ({ league, round, matches, bye }) => {
                                 gap: 10,
                             }}
                         >
+                            {/* Un renglón por equipo, ver ShareStandings.jsx.
+                                Al nombre le tocan 150px y el más largo
+                                —Atlético Canario— mide 98. */}
                             <span style={{
                                 flex: 1,
                                 textAlign: 'right',
@@ -65,7 +68,7 @@ const ShareResults = ({ league, round, matches, bye }) => {
                                 fontSize: 13,
                                 fontWeight: 700,
                                 lineHeight: 1.2,
-                                overflowWrap: 'anywhere',
+                                whiteSpace: 'nowrap',
                             }}>
                                 {match.home?.name}
                             </span>
@@ -117,7 +120,7 @@ const ShareResults = ({ league, round, matches, bye }) => {
                                 fontSize: 13,
                                 fontWeight: 700,
                                 lineHeight: 1.2,
-                                overflowWrap: 'anywhere',
+                                whiteSpace: 'nowrap',
                             }}>
                                 {match.away?.name}
                             </span>
