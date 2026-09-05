@@ -58,17 +58,27 @@ const ShareStandings = ({ league, standings }) => {
                             </span>
                             <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
                                 <TeamBadge name={team.name} shieldUrl={team.shield_url} size={26} />
-                                {/* Sin recorte: el nombre del equipo se lee entero
-                                    aunque tenga que bajar a dos líneas. La tarjeta
-                                    mide 420px fijos y los nombres largos —Atlético
-                                    Canario, Isla Fantasía FC— quedaban al filo y en
-                                    algunos teléfonos salían con puntos suspensivos. */}
+                                {/* Una sola línea, pase lo que pase.
+                                    Acá vivía overflowWrap: 'anywhere', y por eso la
+                                    tarjeta compartida mostraba "No / Comai" y
+                                    "Charchala / x": html-to-image clona el nodo
+                                    copiándole el estilo calculado, y ahí entra el
+                                    ancho ya usado en píxeles —58.3px para "No
+                                    Comai", justo lo que mide el texto—. Al volver a
+                                    dibujarlo, el texto pide una pizca más que ese
+                                    ancho congelado y 'anywhere' lo deja partir en
+                                    cualquier letra. Con nowrap ese sobrante de menos
+                                    de un píxel no rompe nada.
+
+                                    No hay riesgo de que se corte: al nombre le
+                                    quedan 207px y el más largo de todos, "Vasco de
+                                    Gramo", mide 98. */}
                                 <span style={{
                                     color: '#ffffff',
                                     fontSize: 13,
                                     fontWeight: 700,
                                     lineHeight: 1.2,
-                                    overflowWrap: 'anywhere',
+                                    whiteSpace: 'nowrap',
                                 }}>
                                     {team.name}
                                 </span>

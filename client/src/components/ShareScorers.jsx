@@ -56,13 +56,19 @@ const ShareScorers = ({ league, scorers }) => {
                             }}>
                                 {isTop3 ? MEDALS[index] : index + 1}
                             </span>
+                            {/* Nombre y equipo van en una línea cada uno. El
+                                porqué del nowrap está contado en
+                                ShareStandings.jsx: al exportar, html-to-image
+                                congela el ancho y cualquier sobrante parte el
+                                nombre al medio. Acá sobran 220px, así que no
+                                arriesga nada. */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{
                                     color: '#ffffff',
                                     fontSize: isTop3 ? 15 : 13,
                                     fontWeight: isTop3 ? 900 : 700,
                                     lineHeight: 1.2,
-                                    overflowWrap: 'anywhere',
+                                    whiteSpace: 'nowrap',
                                 }}>
                                     {scorer.name}
                                 </div>
@@ -73,7 +79,7 @@ const ShareScorers = ({ league, scorers }) => {
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.05em',
                                     lineHeight: 1.2,
-                                    overflowWrap: 'anywhere',
+                                    whiteSpace: 'nowrap',
                                 }}>
                                     {scorer.team}
                                 </div>
