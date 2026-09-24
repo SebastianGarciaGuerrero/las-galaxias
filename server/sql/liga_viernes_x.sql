@@ -40,6 +40,11 @@
 --
 -- Es idempotente: si ya se corrió, no duplica nada.
 --
+-- OJO: esto es cómo arrancó la liga, no cómo está hoy. A No Comai
+-- lo echaron en septiembre y se anuló todo lo suyo, se borraron los
+-- descansos y se rearmaron las fechas que faltaban. Eso está en
+-- viernes_x_sin_no_comai.sql, que va después de este archivo.
+--
 -- CÓMO CORRER:
 --   1) Supabase > SQL Editor (proyecto las-galaxias)
 --   2) Pegar este archivo y ejecutar
@@ -155,7 +160,18 @@ select (select id from public.tournaments where name = 'Super Liga de los Vierne
         (14, 'Malajax')
        ) as v(jornada, equipo)
   join public.teams e on lower(e.name) = lower(v.equipo)
- where not exists (select 1 from public.bye_weeks b where b.tournament_id = (select id from public.tournaments where name = 'Super Liga de los Viernes X'));
+ where not exists (select 1 from public.bye_weeks b where b.tournament_id = (select id from public.tournaments where name = 'Super Liga de los Viernes X'))
+   -- Los descansos ya no existen: se borraron al echar a No Comai
+   -- (viernes_x_sin_no_comai.sql). Con el "not exists" solo, volver
+   -- a correr este archivo los repondría los 14, porque la tabla
+   -- quedó vacía para este torneo. Por eso se pide además que No
+   -- Comai siga inscrito: si no está, la liga ya es de 6 y nadie
+   -- descansa.
+   and exists (select 1
+                 from public.tournament_teams tt
+                 join public.teams t on t.id = tt.team_id
+                where tt.tournament_id = (select id from public.tournaments where name = 'Super Liga de los Viernes X')
+                  and lower(t.name) = 'no comai');
 
 
 -- ---------- 6. Jugadores nuevos ----------
