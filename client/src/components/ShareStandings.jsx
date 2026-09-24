@@ -2,7 +2,7 @@ import TeamBadge from './TeamBadge';
 import { useShareImage } from './share/useShareImage';
 import ShareButton from './share/ShareButton';
 import ShareCardShell from './share/ShareCardShell';
-import { esPuestoDeDescenso, hayDescenso, LEYENDA_DESCENSO } from '../utils/descenso';
+import { esPuestoDeDescenso } from '../utils/descenso';
 
 // Rojo del descenso. No es el primary de la marca a propósito: ese ya pinta a
 // los tres primeros y una tabla con el mismo color arriba y abajo no dice nada.
@@ -124,21 +124,6 @@ const ShareStandings = ({ league, standings }) => {
                     );
                 })}
 
-                {/* La leyenda explica el rojo. Va apagada, como el "Descansa"
-                    de la tarjeta de resultados: es contexto, no resultado. */}
-                {hayDescenso(league) && standings.length > 1 && (
-                    <div style={{
-                        padding: '9px 20px 2px',
-                        textAlign: 'center',
-                        color: 'rgba(239, 68, 68, 0.8)',
-                        fontSize: 9,
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.12em',
-                    }}>
-                        {LEYENDA_DESCENSO}
-                    </div>
-                )}
             </ShareCardShell>
         </>
     );

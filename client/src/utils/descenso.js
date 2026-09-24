@@ -6,12 +6,14 @@
 // Si mañana desciende también el penúltimo, o si empieza a haber descenso en
 // los martes, se cambia en este archivo y vale para la página y para el
 // pantallazo, que leen los dos de acá.
+//
+// No lleva texto: el puesto se marca solo con el rojo de la fila, sin cartel
+// ni leyenda. Es una decisión de Sebastián, en la liga ya saben lo que
+// significa.
 
-export const hayDescenso = (league) => league?.category === 'viernes';
+const hayDescenso = (league) => league?.category === 'viernes';
 
 // El último de la tabla. Con un solo equipo no se marca nada: no hay de dónde
 // descender.
 export const esPuestoDeDescenso = (league, index, total) =>
     hayDescenso(league) && total > 1 && index === total - 1;
-
-export const LEYENDA_DESCENSO = 'El último desciende directo';

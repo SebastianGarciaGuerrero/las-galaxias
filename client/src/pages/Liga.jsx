@@ -10,7 +10,7 @@ import FasesTorneo from '../components/FasesTorneo';
 import SEO from '../components/SEO';
 import { horaChile, fechaChile } from '../utils/fecha';
 import { tieneFases, leerFases, nombreDeEtapa, ETAPAS } from '../utils/fases';
-import { esPuestoDeDescenso, hayDescenso, LEYENDA_DESCENSO } from '../utils/descenso';
+import { esPuestoDeDescenso } from '../utils/descenso';
 
 // Agrupa los partidos por jornada. Se usa tanto para elegir qué jornada
 // mostrar al entrar como para pintarla.
@@ -482,15 +482,6 @@ const Liga = () => {
                                 </table>
                             </div>
 
-                            {/* Qué significa el rojo. Solo aparece donde hay
-                                descenso, así que en los martes la tabla queda
-                                igual que siempre. */}
-                            {hayDescenso(selectedLeague) && leagueData.standings.length > 1 && (
-                                <p className="mt-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                                    <span className="size-2.5 shrink-0 rounded-sm bg-red-500" aria-hidden="true" />
-                                    {LEYENDA_DESCENSO}
-                                </p>
-                            )}
                         </div>
                     )}
 
