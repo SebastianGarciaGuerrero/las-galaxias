@@ -92,27 +92,6 @@ const ShareStandings = ({ league, standings }) => {
                                 }}>
                                     {team.name}
                                 </span>
-                                {/* El cartelito no se achica: el nombre más largo
-                                    de las viernes mide 98px de los 207 que tiene
-                                    la columna, así que los dos entran. */}
-                                {desciende && (
-                                    <span style={{
-                                        flexShrink: 0,
-                                        padding: '2px 5px',
-                                        borderRadius: 3,
-                                        backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                                        border: `1px solid ${ROJO_DESCENSO}`,
-                                        color: ROJO_DESCENSO,
-                                        fontSize: 7,
-                                        fontWeight: 900,
-                                        textTransform: 'uppercase',
-                                        letterSpacing: '0.08em',
-                                        lineHeight: 1.1,
-                                        whiteSpace: 'nowrap',
-                                    }}>
-                                        Desciende
-                                    </span>
-                                )}
                             </div>
                             <span style={{
                                 width: 34,

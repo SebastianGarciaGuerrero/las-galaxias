@@ -464,11 +464,6 @@ const Liga = () => {
                                                 <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-3">
                                                     <TeamBadge name={team.name} shieldUrl={team.shield_url} size={24} />
                                                     {team.name}
-                                                    {desciende && (
-                                                        <span className="rounded border border-red-500/50 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-red-600 dark:text-red-400">
-                                                            Desciende
-                                                        </span>
-                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 text-center font-black text-lg text-primary">{team.points}</td>
                                                 <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">{team.played}</td>
