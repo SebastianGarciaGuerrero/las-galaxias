@@ -2,7 +2,7 @@
 // de la liga, contenido al medio y footer con el link del sitio.
 // Se renderiza fuera de pantalla; el ref apunta al nodo que se captura.
 //
-// TAMAÑO FIJO 4:5
+// TAMAÑO FIJO 4:5, O 5:4 SI VA APAISADA
 // Antes la tarjeta tenía ancho fijo y alto libre: una jornada de 3 partidos
 // salía casi cuadrada y la tabla de los martes salía el doble de larga.
 // Compartida por WhatsApp, la larga llegaba recortada en la burbuja y había
@@ -11,6 +11,10 @@
 // Ahora todas salen de 1080x1350 (4:5, el retrato que WhatsApp muestra
 // completo sin recortar). 432x540 de CSS por 2.5 de pixelRatio dan justo
 // esos 1080x1350; si se cambia uno hay que mirar el otro.
+//
+// Con la prop `apaisada` el marco se da vuelta y queda de 1350x1080. La usa
+// la tarjeta de los grupos, que son dos tablas lado a lado: en el marco
+// vertical cada una se quedaba con media tarjeta de ancho.
 //
 // Como el alto ya no lo pone el contenido, el contenido se achica para
 // entrar: se mide y, si pasa del espacio libre, se escala. Una tabla de 6
@@ -22,15 +26,17 @@ import shieldRed from '../../assets/shieldRed.svg';
 import { fechaChile } from '../../utils/fecha';
 const SHIELD_LOGO = shieldRed;
 
-const CARD_WIDTH = 432;
-const CARD_HEIGHT = 540;
+const CARD_CORTO = 432;
+const CARD_LARGO = 540;
 
 // `date` es la fecha que va en el encabezado. Los resultados de una jornada
 // mandan la fecha en que se jugó; el resto (tabla, goleadores) es una foto
 // del momento, así que cae al día de hoy. Siempre en hora de Chile: antes
 // usaba la zona del dispositivo y la tarjeta salía con el día cambiado.
-const ShareCardShell = ({ cardRef, league, date, children }) => {
+const ShareCardShell = ({ cardRef, league, date, apaisada = false, children }) => {
     const today = fechaChile(date || new Date());
+    const ancho = apaisada ? CARD_LARGO : CARD_CORTO;
+    const alto  = apaisada ? CARD_CORTO : CARD_LARGO;
     const areaRef = useRef(null);
     const contenidoRef = useRef(null);
 
@@ -53,8 +59,8 @@ const ShareCardShell = ({ cardRef, league, date, children }) => {
             <div
                 ref={cardRef}
                 style={{
-                    width: CARD_WIDTH,
-                    height: CARD_HEIGHT,
+                    width: ancho,
+                    height: alto,
                     display: 'flex',
                     flexDirection: 'column',
                     backgroundColor: '#0a0a0a',

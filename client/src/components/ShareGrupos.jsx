@@ -13,10 +13,9 @@ import ShareCardShell from './share/ShareCardShell';
 // línea, que es lo que html-to-image sabe clonar.
 const COLORES = { A: '#10b981', B: '#3b82f6' };
 
-// Las columnas son angostas —cada grupo tiene la mitad de los 432px de la
-// tarjeta—, así que quedan el puesto, el escudo, el nombre, los partidos
-// jugados y los puntos. Al nombre le tocan 102px y el más largo de la liga,
-// "Atlético Canario", mide 83 a este tamaño.
+// La tarjeta va apaisada justamente por esto: cada grupo se queda con la
+// mitad del ancho, y en el marco vertical de 432px eso dejaba columnas de
+// 210px. Apaisada son 540 y cada tabla trabaja con 265.
 const Grupo = ({ letra, grupo }) => {
     const color = COLORES[letra];
     const filas = grupo.tabla.length ? grupo.tabla : grupo.clasificados;
@@ -59,7 +58,7 @@ const Grupo = ({ letra, grupo }) => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 6,
-                        padding: '14px 10px',
+                        padding: '10px 12px',
                         backgroundColor: index % 2 === 0 ? '#141414' : '#0a0a0a',
                         borderLeft: index === 0 && jugando ? `3px solid ${color}` : '3px solid transparent',
                     }}
@@ -121,7 +120,7 @@ const ShareGrupos = ({ league, fases }) => {
         <>
             <ShareButton status={status} onClick={share} label="Compartir Grupos" />
 
-            <ShareCardShell cardRef={cardRef} league={league}>
+            <ShareCardShell cardRef={cardRef} league={league} apaisada>
                 <div style={{
                     padding: '8px 20px',
                     backgroundColor: '#E13C64',
