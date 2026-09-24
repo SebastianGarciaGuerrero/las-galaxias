@@ -31,11 +31,10 @@ router.get('/:id/summary', async (req, res) => {
 
     // B. Consultamos la VISTA de goleadores
     //
-    // Se piden todas las filas del torneo, no las primeras 10: la vista puede
-    // devolver al mismo jugador más de una vez —una fila por cada equipo en el
-    // que esté inscrito— y un top 10 cortado en la base gastaría lugares en
-    // filas repetidas, dejando afuera goleadores de verdad. El corte va
-    // después de juntarlas.
+    // Se piden todas las filas del torneo: la vista puede devolver al mismo
+    // jugador más de una vez —una fila por cada equipo en el que esté
+    // inscrito— así que cortar en la base dejaría afuera goleadores de verdad
+    // para gastar lugares en filas repetidas. Se juntan acá.
     const { data: scorers, error: errorScorers } = await supabase
         .from('top_scorers')
         .select('*')
@@ -80,9 +79,13 @@ router.get('/:id/summary', async (req, res) => {
         }
     }
 
+    // Van todos, no el top 10. La página muestra el podio y los primeros
+    // puestos, y detrás tiene un "Ver más" que abre la lista completa de los
+    // que hicieron algún gol en el torneo; con el corte acá esa lista nunca
+    // pasaba de diez. Son pocos cientos de filas en el peor caso y el que
+    // comparte el pantallazo sigue llevándose solo los diez primeros.
     const formattedScorers = [...porJugador.values()]
-        .sort((a, b) => b.goals - a.goals)
-        .slice(0, 10); // El Top 10, ya sin repetidos
+        .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name));
 
     res.json({ standings: standings || [], scorers: formattedScorers });
 });

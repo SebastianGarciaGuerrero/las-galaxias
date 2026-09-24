@@ -2,6 +2,11 @@ import TeamBadge from './TeamBadge';
 import { useShareImage } from './share/useShareImage';
 import ShareButton from './share/ShareButton';
 import ShareCardShell from './share/ShareCardShell';
+import { esPuestoDeDescenso, hayDescenso, LEYENDA_DESCENSO } from '../utils/descenso';
+
+// Rojo del descenso. No es el primary de la marca a propósito: ese ya pinta a
+// los tres primeros y una tabla con el mismo color arriba y abajo no dice nada.
+const ROJO_DESCENSO = '#ef4444';
 
 // Tabla de posiciones en formato móvil para compartir por WhatsApp.
 const ShareStandings = ({ league, standings }) => {
@@ -37,6 +42,7 @@ const ShareStandings = ({ league, standings }) => {
                 {standings.map((team, index) => {
                     const dif = team.goals_for - team.goals_against;
                     const isTop3 = index < 3;
+                    const desciende = esPuestoDeDescenso(league, index, standings.length);
                     return (
                         <div
                             key={team.id}
@@ -44,13 +50,17 @@ const ShareStandings = ({ league, standings }) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 padding: '11px 20px',
-                                backgroundColor: index % 2 === 0 ? '#141414' : '#0a0a0a',
-                                borderLeft: isTop3 ? '3px solid #E13C64' : '3px solid transparent',
+                                backgroundColor: desciende
+                                    ? 'rgba(239, 68, 68, 0.12)'
+                                    : index % 2 === 0 ? '#141414' : '#0a0a0a',
+                                borderLeft: isTop3
+                                    ? '3px solid #E13C64'
+                                    : desciende ? `3px solid ${ROJO_DESCENSO}` : '3px solid transparent',
                             }}
                         >
                             <span style={{
                                 width: 23,
-                                color: isTop3 ? '#E13C64' : 'rgba(255,255,255,0.4)',
+                                color: isTop3 ? '#E13C64' : desciende ? ROJO_DESCENSO : 'rgba(255,255,255,0.4)',
                                 fontSize: 13,
                                 fontWeight: 900,
                             }}>
@@ -82,6 +92,27 @@ const ShareStandings = ({ league, standings }) => {
                                 }}>
                                     {team.name}
                                 </span>
+                                {/* El cartelito no se achica: el nombre más largo
+                                    de las viernes mide 98px de los 207 que tiene
+                                    la columna, así que los dos entran. */}
+                                {desciende && (
+                                    <span style={{
+                                        flexShrink: 0,
+                                        padding: '2px 5px',
+                                        borderRadius: 3,
+                                        backgroundColor: 'rgba(239, 68, 68, 0.15)',
+                                        border: `1px solid ${ROJO_DESCENSO}`,
+                                        color: ROJO_DESCENSO,
+                                        fontSize: 7,
+                                        fontWeight: 900,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.08em',
+                                        lineHeight: 1.1,
+                                        whiteSpace: 'nowrap',
+                                    }}>
+                                        Desciende
+                                    </span>
+                                )}
                             </div>
                             <span style={{
                                 width: 34,
@@ -113,6 +144,22 @@ const ShareStandings = ({ league, standings }) => {
                         </div>
                     );
                 })}
+
+                {/* La leyenda explica el rojo. Va apagada, como el "Descansa"
+                    de la tarjeta de resultados: es contexto, no resultado. */}
+                {hayDescenso(league) && standings.length > 1 && (
+                    <div style={{
+                        padding: '9px 20px 2px',
+                        textAlign: 'center',
+                        color: 'rgba(239, 68, 68, 0.8)',
+                        fontSize: 9,
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.12em',
+                    }}>
+                        {LEYENDA_DESCENSO}
+                    </div>
+                )}
             </ShareCardShell>
         </>
     );

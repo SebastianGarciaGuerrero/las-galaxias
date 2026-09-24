@@ -10,6 +10,7 @@ import FasesTorneo from '../components/FasesTorneo';
 import SEO from '../components/SEO';
 import { horaChile, fechaChile } from '../utils/fecha';
 import { tieneFases, leerFases, nombreDeEtapa, ETAPAS } from '../utils/fases';
+import { esPuestoDeDescenso, hayDescenso, LEYENDA_DESCENSO } from '../utils/descenso';
 
 // Agrupa los partidos por jornada. Se usa tanto para elegir qué jornada
 // mostrar al entrar como para pintarla.
@@ -441,16 +442,33 @@ const Liga = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                                        {leagueData.standings.map((team, index) => (
-                                            <tr key={team.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <span className={`flex size-6 items-center justify-center rounded text-xs font-bold ${index < 3 ? 'bg-primary text-white' : 'text-slate-500'}`}>
+                                        {leagueData.standings.map((team, index) => {
+                                            const desciende = esPuestoDeDescenso(selectedLeague, index, leagueData.standings.length);
+                                            return (
+                                            <tr key={team.id} className={`transition-colors ${desciende ? 'bg-red-500/[0.07] hover:bg-red-500/[0.12]' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}>
+                                                {/* El borde va en todas las filas y
+                                                    solo cambia de color: si lo
+                                                    llevara nada más la del descenso,
+                                                    esa fila quedaría corrida 4px. */}
+                                                <td className={`px-6 py-4 border-l-4 ${desciende ? 'border-red-500' : 'border-transparent'}`}>
+                                                    <span className={`flex size-6 items-center justify-center rounded text-xs font-bold ${
+                                                        index < 3
+                                                            ? 'bg-primary text-white'
+                                                            : desciende
+                                                                ? 'border border-red-500 text-red-600 dark:text-red-400'
+                                                                : 'text-slate-500'
+                                                    }`}>
                                                         {index + 1}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 font-bold text-slate-900 dark:text-white flex items-center gap-3">
                                                     <TeamBadge name={team.name} shieldUrl={team.shield_url} size={24} />
                                                     {team.name}
+                                                    {desciende && (
+                                                        <span className="rounded border border-red-500/50 bg-red-500/10 px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-red-600 dark:text-red-400">
+                                                            Desciende
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 text-center font-black text-lg text-primary">{team.points}</td>
                                                 <td className="px-6 py-4 text-center text-slate-600 dark:text-slate-400">{team.played}</td>
@@ -463,10 +481,21 @@ const Liga = () => {
                                                     {team.goals_for - team.goals_against}
                                                 </td>
                                             </tr>
-                                        ))}
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Qué significa el rojo. Solo aparece donde hay
+                                descenso, así que en los martes la tabla queda
+                                igual que siempre. */}
+                            {hayDescenso(selectedLeague) && leagueData.standings.length > 1 && (
+                                <p className="mt-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                    <span className="size-2.5 shrink-0 rounded-sm bg-red-500" aria-hidden="true" />
+                                    {LEYENDA_DESCENSO}
+                                </p>
+                            )}
                         </div>
                     )}
 
@@ -520,7 +549,9 @@ const Liga = () => {
 
                                 <div className="lg:col-span-1 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex flex-col h-[400px]">
                                     <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 sticky top-0 bg-white dark:bg-slate-900 py-2 z-10">
-                                        Top 4 - {showAllScorers ? allRestScorers.length + 3 : Math.min(10, allRestScorers.length + 3)}
+                                        {showAllScorers
+                                            ? `Todos los goleadores · ${scorers.length}`
+                                            : `Top 4 - ${Math.min(10, allRestScorers.length + 3)}`}
                                     </h4>
                                     <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
                                         <div className="flex flex-col gap-2">
@@ -540,12 +571,17 @@ const Liga = () => {
                                             )}
                                         </div>
                                     </div>
+                                    {/* La lista abierta son todos los que hicieron
+                                        algún gol en la liga, no solo el top 10: el
+                                        endpoint /summary ya los manda completos.
+                                        El número dice cuántos quedan escondidos,
+                                        que si no nadie aprieta. */}
                                     {allRestScorers.length > 7 && (
                                         <button
                                             onClick={() => setShowAllScorers(!showAllScorers)}
                                             className="w-full mt-4 py-2 text-xs font-black uppercase tracking-widest text-primary border border-primary/20 rounded hover:bg-primary hover:text-white transition-all"
                                         >
-                                            {showAllScorers ? 'Ver Menos' : 'Ver Todos'}
+                                            {showAllScorers ? 'Ver Menos' : `Ver Más (${allRestScorers.length - 7})`}
                                         </button>
                                     )}
                                 </div>

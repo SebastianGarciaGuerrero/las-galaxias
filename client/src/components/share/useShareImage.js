@@ -7,6 +7,10 @@ export const useShareImage = (filename = 'las-galaxias') => {
     const cardRef = useRef(null);
     const [status, setStatus] = useState('idle'); // idle | working | copied | downloaded | error
 
+    // 2.5 sobre los 432x540 de ShareCardShell da 1080x1350, que es el 4:5
+    // que WhatsApp muestra entero en la burbuja. Si se toca este número hay
+    // que tocar el tamaño de la tarjeta para que el resultado siga siendo
+    // ese, y al revés.
     const captureOptions = {
         pixelRatio: 2.5,
         cacheBust: true,
