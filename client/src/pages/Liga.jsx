@@ -701,6 +701,14 @@ const Liga = () => {
                                                         {match.stage && match.stage !== ETAPAS.FASE1 && (
                                                             <span className="ml-2 text-primary">{nombreDeEtapa(match.stage)}</span>
                                                         )}
+                                                        {/* El amistoso se juega igual pero no suma: ni puntos
+                                                            ni goleadores. Va en amarillo para que se note que
+                                                            ese partido no es como los otros dos de la noche. */}
+                                                        {match.is_friendly && (
+                                                            <span className="ml-2 rounded border border-amber-400/50 bg-amber-400/15 px-1.5 py-0.5 text-amber-600 dark:text-amber-400">
+                                                                Amistoso
+                                                            </span>
+                                                        )}
                                                         {!listo && <span className="ml-2 text-slate-300 dark:text-slate-600">Sin jugar</span>}
                                                     </div>
 

@@ -51,13 +51,11 @@ const ShareResults = ({ league, round, matches, bye }) => {
                         <div
                             key={match.id}
                             style={{
-                                display: 'flex',
-                                alignItems: 'center',
                                 padding: '14px 16px',
                                 backgroundColor: index % 2 === 0 ? '#141414' : '#0a0a0a',
-                                gap: 10,
                             }}
                         >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             {/* Un renglón por equipo, ver ShareStandings.jsx.
                                 Al nombre le tocan 150px y el más largo
                                 —Atlético Canario— mide 98. */}
@@ -124,6 +122,24 @@ const ShareResults = ({ league, round, matches, bye }) => {
                             }}>
                                 {match.away?.name}
                             </span>
+                            </div>
+
+                            {/* El amistoso se juega igual pero no suma. Va
+                                abajo del cruce y en amarillo, que es el color
+                                que usa el fixture para lo mismo. */}
+                            {match.is_friendly && (
+                                <div style={{
+                                    marginTop: 7,
+                                    textAlign: 'center',
+                                    color: '#fbbf24',
+                                    fontSize: 9,
+                                    fontWeight: 900,
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.12em',
+                                }}>
+                                    Amistoso · no suma puntos
+                                </div>
+                            )}
                         </div>
                     );
                 })}
