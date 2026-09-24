@@ -30,13 +30,18 @@ const Grupo = ({ letra, grupo }) => {
                 padding: '10px 10px',
                 backgroundColor: color,
                 color: '#0a0a0a',
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: 900,
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
             }}>
-                <span>Grupo {letra}</span>
-                <span style={{ fontSize: 8, opacity: 0.75 }}>{jugando ? 'PJ · PTS' : ''}</span>
+                {/* Los dos van con nowrap por lo mismo que los nombres de los
+                    equipos: al exportar, html-to-image clona el nodo con el
+                    ancho ya medido en pixeles y al redibujarlo el texto pide
+                    una pizca mas, asi que 'GRUPO A' salia partido en dos
+                    lineas con la A colgando abajo. */}
+                <span style={{ whiteSpace: 'nowrap' }}>Grupo {letra}</span>
+                <span style={{ fontSize: 8, opacity: 0.75, whiteSpace: 'nowrap' }}>{jugando ? 'PJ · PTS' : ''}</span>
             </div>
 
             {filas.length === 0 ? (
@@ -48,6 +53,7 @@ const Grupo = ({ letra, grupo }) => {
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
+                    whiteSpace: 'nowrap',
                 }}>
                     Por definir
                 </div>
@@ -130,6 +136,7 @@ const ShareGrupos = ({ league, fases }) => {
                     textTransform: 'uppercase',
                     letterSpacing: '0.1em',
                     textAlign: 'center',
+                    whiteSpace: 'nowrap',
                 }}>
                     Segunda Fase
                 </div>
