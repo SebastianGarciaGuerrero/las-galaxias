@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import TeamBadge from './TeamBadge';
 import ShareStandings from './ShareStandings';
+import ShareGrupos from './ShareGrupos';
 import { CUPOS_GRUPO_A, etapaActual } from '../utils/fases';
 
 // Vista del torneo de tres etapas: primera fase, los dos grupos y la final.
@@ -421,12 +422,19 @@ const FasesTorneo = ({ league, fases }) => {
 
             {/* ETAPA 2 */}
             <section className="mb-12">
-                <h4 className="text-xl font-black uppercase text-slate-900 dark:text-white leading-none">
-                    Segunda Fase
-                </h4>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
-                    La tabla se parte al medio y cada grupo saca su campeón
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div>
+                        <h4 className="text-xl font-black uppercase text-slate-900 dark:text-white leading-none">
+                            Segunda Fase
+                        </h4>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mt-1">
+                            La tabla se parte al medio y cada grupo saca su campeón
+                        </p>
+                    </div>
+                    {/* Los dos grupos van en una sola imagen, uno al lado del
+                        otro: es una sola noticia, no dos. */}
+                    <ShareGrupos league={league} fases={fases} />
+                </div>
                 <p className="mt-2 mb-4 max-w-3xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
                     {fases.fase1Terminada
                         ? 'Estos son los ocho equipos ya repartidos según cómo terminaron la primera fase. Los puntos vuelven a cero: acá arranca todo de nuevo.'
