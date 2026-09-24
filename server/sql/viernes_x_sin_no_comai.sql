@@ -40,10 +40,10 @@
 -- y no descansa nadie. Esta edición se juega sin fechas libres.
 --
 -- Primera rueda (J6 y J7): se dejan tal cual, con los 2 partidos
--- oficiales que ya tenían. El equipo que se quedó sin rival juega
--- un amistoso esa noche —Vasco de Gramo en la J6 y Lord Cochrane
--- en la J7—, que no entra a la tabla. Con eso la ida cierra
--- completa: los 6 equipos jugaron 5 partidos, todos contra todos.
+-- oficiales que ya tenían. Los dos equipos que esa noche quedan sin
+-- rival juegan un amistoso entre ellos, que no entra a la tabla
+-- (viernes_x_amistosos.sql). Con eso la ida cierra completa: los 6
+-- equipos jugaron 5 partidos, todos contra todos.
 --
 -- Segunda rueda (J8 a J12): los 15 partidos que quedaban sueltos en
 -- 7 fechas —una de 3 y seis de 2— se aprietan en 5 fechas de 3.
@@ -57,7 +57,11 @@
 -- y 1 en el que sobra.
 --
 -- Es idempotente: los borrados no tienen nada que borrar la
--- segunda vez y las fechas se escriben con valores fijos.
+-- segunda vez y las fechas se escriben con valores fijos. Este es el
+-- fixture como quedó, con los cambios de hora que vinieron después,
+-- así que volver a correrlo no pisa nada. Eso sí, ahora necesita la
+-- columna matches.is_friendly, que nace en viernes_x_amistosos.sql:
+-- si se corriera en una base donde no existe, falla en el bloque 5.
 --
 -- CÓMO CORRER:
 --   1) Supabase > SQL Editor (proyecto las-galaxias)
@@ -116,13 +120,14 @@ update public.matches m
    set round      = v.jornada,
        match_date = v.cuando::timestamptz
   from (values
-        -- Primera rueda. Además juegan los amistosos: Vasco de
-        -- Gramo a las 19:00 en la J6 y Lord Cochrane a las 22:00
-        -- en la J7.
+        -- Primera rueda. A las 19:00 de las dos fechas se juega
+        -- además un amistoso entre los dos equipos que esa noche no
+        -- tienen rival: Vasco - Violeta Parra en la J6 y Malajax -
+        -- Lord Cochrane en la J7. Van en viernes_x_amistosos.sql.
         (6,  'Malajax',        'Lord Cochrane',  '2026-09-25 23:00:00+00'),
         (6,  'Charchalax',     'Motafogo',       '2026-09-26 01:00:00+00'),
-        (7,  'Motafogo',       'Violeta Parra',  '2026-10-02 22:00:00+00'),
-        (7,  'Vasco de Gramo', 'Charchalax',     '2026-10-02 23:00:00+00'),
+        (7,  'Motafogo',       'Violeta Parra',  '2026-10-02 23:00:00+00'),
+        (7,  'Vasco de Gramo', 'Charchalax',     '2026-10-03 01:00:00+00'),
         -- Segunda rueda
         (8,  'Malajax',        'Charchalax',     '2026-10-09 22:00:00+00'),
         (8,  'Lord Cochrane',  'Violeta Parra',  '2026-10-09 23:00:00+00'),
@@ -130,9 +135,9 @@ update public.matches m
         (9,  'Violeta Parra',  'Charchalax',     '2026-10-16 22:00:00+00'),
         (9,  'Malajax',        'Motafogo',       '2026-10-16 23:00:00+00'),
         (9,  'Lord Cochrane',  'Vasco de Gramo', '2026-10-17 01:00:00+00'),
-        (10, 'Vasco de Gramo', 'Malajax',        '2026-10-23 22:00:00+00'),
+        (10, 'Lord Cochrane',  'Charchalax',     '2026-10-23 22:00:00+00'),
         (10, 'Violeta Parra',  'Motafogo',       '2026-10-23 23:00:00+00'),
-        (10, 'Lord Cochrane',  'Charchalax',     '2026-10-24 01:00:00+00'),
+        (10, 'Vasco de Gramo', 'Malajax',        '2026-10-24 01:00:00+00'),
         (11, 'Lord Cochrane',  'Motafogo',       '2026-10-30 22:00:00+00'),
         (11, 'Charchalax',     'Vasco de Gramo', '2026-10-30 23:00:00+00'),
         (11, 'Violeta Parra',  'Malajax',        '2026-10-31 01:00:00+00'),
@@ -146,33 +151,23 @@ update public.matches m
    and lower(a.name) = lower(v.visita)
    and m.home_team_id = h.id
    and m.away_team_id = a.id
+   -- Los amistosos quedan afuera: el de la J7 es Malajax - Lord
+   -- Cochrane, el mismo cruce que el partido oficial de la J6, y sin
+   -- esta línea volver a correr el archivo se lo llevaría a la J6 con
+   -- la hora del otro.
+   and m.is_friendly = false
    and m.tournament_id = (select id from public.tournaments where name = 'Super Liga de los Viernes X');
 
 
 -- ============================================================
--- OPCIONAL: los dos amistosos en el fixture
+-- LOS DOS AMISTOSOS
 -- ------------------------------------------------------------
--- Los amistosos de la J6 y la J7 no están cargados porque todavía
--- no hay rival. Si se quieren mostrar en /liga, descomentar y
--- cambiar 'Rival' por el nombre del equipo invitado, que antes
--- tiene que existir en public.teams.
---
--- OJO: la vista standings suma cualquier partido del torneo que
--- quede en 'finished', no mira si es amistoso. Si se carga acá, el
--- resultado NO se puede marcar como terminado o le va a dar puntos
--- a Vasco de Gramo y a Lord Cochrane. Lo seguro es dejar los
--- amistosos fuera del torneo y anotarlos aparte.
--- ------------------------------------------------------------
--- insert into public.matches
---        (tournament_id, home_team_id, away_team_id, match_date, location, status, round, competition, is_local)
--- select (select id from public.tournaments where name = 'Super Liga de los Viernes X'), h.id, a.id, v.cuando::timestamptz,
---        'Bellavista Stadium', 'scheduled', v.jornada, 'Amistoso', true
---   from (values
---         (6, 'Vasco de Gramo', 'Rival', '2026-09-25 22:00:00+00'),
---         (7, 'Lord Cochrane',  'Rival', '2026-10-03 01:00:00+00')
---        ) as v(jornada, local, visita, cuando)
---   join public.teams h on lower(h.name) = lower(v.local)
---   join public.teams a on lower(a.name) = lower(v.visita);
+-- Van en viernes_x_amistosos.sql, que además agrega la columna
+-- matches.is_friendly y hace que standings y top_scorers los
+-- ignoren. Antes de eso no había con qué marcarlos: la vista sumaba
+-- cualquier partido del torneo que quedara en 'finished' y la
+-- columna competition dice 'Amistoso' en los 42 partidos de la liga.
+-- ============================================================
 
 
 -- ============================================================
