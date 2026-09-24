@@ -53,9 +53,10 @@
 --
 -- Los horarios siguen siendo 19:00, 20:00 y 22:00 de cancha
 -- (22:00Z, 23:00Z y 01:00Z del día siguiente, con Chile en -3).
--- En la vuelta cada equipo juega 2 veces en un horario, 2 en otro
--- y 1 en el que sobra. Los de acá son los definitivos, con el
--- reparto de viernes_x_horarios_parejos.sql ya aplicado.
+-- Los de acá son los definitivos, con el reparto de
+-- viernes_x_horarios_vuelta.sql ya aplicado: Malajax y Motafogo
+-- juegan una sola vez a las 19:00, contra Charchalax y contra
+-- Violeta Parra.
 --
 -- Es idempotente: los borrados no tienen nada que borrar la
 -- segunda vez y las fechas se escriben con valores fijos. Este es el
@@ -130,14 +131,14 @@ update public.matches m
         (7,  'Motafogo',       'Violeta Parra',  '2026-10-02 23:00:00+00'),
         (7,  'Vasco de Gramo', 'Charchalax',     '2026-10-03 01:00:00+00'),
         -- Segunda rueda
-        (8,  'Lord Cochrane',  'Violeta Parra',  '2026-10-09 22:00:00+00'),
-        (8,  'Malajax',        'Charchalax',     '2026-10-09 23:00:00+00'),
-        (8,  'Vasco de Gramo', 'Motafogo',       '2026-10-10 01:00:00+00'),
-        (9,  'Malajax',        'Motafogo',       '2026-10-16 22:00:00+00'),
-        (9,  'Lord Cochrane',  'Vasco de Gramo', '2026-10-16 23:00:00+00'),
+        (8,  'Malajax',        'Charchalax',     '2026-10-09 22:00:00+00'),
+        (8,  'Vasco de Gramo', 'Motafogo',       '2026-10-09 23:00:00+00'),
+        (8,  'Lord Cochrane',  'Violeta Parra',  '2026-10-10 01:00:00+00'),
+        (9,  'Lord Cochrane',  'Vasco de Gramo', '2026-10-16 22:00:00+00'),
+        (9,  'Malajax',        'Motafogo',       '2026-10-16 23:00:00+00'),
         (9,  'Violeta Parra',  'Charchalax',     '2026-10-17 01:00:00+00'),
-        (10, 'Lord Cochrane',  'Charchalax',     '2026-10-23 22:00:00+00'),
-        (10, 'Violeta Parra',  'Motafogo',       '2026-10-23 23:00:00+00'),
+        (10, 'Violeta Parra',  'Motafogo',       '2026-10-23 22:00:00+00'),
+        (10, 'Lord Cochrane',  'Charchalax',     '2026-10-23 23:00:00+00'),
         (10, 'Vasco de Gramo', 'Malajax',        '2026-10-24 01:00:00+00'),
         (11, 'Charchalax',     'Vasco de Gramo', '2026-10-30 22:00:00+00'),
         (11, 'Violeta Parra',  'Malajax',        '2026-10-30 23:00:00+00'),
