@@ -140,6 +140,33 @@ const rondaCompleta = (partidos) => {
     return partidos.length >= (n * (n - 1)) / 2;
 };
 
+// Lo mismo pero contando cruces y no partidos: la etapa está jugada cuando
+// cada equipo ya enfrentó a todos los demás, aunque encima haya partidos de
+// más o sin jugar.
+//
+// Es la regla que decide si se muestran los clasificados a los grupos, y es
+// más ancha a propósito. En septiembre de 2026 la primera fecha de la segunda
+// fase de los martes se cargó con etapa 'fase1' por error, y con la regla
+// estricta la primera fase volvía a estar "en curso": los dos grupos se
+// quedaban sin sus integrantes de un día para el otro. Un partido mal
+// etiquetado ensucia una tabla, pero no puede hacer desaparecer media página.
+const todosSeEnfrentaron = (partidos) => {
+    const equipos = new Set();
+    const cruces = new Set();
+
+    for (const m of partidos) {
+        if (m.home?.id) equipos.add(m.home.id);
+        if (m.away?.id) equipos.add(m.away.id);
+        if (m.status === 'finished' && m.home?.id && m.away?.id) {
+            cruces.add([m.home.id, m.away.id].sort().join('-'));
+        }
+    }
+
+    const n = equipos.size;
+    if (n < 2) return false;
+    return cruces.size >= (n * (n - 1)) / 2;
+};
+
 // Campeón de un grupo: el primero de su tabla, pero solo cuando se jugaron
 // todos los partidos del grupo. Antes de eso no hay campeón, hay puntero.
 export const campeonDeGrupo = (partidosDelGrupo = [], puntosPorVictoria = PUNTOS_POR_VICTORIA) => {
@@ -170,7 +197,7 @@ export const leerFases = (partidos = [], valorVictoria = PUNTOS_POR_VICTORIA) =>
 
     const tablaFase1 = calcularTabla(fase1, puntosPorVictoria);
     const division = dividirTabla(tablaFase1);
-    const fase1Terminada = rondaCompleta(fase1);
+    const fase1Terminada = todosSeEnfrentaron(fase1);
 
     // Los grupos pasan por tres momentos y el sitio los dibuja distinto en
     // cada uno:
@@ -198,6 +225,20 @@ export const leerFases = (partidos = [], valorVictoria = PUNTOS_POR_VICTORIA) =>
         final,
         superCampeon: ganadorDeFinal(final),
     };
+};
+
+// En qué grupo quedó un equipo cuando se partió la tabla. Devuelve la etapa
+// ('grupo_a' o 'grupo_b') o null si la primera fase todavía no cerró o si el
+// equipo no está en ninguno de los dos.
+//
+// La usa el panel para elegir sola la etapa de un partido nuevo: con los dos
+// equipos puestos ya no hay que acordarse de tocar el selector.
+export const grupoDelEquipo = (fases, teamId) => {
+    if (!fases?.fase1Terminada || !teamId) return null;
+    const id = Number(teamId);
+    if (fases.grupoA?.clasificados?.some(t => t.id === id)) return ETAPAS.GRUPO_A;
+    if (fases.grupoB?.clasificados?.some(t => t.id === id)) return ETAPAS.GRUPO_B;
+    return null;
 };
 
 // En qué etapa está parado el torneo hoy: 1, 2 o 3. Sirve para encender el

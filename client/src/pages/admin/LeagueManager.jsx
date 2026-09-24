@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../config/api';
 import { fechaChile, horaChile, isoDesdeChile } from '../../utils/fecha';
+import { tieneFases, leerFases, grupoDelEquipo, nombreDeEtapa, ETAPAS } from '../../utils/fases';
 import ResultadoModal from './ResultadoModal';
 
 const LeagueManager = () => {
@@ -334,13 +335,23 @@ const LeagueManager = () => {
 
         // Torneos con formato de tres etapas: cada partido guarda a cuál
         // pertenece. Se reconoce porque el fixture ya cargado la trae.
-        const usaEtapas = matches.some(m => m.stage);
+        const usaEtapas = tieneFases(matches);
 
-        // La etapa que se propone por defecto: la del último partido cargado.
-        // Mientras el torneo siga en la misma fase no hay que tocar nada.
-        const etapaSugerida = isEditing
-            ? (fixtureToEdit.matches.find(m => m.stage)?.stage || 'fase1')
-            : ([...matches].sort((a, b) => (b.round || 0) - (a.round || 0))[0]?.stage || 'fase1');
+        // Cómo viene el torneo: sirve para saber si la primera fase ya cerró y,
+        // si cerró, en qué grupo quedó cada equipo.
+        const fases = usaEtapas ? leerFases(matches, currentTournament?.points_per_win) : null;
+        const enSegundaFase = !!fases?.fase1Terminada;
+
+        // La etapa que se propone por defecto: la del último partido cargado,
+        // porque mientras el torneo siga en la misma fase no hay que tocar
+        // nada. La excepción es el salto de fase: si la primera ya terminó,
+        // seguir proponiendo 'fase1' es justo el error que dejó a los dos
+        // grupos sin integrantes en septiembre de 2026. Igual, con los equipos
+        // puestos la etapa la decide el grupo de cada uno.
+        const ultimaEtapa = isEditing
+            ? (fixtureToEdit.matches.find(m => m.stage)?.stage || ETAPAS.FASE1)
+            : ([...matches].sort((a, b) => (b.round || 0) - (a.round || 0))[0]?.stage || ETAPAS.FASE1);
+        const etapaSugerida = enSegundaFase && ultimaEtapa === ETAPAS.FASE1 ? ETAPAS.GRUPO_A : ultimaEtapa;
 
         // Si estamos editando, pre-poblar slots con datos existentes
         const initialSlots = isEditing
@@ -378,9 +389,32 @@ const LeagueManager = () => {
             .map(id => teams.find(t => t.id === id)).filter(Boolean);
 
         const updateSlot = (index, field, value) => {
-            const updated = [...slots];
-            updated[index][field] = value;
-            setSlots(updated);
+            setSlots(slots.map((slot, i) => {
+                if (i !== index) return slot;
+                const nuevo = { ...slot, [field]: value };
+
+                // Con la primera fase cerrada, la etapa la deciden los equipos:
+                // si los dos quedaron en el mismo grupo, el partido es de ese
+                // grupo. La final no se pisa nunca, porque ahí los dos vienen
+                // de grupos distintos. Se puede cambiar a mano igual.
+                if (enSegundaFase && (field === 'home_team_id' || field === 'away_team_id')) {
+                    const grupoLocal = grupoDelEquipo(fases, nuevo.home_team_id);
+                    const grupoVisita = grupoDelEquipo(fases, nuevo.away_team_id);
+                    if (grupoLocal && grupoLocal === grupoVisita) nuevo.stage = grupoLocal;
+                }
+
+                return nuevo;
+            }));
+        };
+
+        // Un partido entre equipos de grupos distintos: puede ser la final, o
+        // puede ser que alguien se haya equivocado eligiendo. Se avisa y no se
+        // bloquea.
+        const cruceEntreGrupos = (slot) => {
+            if (!enSegundaFase || !slot.home_team_id || !slot.away_team_id) return false;
+            const grupoLocal = grupoDelEquipo(fases, slot.home_team_id);
+            const grupoVisita = grupoDelEquipo(fases, slot.away_team_id);
+            return !!grupoLocal && !!grupoVisita && grupoLocal !== grupoVisita && slot.stage !== ETAPAS.FINAL;
         };
 
         const handleSubmit = async (e) => {
@@ -517,6 +551,14 @@ const LeagueManager = () => {
                                         </select>
                                     </div>
                                 </div>
+
+                                {cruceEntreGrupos(slot) && (
+                                    <p className="mt-3 text-xs font-bold text-amber-600 dark:text-amber-400">
+                                        Estos dos equipos quedaron en grupos distintos
+                                        ({nombreDeEtapa(grupoDelEquipo(fases, slot.home_team_id))} y {nombreDeEtapa(grupoDelEquipo(fases, slot.away_team_id))}).
+                                        Si es la final, elegí "Final" en la etapa.
+                                    </p>
+                                )}
                             </div>
                         ))}
 
