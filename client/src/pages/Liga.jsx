@@ -7,6 +7,7 @@ import ShareScorers from '../components/ShareScorers';
 import ShareResults from '../components/ShareResults';
 import ChampionCelebration from '../components/ChampionCelebration';
 import FasesTorneo from '../components/FasesTorneo';
+import NominasJornada from '../components/NominasJornada';
 import SEO from '../components/SEO';
 import { horaChile, fechaChile } from '../utils/fecha';
 import { tieneFases, leerFases, nombreDeEtapa, ETAPAS } from '../utils/fases';
@@ -747,6 +748,13 @@ const Liga = () => {
                                             </div>
                                         )}
                                     </div>
+
+                                    {/* Solo la Liga de los Viernes: cada jornada es una
+                                        noche, y el botón muestra quién hizo goles y las
+                                        nóminas de los equipos que jugaron. */}
+                                    {selectedLeague.category === 'viernes' && (
+                                        <NominasJornada key={selectedLeague.id} leagueId={selectedLeague.id} round={jornadaVista} />
+                                    )}
                                 </div>
 
                                 <p className="text-center text-[11px] text-slate-400 font-bold uppercase tracking-wider mt-3">

@@ -125,4 +125,101 @@ router.get('/:id/byes', async (req, res) => {
     res.json(byesWithTeam);
 });
 
+// 4. NÓMINAS Y GOLES DE UNA JORNADA
+//
+// Para el botón de la Liga de los Viernes. Cada jornada se juega en una sola
+// noche, así que "los que jugaron ese día" son las nóminas de los equipos que
+// salieron a la cancha en esa jornada, y a cada uno se le cuentan los goles que
+// hizo en esos partidos. No hay registro de asistencia: la nómina es el plantel
+// inscrito, haya ido o no esa noche.
+//
+// Los goles de un amistoso se cuentan aparte (friendly_goals): se hicieron esa
+// noche, pero no entran a la tabla de goleadores y la página lo tiene que decir.
+router.get('/:id/rounds/:round/players', async (req, res) => {
+    const { id, round } = req.params;
+
+    const { data: partidos, error: errorPartidos } = await supabase
+        .from('matches')
+        .select('*, home:home_team_id(id, name, logo_url), away:away_team_id(id, name, logo_url)')
+        .eq('tournament_id', id)
+        .eq('round', round)
+        .order('match_date', { ascending: true });
+
+    if (errorPartidos) return res.status(500).json({ error: errorPartidos.message });
+    if (!partidos?.length) return res.json({ teams: [] });
+
+    // Los equipos en el orden en que jugaron esa noche
+    const equipos = new Map();
+    for (const m of partidos) {
+        for (const e of [m.home, m.away]) {
+            if (e && !equipos.has(e.id)) {
+                equipos.set(e.id, { id: e.id, name: e.name, logo_url: e.logo_url, jugadores: new Map() });
+            }
+        }
+    }
+
+    const amistosos = new Set(partidos.filter(m => m.is_friendly).map(m => m.id));
+
+    const [{ data: nominas, error: errorNominas }, { data: goles, error: errorGoles }] = await Promise.all([
+        supabase
+            .from('tournament_players')
+            .select('team_id, players(id, name)')
+            .eq('tournament_id', id)
+            .in('team_id', [...equipos.keys()]),
+        supabase
+            .from('goals')
+            .select('match_id, player_id, team_id')
+            .in('match_id', partidos.map(m => m.id)),
+    ]);
+
+    if (errorNominas || errorGoles) {
+        console.error("❌ Error en nóminas de la jornada:", errorNominas || errorGoles);
+        return res.status(500).json({ error: 'Error cargando las nóminas de la jornada' });
+    }
+
+    for (const tp of nominas || []) {
+        const equipo = equipos.get(tp.team_id);
+        if (!equipo || !tp.players || equipo.jugadores.has(tp.players.id)) continue;
+        equipo.jugadores.set(tp.players.id, { id: tp.players.id, name: tp.players.name, goals: 0, friendly_goals: 0 });
+    }
+
+    // Un gol de alguien que no está en la nómina de ese equipo igual se
+    // muestra: el gol existe. El nombre se busca aparte.
+    const sinNomina = new Set();
+    for (const g of goles || []) {
+        const equipo = equipos.get(g.team_id);
+        if (!equipo) continue;
+        let jugador = equipo.jugadores.get(g.player_id);
+        if (!jugador) {
+            jugador = { id: g.player_id, name: null, goals: 0, friendly_goals: 0 };
+            equipo.jugadores.set(g.player_id, jugador);
+            sinNomina.add(g.player_id);
+        }
+        jugador.goals += 1;
+        if (amistosos.has(g.match_id)) jugador.friendly_goals += 1;
+    }
+
+    if (sinNomina.size > 0) {
+        const { data: nombres } = await supabase
+            .from('players')
+            .select('id, name')
+            .in('id', [...sinNomina]);
+        const porId = new Map((nombres || []).map(p => [p.id, p.name]));
+        for (const equipo of equipos.values()) {
+            for (const j of equipo.jugadores.values()) {
+                if (j.name === null) j.name = porId.get(j.id) || 'Sin nombre';
+            }
+        }
+    }
+
+    // Dentro de cada equipo, primero los que hicieron goles
+    const teams = [...equipos.values()].map(({ jugadores, ...equipo }) => ({
+        ...equipo,
+        players: [...jugadores.values()]
+            .sort((a, b) => b.goals - a.goals || a.name.localeCompare(b.name, 'es')),
+    }));
+
+    res.json({ teams });
+});
+
 export default router;
